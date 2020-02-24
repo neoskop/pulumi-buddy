@@ -1,0 +1,4 @@
+/node_modules/
+/Pulumi.*.yaml
+/Pulumi.yaml
+/stack.json

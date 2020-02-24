@@ -1,0 +1,23 @@
+{
+    "name": "neoskop-pulumi-buddy",
+    "description": "Pulumi integration for Buddy",
+    "author": "Mark Wecke <wecke@neoskop.de>",
+    "version": "0.0.0",
+    "license": "MIT",
+    "private": true,
+    "workspaces": [
+        "modules/plugin",
+        "sdk/nodejs"
+    ],
+    "prettier": {
+        "trailingComma": "none",
+        "tabWidth": 4,
+        "arrowParens": "avoid",
+        "bracketSpacing": true,
+        "endOfLine": "lf",
+        "htmlWhitespaceSensitivity": "css",
+        "printWidth": 140,
+        "quoteProps": "as-needed",
+        "singleQuote": true
+    }
+}

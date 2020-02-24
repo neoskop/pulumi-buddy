@@ -1,0 +1,33 @@
+{
+    "name": "@neoskop/pulumi-buddy-plugin",
+    "version": "1.0.0",
+    "license": "MIT",
+    "bin": {
+        "pulumi-buddy-plugin": "bin/pulumi-buddy-plugin.sh"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "install-plugin": "bin/install-plugin.sh",
+        "generate-grpc": "mkdir -p src/generated && mkdir -p dist/generated && pbjs -t static-module -w commonjs  -o dist/generated/grpc.js ../../node_modules/@pulumi/sources/sdk/proto/*.proto && pbts -o src/generated/grpc.d.ts dist/generated/grpc.js"
+    },
+    "dependencies": {
+        "@grpc/proto-loader": "0.5.3",
+        "@neoskop/pulumi-buddy": "1.0.0",
+        "@pulumi/pulumi": "^1.0.0",
+        "@pulumi/sources": "git+https://github.com/pulumi/pulumi",
+        "axios": "0.19.2",
+        "google-protobuf": "3.11.4",
+        "grpc": "1.24.2",
+        "injection-js": "2.3.0",
+        "protobufjs": "6.8.8",
+        "reflect-metadata": "0.1.13",
+        "tslib": "1.11.0",
+        "yargs": "15.1.0"
+    },
+    "devDependencies": {
+        "@types/google-protobuf": "3.7.2",
+        "@types/yargs": "15.0.3",
+        "typescript": "3.8.2"
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "name": "@neoskop/pulumi-buddy",
+    "version": "1.0.0",
+    "keywords": [
+        "pulumi",
+        "buddy",
+        "ci"
+    ],
+    "license": "MIT",
+    "main": "index.ts",
+    "dependencies": {
+        "@pulumi/pulumi": "^1.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^8.0.0"
+    },
+    "pulumi": {
+        "resource": true
+    }
+}
