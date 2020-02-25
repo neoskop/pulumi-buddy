@@ -1,5 +1,6 @@
-import { BuddyWorkspaceApi } from "./workspace";
-import { CancelTokenSource } from "axios";
+import { CancelTokenSource } from 'axios';
+
+import { BuddyWorkspaceApi } from './workspace';
 
 export class BuddyApi {
     canceler?: CancelTokenSource;
@@ -25,6 +26,4 @@ export class BuddyApi {
     workspace(domain?: string) {
         return new BuddyWorkspaceApi(this, domain);
     }
-
-
 }

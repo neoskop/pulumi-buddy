@@ -3,6 +3,7 @@ import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { sendUnaryData, ServerUnaryCall, ServerWritableStream } from 'grpc';
 import { Inject, Injectable, InjectionToken } from 'injection-js';
 
+import { BuddyApi } from '../buddy-api/api';
 import { PluginInfo } from '../generated/plugin_pb';
 import { IResourceProviderServer } from '../generated/provider_grpc_pb';
 import {
@@ -24,7 +25,6 @@ import {
     UpdateResponse,
 } from '../generated/provider_pb';
 import { Id } from '../utils/id';
-import { BuddyApi } from '../buddy-api/api';
 
 export interface IProviderConfig {
     apiUrl: string;
@@ -43,8 +43,7 @@ export const SUB_PROVIDER = new InjectionToken<SubProvider[]>('Sub Provider');
 export class MainProvider implements IResourceProviderServer {
     config?: { apiUrl: string; workspace: string; token: string };
 
-    constructor(@Inject(SUB_PROVIDER) protected readonly providers: SubProvider[],
-    protected readonly buddyApi: BuddyApi) {}
+    constructor(@Inject(SUB_PROVIDER) protected readonly providers: SubProvider[], protected readonly buddyApi: BuddyApi) {}
 
     setConfig(config: IProviderConfig) {
         this.config = config;
@@ -144,9 +143,7 @@ export class MainProvider implements IResourceProviderServer {
 
     cancel(req: ServerUnaryCall<unknown>, callback: sendUnaryData<Empty>) {
         this.buddyApi.canceler && this.buddyApi.canceler.cancel();
-        // for (const provider of this.providers) {
-        //     provider.cancel();
-        // }
+
         callback(null, new Empty());
     }
 

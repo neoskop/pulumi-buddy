@@ -1,11 +1,12 @@
-import { BuddyProjectProps, Kind, BuddyProjectState } from '@neoskop/pulumi-buddy';
-import Axios, { CancelTokenSource } from 'axios';
+import { BuddyProjectProps, BuddyProjectState, Kind } from '@neoskop/pulumi-buddy';
+import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
-import { Map as PbMap } from 'google-protobuf';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
 
+import { BuddyApi } from '../buddy-api/api';
+import { ProjectNotFound } from '../buddy-api/project';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -15,16 +16,14 @@ import {
     DeleteRequest,
     DiffRequest,
     DiffResponse,
+    PropertyDiff,
     ReadRequest,
     ReadResponse,
     UpdateRequest,
     UpdateResponse,
-    PropertyDiff
 } from '../generated/provider_pb';
 import { Id } from '../utils/id';
 import { IProviderConfig, SubProvider } from './main.provider';
-import { BuddyApi } from '../buddy-api/api';
-import { ProjectNotFound } from '../buddy-api/project';
 
 @Injectable()
 export class ProjectProvider implements SubProvider {
@@ -53,25 +52,32 @@ export class ProjectProvider implements SubProvider {
 
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
 
-        this.buddyApi.workspace(this.config.workspace).project().create(props).then(result => {
-            const response = new CreateResponse();
-                response.setId(Id.stringify([['Project' as Kind, result.name]]));
-                response.setProperties(
-                    Struct.fromJavaScript({
-                        ...(result as {}),
-                        kind: 'Project',
-                        inputs: props
-                    })
-                );
+        this.buddyApi
+            .workspace(this.config.workspace)
+            .project()
+            .create(props)
+            .then(
+                result => {
+                    const response = new CreateResponse();
+                    response.setId(Id.stringify([['Project' as Kind, result.name]]));
+                    response.setProperties(
+                        Struct.fromJavaScript({
+                            ...(result as {}),
+                            kind: 'Project',
+                            inputs: props
+                        })
+                    );
 
-                callback(null, response);
-        }, err => {
-            if (Axios.isCancel(err)) {
-                callback(new ServiceError('Canceled', status.CANCELLED), null);
-            } else {
-                callback(new ServiceError(err.message, status.INTERNAL), null);
-            }
-        });
+                    callback(null, response);
+                },
+                err => {
+                    if (Axios.isCancel(err)) {
+                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                    } else {
+                        callback(new ServiceError(err.message, status.INTERNAL), null);
+                    }
+                }
+            );
     }
 
     delete(req: ServerUnaryCall<DeleteRequest>, callback: sendUnaryData<Empty>) {
@@ -81,20 +87,24 @@ export class ProjectProvider implements SubProvider {
 
         const id = Id.parse(req.request.getId());
 
-        this.buddyApi.workspace(this.config.workspace).project(id[0][1]).delete().then(
-            () => {
-                callback(null, new Empty());
-            },
-            err => {
-                if (Axios.isCancel(err)) {
-                    callback(new ServiceError('Canceled', status.CANCELLED), null);
-                } else if (err instanceof ProjectNotFound) {
-                    callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                } else {
-                    callback(new ServiceError(err.message, status.INTERNAL), null);
+        this.buddyApi
+            .workspace(this.config.workspace)
+            .project(id[0][1])
+            .delete()
+            .then(
+                () => {
+                    callback(null, new Empty());
+                },
+                err => {
+                    if (Axios.isCancel(err)) {
+                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                    } else if (err instanceof ProjectNotFound) {
+                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
+                    } else {
+                        callback(new ServiceError(err.message, status.INTERNAL), null);
+                    }
                 }
-            }
-        );
+            );
     }
 
     update(req: ServerUnaryCall<UpdateRequest>, callback: sendUnaryData<UpdateResponse>) {
@@ -104,29 +114,33 @@ export class ProjectProvider implements SubProvider {
 
         const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyProjectState;
 
-        this.buddyApi.workspace(this.config.workspace).project(news.name).update(news).then(
-            result => {
-                const response = new UpdateResponse();
-                response.setProperties(
-                    Struct.fromJavaScript({
-                        ...(result as {}),
-                        kind: 'Project',
-                        inputs: news
-                    })
-                );
+        this.buddyApi
+            .workspace(this.config.workspace)
+            .project(news.name)
+            .update(news)
+            .then(
+                result => {
+                    const response = new UpdateResponse();
+                    response.setProperties(
+                        Struct.fromJavaScript({
+                            ...(result as {}),
+                            kind: 'Project',
+                            inputs: news
+                        })
+                    );
 
-                callback(null, response);
-            },
-            err => {
-                if (Axios.isCancel(err)) {
-                    callback(new ServiceError('Canceled', status.CANCELLED), null);
-                } else if (err instanceof ProjectNotFound) {
-                    callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                } else {
-                    callback(new ServiceError(err.message, status.INTERNAL), null);
+                    callback(null, response);
+                },
+                err => {
+                    if (Axios.isCancel(err)) {
+                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                    } else if (err instanceof ProjectNotFound) {
+                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
+                    } else {
+                        callback(new ServiceError(err.message, status.INTERNAL), null);
+                    }
                 }
-            }
-        );
+            );
     }
 
     read(req: ServerUnaryCall<ReadRequest>, callback: sendUnaryData<ReadResponse>) {
@@ -137,29 +151,35 @@ export class ProjectProvider implements SubProvider {
         const id = Id.parse(req.request.getId());
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
 
-        this.buddyApi.workspace(this.config.workspace).project(id[0][1]).read().then(result => {
-            const response = new ReadResponse();
-                response.setId(req.request.getId());
-                response.setInputs(Struct.fromJavaScript(props as {}));
-                response.setProperties(
-                    Struct.fromJavaScript({
-                        ...(result as {}),
-                        kind: 'Project',
-                        inputs: props
-                    })
-                );
+        this.buddyApi
+            .workspace(this.config.workspace)
+            .project(id[0][1])
+            .read()
+            .then(
+                result => {
+                    const response = new ReadResponse();
+                    response.setId(req.request.getId());
+                    response.setInputs(Struct.fromJavaScript(props as {}));
+                    response.setProperties(
+                        Struct.fromJavaScript({
+                            ...(result as {}),
+                            kind: 'Project',
+                            inputs: props
+                        })
+                    );
 
-                callback(null, response);
-        },
-        err => {
-            if (Axios.isCancel(err)) {
-                callback(new ServiceError('Canceled', status.CANCELLED), null);
-            } else if (err instanceof ProjectNotFound) {
-                callback(new ServiceError(err.message, status.NOT_FOUND), null);
-            } else {
-                callback(new ServiceError(err.message, status.INTERNAL), null);
-            }
-        });
+                    callback(null, response);
+                },
+                err => {
+                    if (Axios.isCancel(err)) {
+                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                    } else if (err instanceof ProjectNotFound) {
+                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
+                    } else {
+                        callback(new ServiceError(err.message, status.INTERNAL), null);
+                    }
+                }
+            );
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
@@ -168,31 +188,39 @@ export class ProjectProvider implements SubProvider {
 
         const response = new DiffResponse();
 
-        for(const [ key, replacement ] of [
-            [ 'name', true ],
-            [ 'display_name', false ],
-            [ 'integration', true ],
-            [ 'external_project_id', true ],
-            [ 'custom_repo_url', true ],
-            [ 'custom_repo_user', true ],
-            [ 'custom_repo_pass', true ]
-        ] as [ string, boolean ][]) {
+        for (const [key, replacement] of [
+            ['name', true],
+            ['display_name', false],
+            ['integration', true],
+            ['external_project_id', true],
+            ['custom_repo_url', true],
+            ['custom_repo_user', true],
+            ['custom_repo_pass', true]
+        ] as [string, boolean][]) {
             const oldValue = JSON.stringify((olds.inputs as any)[key]);
             const newValue = JSON.stringify((news as any)[key]);
-            if(oldValue !== newValue) {
+            if (oldValue !== newValue) {
                 const diff = new PropertyDiff();
-                if(replacement) {
+                if (replacement) {
                     response.addReplaces(key);
-                    diff.setKind(null == oldValue ? PropertyDiff.Kind.ADD_REPLACE : null == newValue ? PropertyDiff.Kind.DELETE_REPLACE : PropertyDiff.Kind.UPDATE_REPLACE);
+                    diff.setKind(
+                        null == oldValue
+                            ? PropertyDiff.Kind.ADD_REPLACE
+                            : null == newValue
+                            ? PropertyDiff.Kind.DELETE_REPLACE
+                            : PropertyDiff.Kind.UPDATE_REPLACE
+                    );
                 } else {
-                    diff.setKind(null == oldValue ? PropertyDiff.Kind.ADD : null == newValue ? PropertyDiff.Kind.DELETE : PropertyDiff.Kind.UPDATE);
+                    diff.setKind(
+                        null == oldValue ? PropertyDiff.Kind.ADD : null == newValue ? PropertyDiff.Kind.DELETE : PropertyDiff.Kind.UPDATE
+                    );
                 }
                 diff.setInputdiff(true);
                 response.getDetaileddiffMap().set(key, diff);
                 response.addDiffs(key);
             }
         }
-        
+
         callback(null, response);
     }
 }

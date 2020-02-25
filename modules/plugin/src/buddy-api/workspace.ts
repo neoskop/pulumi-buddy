@@ -5,7 +5,7 @@ export class BuddyWorkspaceApi {
     constructor(protected readonly api: BuddyApi, protected readonly domain?: string) {}
 
     getDomain(): string {
-        if(!this.domain) {
+        if (!this.domain) {
             throw new WorkspaceDomainRequired();
         }
         return this.domain;
@@ -16,7 +16,7 @@ export class BuddyWorkspaceApi {
     }
 
     async get(): Promise<unknown> {
-        if(!this.domain) {
+        if (!this.domain) {
             throw new WorkspaceDomainRequired();
         }
         throw 'not_implemeted';

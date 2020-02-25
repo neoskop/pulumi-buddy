@@ -1,7 +1,8 @@
-import { BuddyApi } from './api';
-import { BuddyWorkspaceApi } from './workspace';
 import Axios from 'axios';
+
+import { BuddyApi } from './api';
 import { BuddyPipelineApi } from './pipeline';
+import { BuddyWorkspaceApi } from './workspace';
 
 export interface IBuddyProject {
     url: string;

@@ -1,7 +1,8 @@
-import { BuddyApi } from './api';
-import { BuddyWorkspaceApi } from './workspace';
 import Axios from 'axios';
+
+import { BuddyApi } from './api';
 import { BuddyProjectApi } from './project';
+import { BuddyWorkspaceApi } from './workspace';
 
 export interface IBuddyPipeline {
     url: string;
@@ -13,7 +14,7 @@ export interface IBuddyPipeline {
     ref_name: string;
     execution_message_template: string;
     last_execution_status: string;
-    last_execution_revision: string|null;
+    last_execution_revision: string | null;
     create_date: string;
     always_from_scratch: boolean;
     auto_clear_cache: boolean;
@@ -75,7 +76,6 @@ export class BuddyPipelineApi {
         return this.pipelineId;
     }
 
-
     async create(pipeline: IBuddyPipelineInput): Promise<IBuddyPipeline> {
         this.api.canceler = Axios.CancelToken.source();
 
@@ -112,7 +112,9 @@ export class BuddyPipelineApi {
 
         try {
             const result = await Axios.get<IBuddyPipeline>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipelineId}`,
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${
+                    this.pipelineId
+                }`,
                 {
                     cancelToken: this.api.canceler.token,
                     headers: {
@@ -146,7 +148,9 @@ export class BuddyPipelineApi {
 
         try {
             const result = await Axios.patch<IBuddyPipeline>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipelineId}`,
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${
+                    this.pipelineId
+                }`,
                 update,
                 {
                     cancelToken: this.api.canceler.token,
@@ -180,12 +184,17 @@ export class BuddyPipelineApi {
         this.api.canceler = Axios.CancelToken.source();
 
         try {
-            await Axios.delete(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipelineId}`, {
-                cancelToken: this.api.canceler.token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
+            await Axios.delete(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${
+                    this.pipelineId
+                }`,
+                {
+                    cancelToken: this.api.canceler.token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
                 }
-            });
+            );
         } catch (e) {
             if (Axios.isCancel(e)) {
                 throw e;
