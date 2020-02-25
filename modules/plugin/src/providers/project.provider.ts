@@ -21,7 +21,7 @@ import {
     ReadResponse,
     UpdateRequest,
     UpdateResponse,
-} from '../generated/provider_pb';
+} from '../grpc/provider_pb';
 import { Id } from '../utils/id';
 import { IProviderConfig, SubProvider } from './main.provider';
 

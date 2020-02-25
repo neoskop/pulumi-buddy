@@ -5,8 +5,8 @@ import { ReflectiveInjector } from 'injection-js';
 import * as yargs from 'yargs';
 
 import { BuddyApi } from './buddy-api/api';
-import { EngineClient } from './generated/engine_grpc_pb';
-import { ResourceProviderService } from './generated/provider_grpc_pb';
+import { EngineClient } from './grpc/engine_grpc_pb';
+import { ResourceProviderService } from './grpc/provider_grpc_pb';
 import { MainProvider, SUB_PROVIDER } from './providers/main.provider';
 import { PipelineProvider } from './providers/pipeline.provider';
 import { ProjectProvider } from './providers/project.provider';

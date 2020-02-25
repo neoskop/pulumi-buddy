@@ -4,8 +4,8 @@ import { sendUnaryData, ServerUnaryCall, ServerWritableStream } from 'grpc';
 import { Inject, Injectable, InjectionToken } from 'injection-js';
 
 import { BuddyApi } from '../buddy-api/api';
-import { PluginInfo } from '../generated/plugin_pb';
-import { IResourceProviderServer } from '../generated/provider_grpc_pb';
+import { PluginInfo } from '../grpc/plugin_pb';
+import { IResourceProviderServer } from '../grpc/provider_grpc_pb';
 import {
     CheckFailure,
     CheckRequest,
@@ -23,7 +23,7 @@ import {
     ReadResponse,
     UpdateRequest,
     UpdateResponse,
-} from '../generated/provider_pb';
+} from '../grpc/provider_pb';
 import { Id } from '../utils/id';
 
 export interface IProviderConfig {
