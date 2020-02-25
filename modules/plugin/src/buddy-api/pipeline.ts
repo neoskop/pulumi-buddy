@@ -1,7 +1,7 @@
 import Axios from 'axios';
 
 import { BuddyApi } from './api';
-import { BuddyProjectApi } from './project';
+import { BuddyProjectApi, ProjectNotFound } from './project';
 import { BuddyWorkspaceApi } from './workspace';
 
 export interface IBuddyPipeline {
@@ -96,7 +96,11 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
-                throw new PipelineError(e.response.data.errors[0].message);
+                if(e.response.status === 404) {
+                    throw new ProjectNotFound(this.project.getProjectName());
+                } else {
+                    throw new PipelineError(e.response.data.errors[0].message);
+                }
             } else {
                 throw new PipelineError(e.message);
             }
@@ -128,7 +132,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
-                if (e.response.code === 404) {
+                if (e.response.status === 404) {
                     throw new PipelineNotFound(this.pipelineId);
                 } else {
                     throw new PipelineError(e.response.data.errors[0].message);
@@ -199,7 +203,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
-                if (e.response.code === 404) {
+                if (e.response.status === 404) {
                     throw new PipelineNotFound(this.pipelineId);
                 } else {
                     throw new PipelineError(e.response.data.errors[0].message);

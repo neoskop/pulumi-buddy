@@ -21,7 +21,7 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
+    UpdateResponse
 } from '../generated/provider_pb';
 import { Id } from '../utils/id';
 import { IProviderConfig, SubProvider } from './main.provider';
@@ -51,33 +51,55 @@ export class PipelineProvider implements SubProvider {
         }
 
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyPipelineState;
+        const timeout = req.request.getTimeout() * 1000;
+        const start = Date.now();
+        const project = this.buddyApi.workspace(this.config.workspace).project(props.project_name);
 
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .project(props.project_name)
-            .pipeline()
-            .create(props)
-            .then(
-                result => {
-                    const response = new CreateResponse();
-                    response.setId(
-                        Id.stringify([
-                            ['Project' as Kind, props.project_name],
-                            ['Pipeline' as Kind, result.id.toString()]
-                        ])
-                    );
-                    response.setProperties(Struct.fromJavaScript({ ...(result as {}), kind: 'Pipeline' }));
+        const create = () => {
+            project
+                .pipeline()
+                .create(props)
+                .then(
+                    result => {
+                        const response = new CreateResponse();
+                        response.setId(
+                            Id.stringify([
+                                ['Project' as Kind, props.project_name],
+                                ['Pipeline' as Kind, result.id.toString()]
+                            ])
+                        );
+                        response.setProperties(Struct.fromJavaScript({ ...(result as {}), kind: 'Pipeline' }));
 
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
+                        callback(null, response);
+                    },
+                    err => {
+                        if (Axios.isCancel(err)) {
+                            callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        } else if (err instanceof ProjectNotFound) {
+                            if (timeout && Date.now() > start + timeout) {
+                                callback(new ServiceError('Timeout', status.DEADLINE_EXCEEDED), null);
+                            } else {
+                                setTimeout(create, 5000);
+                            }
+                        } else {
+                            callback(new ServiceError(err.message, status.INTERNAL), null);
+                        }
                     }
+                );
+        };
+
+        project.read().then(
+            create,
+            err => {
+                if (Axios.isCancel(err)) {
+                    callback(new ServiceError('Canceled', status.CANCELLED), null);
+                } else if (err instanceof ProjectNotFound) {
+                    callback(new ServiceError(err.message, status.NOT_FOUND), null);
+                } else {
+                    callback(new ServiceError(err.message, status.INTERNAL), null);
                 }
-            );
+            }
+        );
     }
 
     delete(req: ServerUnaryCall<DeleteRequest>, callback: sendUnaryData<Empty>) {
