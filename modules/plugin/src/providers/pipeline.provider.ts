@@ -1,8 +1,7 @@
-import { BuddyProjectProps, Kind, BuddyProjectState } from '@neoskop/pulumi-buddy';
+import { BuddyProjectProps, Kind } from '@neoskop/pulumi-buddy';
 import Axios, { CancelTokenSource } from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
-import { Map as PbMap } from 'google-protobuf';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
 
@@ -18,15 +17,15 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
-    PropertyDiff
+    UpdateResponse
 } from '../generated/provider_pb';
 import { Id } from '../utils/id';
 import { IProviderConfig, SubProvider } from './main.provider';
+import { BuddyPipelineState, BuddyPipelineProps } from '@neoskop/pulumi-buddy/pipeline';
 
 @Injectable()
-export class ProjectProvider implements SubProvider {
-    readonly kind = 'Project' as Kind;
+export class PipelineProvider implements SubProvider {
+    readonly kind = 'Pipeline' as Kind;
 
     config?: IProviderConfig;
     canceler?: CancelTokenSource;
@@ -54,10 +53,10 @@ export class ProjectProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
+        const props = req.request.getProperties()!.toJavaScript() as unknown as BuddyPipelineState;
 
         this.canceler = Axios.CancelToken.source();
-        Axios.post<BuddyProjectProps>(`${this.config.apiUrl}/workspaces/${this.config.workspace}/projects`, props, {
+        Axios.post<BuddyPipelineProps>(`${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${props.project_name}/pipelines`, props, {
             cancelToken: this.canceler.token,
             headers: {
                 Authorization: `Bearer ${this.config.token}`
@@ -65,14 +64,8 @@ export class ProjectProvider implements SubProvider {
         }).then(
             result => {
                 const response = new CreateResponse();
-                response.setId(Id.stringify([['Project' as Kind, result.data.name]]));
-                response.setProperties(
-                    Struct.fromJavaScript({
-                        ...(result.data as {}),
-                        kind: 'Project',
-                        inputs: props
-                    })
-                );
+                response.setId(Id.stringify([['Project' as Kind, props.project_name], ['Pipeline' as Kind, result.data.id.toString()]]));
+                response.setProperties(Struct.fromJavaScript({ ...(result.data as {}), kind: 'Pipeline' }));
 
                 callback(null, response);
             },
@@ -94,7 +87,7 @@ export class ProjectProvider implements SubProvider {
         const id = Id.parse(req.request.getId());
 
         this.canceler = Axios.CancelToken.source();
-        Axios.delete(`${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${id[0][1]}`, {
+        Axios.delete(`${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${id[0][1]}/pipelines/${id[1][1]}`, {
             cancelToken: this.canceler.token,
             headers: {
                 Authorization: `Bearer ${this.config.token}`
@@ -120,14 +113,13 @@ export class ProjectProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyProjectState;
+        const news = req.request.getNews()!.toJavaScript() as unknown as BuddyPipelineState;
+        const id = Id.parse(req.request.getId());
 
         this.canceler = Axios.CancelToken.source();
         Axios.patch<BuddyProjectProps>(
-            `${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${news.name}`,
-            {
-                display_name: news.display_name
-            },
+            `${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${id[0][1]}/pipelines/${id[1][1]}`,
+            news,
             {
                 cancelToken: this.canceler.token,
                 headers: {
@@ -137,13 +129,7 @@ export class ProjectProvider implements SubProvider {
         ).then(
             result => {
                 const response = new UpdateResponse();
-                response.setProperties(
-                    Struct.fromJavaScript({
-                        ...(result.data as {}),
-                        kind: 'Project',
-                        inputs: news
-                    })
-                );
+                response.setProperties(Struct.fromJavaScript({ ...(result.data as {}), kind: 'Pipeline' }));
 
                 callback(null, response);
             },
@@ -163,10 +149,10 @@ export class ProjectProvider implements SubProvider {
         }
 
         const id = Id.parse(req.request.getId());
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
+        const props = req.request.getProperties()!.toJavaScript();
 
         this.canceler = Axios.CancelToken.source();
-        Axios.get(`${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${id[0][1]}`, {
+        Axios.get(`${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${id[0][1]}/pipelines/${id[1][1]}`, {
             cancelToken: this.canceler.token,
             headers: {
                 Authorization: `Bearer ${this.config.token}`
@@ -175,19 +161,13 @@ export class ProjectProvider implements SubProvider {
             result => {
                 const response = new ReadResponse();
                 response.setId(req.request.getId());
-                response.setInputs(Struct.fromJavaScript(props as {}));
-                response.setProperties(
-                    Struct.fromJavaScript({
-                        ...(result.data as {}),
-                        kind: 'Project',
-                        inputs: props
-                    })
-                );
+                response.setInputs(Struct.fromJavaScript(props));
+                response.setProperties(Struct.fromJavaScript({ ...(result.data as {}), kind: 'Pipeline' }));
 
                 callback(null, response);
             },
             err => {
-                if (Axios.isCancel(err)) {
+                if(Axios.isCancel(err)) {
                     callback(new ServiceError('Canceled', status.CANCELLED), null);
                 } else if (err.response.status === 404) {
                     callback(new ServiceError(err.response.data.errors[0].message, status.NOT_FOUND), null);
@@ -199,36 +179,64 @@ export class ProjectProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const olds = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyProjectProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyProjectState;
+        const olds = req.request.getOlds()!.toJavaScript();
+        const news = req.request.getNews()!.toJavaScript();
+
+        let changed = false;
+        const replacements: string[] = [];
+
+        if(olds.project_name !== news.project_name) {
+            replacements.push('project_name');
+        }
+        if(olds.name !== news.name) {
+            changed = true;
+        }
+        if(olds.ref_name !== news.ref_name) {
+            changed = true;
+        }
+        if(olds.trigger_mode !== news.trigger_mode) {
+            changed = true;
+        }
+        if(olds.ref_type !== news.ref_type) {
+            changed = true;
+        }
+        if(olds.always_from_scratch !== news.always_from_scratch) {
+            changed = true;
+        }
+        if(olds.auto_clear_cache !== news.auto_clear_cache) {
+            changed = true;
+        }
+        if(olds.no_skip_to_most_recent !== news.no_skip_to_most_recent) {
+            changed = true;
+        }
+        if(olds.do_not_create_commit_status !== news.do_not_create_commit_status) {
+            replacements.push('do_not_create_commit_status')
+        }
+        if(olds.start_date !== news.start_date) {
+            changed = true;
+        }
+        if(olds.delay !== news.delay) {
+            changed = true;
+        }
+        if(olds.cron !== news.cron) {
+            changed = true;
+        }
+        if(olds.run_always !== news.run_always) {
+            changed = true;
+        }
+        if(olds.paused !== news.paused) {
+            changed = true;
+        }
+        if(olds.ignore_fail_on_project_status !== news.ignore_fail_on_project_status) {
+            replacements.push('ignore_fail_on_project_status');
+        }
+        if(olds.execution_message_template !== news.execution_message_template) {
+            replacements.push('execution_message_template');
+        }
 
         const response = new DiffResponse();
-
-        for(const [ key, replacement ] of [
-            [ 'name', true ],
-            [ 'display_name', false ],
-            [ 'integration', true ],
-            [ 'external_project_id', true ],
-            [ 'custom_repo_url', true ],
-            [ 'custom_repo_user', true ],
-            [ 'custom_repo_pass', true ]
-        ] as [ string, boolean ][]) {
-            const oldValue = JSON.stringify((olds.inputs as any)[key]);
-            const newValue = JSON.stringify((news as any)[key]);
-            if(oldValue !== newValue) {
-                const diff = new PropertyDiff();
-                if(replacement) {
-                    response.addReplaces(key);
-                    diff.setKind(null == oldValue ? PropertyDiff.Kind.ADD_REPLACE : null == newValue ? PropertyDiff.Kind.DELETE_REPLACE : PropertyDiff.Kind.UPDATE_REPLACE);
-                } else {
-                    diff.setKind(null == oldValue ? PropertyDiff.Kind.ADD : null == newValue ? PropertyDiff.Kind.DELETE : PropertyDiff.Kind.UPDATE);
-                }
-                diff.setInputdiff(true);
-                response.getDetaileddiffMap().set(key, diff);
-                response.addDiffs(key);
-            }
-        }
-        
+        response.setChanges(changed || replacements.length > 0 ? DiffResponse.DiffChanges.DIFF_SOME : DiffResponse.DiffChanges.DIFF_NONE);
+        response.setReplacesList(replacements);
         callback(null, response);
     }
 }

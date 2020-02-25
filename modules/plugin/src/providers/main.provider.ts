@@ -152,28 +152,28 @@ export class MainProvider implements IResourceProviderServer {
 
     delete(req: ServerUnaryCall<DeleteRequest>, callback: sendUnaryData<Empty>) {
         const id = Id.parse(req.request.getId());
-        const provider = this.getProvider(id[0][0]);
+        const provider = this.getProvider(id[id.length - 1][0]);
 
         provider!.delete(req, callback);
     }
 
     update(req: ServerUnaryCall<UpdateRequest>, callback: sendUnaryData<UpdateResponse>) {
         const id = Id.parse(req.request.getId());
-        const provider = this.getProvider(id[0][0]);
+        const provider = this.getProvider(id[id.length - 1][0]);
 
         provider!.update(req, callback);
     }
 
     read(req: ServerUnaryCall<ReadRequest>, callback: sendUnaryData<ReadResponse>) {
         const id = Id.parse(req.request.getId());
-        const provider = this.getProvider(id[0][0]);
+        const provider = this.getProvider(id[id.length - 1][0]);
 
         provider!.read(req, callback);
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
         const id = Id.parse(req.request.getId());
-        const provider = this.getProvider(id[0][0]);
+        const provider = this.getProvider(id[id.length - 1][0]);
 
         provider!.diff(req, callback);
     }

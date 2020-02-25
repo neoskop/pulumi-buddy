@@ -75,6 +75,8 @@ export interface BuddyProjectProps {
     ssh_repository: string;
     size: number;
     default_branch: string;
+
+    inputs: BuddyProjectState;
 }
 
 export type BuddyProjectOutputs = {
@@ -108,8 +110,10 @@ export class BuddyProject extends CustomResource implements BuddyProjectOutputs 
     readonly size!: Output<number>;
     readonly default_branch!: Output<string>;
 
+    readonly inputs!: Output<BuddyProjectState>;
+
     constructor(name: string, argsOrState: BuddyProjectArgs|BuddyProjectState, opts?: CustomResourceOptions) {
-        let inputs: Inputs = {};
+        const inputs: Inputs = {};
         if(!opts) {
             opts = {};
         }

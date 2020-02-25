@@ -1,3 +1,4 @@
 export enum Kind {
-    Project = 'Project'
+    Project = 'Project',
+    Pipeline = 'Pipeline'
 }
