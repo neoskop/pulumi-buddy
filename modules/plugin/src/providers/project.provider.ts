@@ -1,4 +1,4 @@
-import { BuddyProjectProps, BuddyProjectState, Kind } from '@neoskop/pulumi-buddy';
+import { BuddyCustomProjectState, BuddyIntegrationProjectState, BuddyProjectState, Kind } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
@@ -16,12 +16,12 @@ import {
     DeleteRequest,
     DiffRequest,
     DiffResponse,
-    PropertyDiff,
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
+    UpdateResponse
 } from '../grpc/provider_pb';
+import { Differ } from '../utils/differ';
 import { Id } from '../utils/id';
 import { IProviderConfig, SubProvider } from './main.provider';
 
@@ -45,6 +45,24 @@ export class ProjectProvider implements SubProvider {
         callback(null, checkResponse);
     }
 
+    diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
+        const olds = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyIntegrationProjectState & BuddyCustomProjectState;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyIntegrationProjectState & BuddyCustomProjectState;
+
+        callback(
+            null,
+            new Differ(olds, news)
+                .diff('name', true)
+                .diff('display_name')
+                .diff('integration', true)
+                .diff('external_project_id', true)
+                .diff('custom_repo_url', true)
+                .diff('custom_repo_user', true)
+                .diff('custom_repo_pass', true)
+                .toResponse()
+        );
+    }
+
     create(req: ServerUnaryCall<CreateRequest>, callback: sendUnaryData<CreateResponse>) {
         if (!this.config) {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
@@ -57,14 +75,13 @@ export class ProjectProvider implements SubProvider {
             .project()
             .create(props)
             .then(
-                result => {
+                outputs => {
                     const response = new CreateResponse();
-                    response.setId(Id.stringify([['Project' as Kind, result.name]]));
+                    response.setId(Id.stringify([['Project' as Kind, outputs.name]]));
                     response.setProperties(
                         Struct.fromJavaScript({
-                            ...(result as {}),
-                            kind: 'Project',
-                            inputs: props
+                            ...(props as {}),
+                            outputs
                         })
                     );
 
@@ -73,6 +90,80 @@ export class ProjectProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED), null);
+                    } else {
+                        callback(new ServiceError(err.message, status.INTERNAL), null);
+                    }
+                }
+            );
+    }
+
+    read(req: ServerUnaryCall<ReadRequest>, callback: sendUnaryData<ReadResponse>) {
+        if (!this.config) {
+            return callback(new ServiceError('config not set', status.INTERNAL), null);
+        }
+
+        const id = Id.parse(req.request.getId());
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
+
+        this.buddyApi
+            .workspace(this.config.workspace)
+            .project(id[0][1])
+            .read()
+            .then(
+                outputs => {
+                    const response = new ReadResponse();
+                    response.setId(req.request.getId());
+                    response.setInputs(Struct.fromJavaScript(props as {}));
+                    response.setProperties(
+                        Struct.fromJavaScript({
+                            ...(props as {}),
+                            outputs
+                        })
+                    );
+
+                    callback(null, response);
+                },
+                err => {
+                    if (Axios.isCancel(err)) {
+                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                    } else if (err instanceof ProjectNotFound) {
+                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
+                    } else {
+                        callback(new ServiceError(err.message, status.INTERNAL), null);
+                    }
+                }
+            );
+    }
+
+    update(req: ServerUnaryCall<UpdateRequest>, callback: sendUnaryData<UpdateResponse>) {
+        if (!this.config) {
+            return callback(new ServiceError('config not set', status.INTERNAL), null);
+        }
+
+        const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyProjectState;
+        const id = Id.parse(req.request.getId());
+
+        this.buddyApi
+            .workspace(this.config.workspace)
+            .project(id[0][1])
+            .update(news)
+            .then(
+                outputs => {
+                    const response = new UpdateResponse();
+                    response.setProperties(
+                        Struct.fromJavaScript({
+                            ...(news as {}),
+                            outputs
+                        })
+                    );
+
+                    callback(null, response);
+                },
+                err => {
+                    if (Axios.isCancel(err)) {
+                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                    } else if (err instanceof ProjectNotFound) {
+                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
                     }
@@ -105,122 +196,5 @@ export class ProjectProvider implements SubProvider {
                     }
                 }
             );
-    }
-
-    update(req: ServerUnaryCall<UpdateRequest>, callback: sendUnaryData<UpdateResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
-        const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyProjectState;
-
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .project(news.name)
-            .update(news)
-            .then(
-                result => {
-                    const response = new UpdateResponse();
-                    response.setProperties(
-                        Struct.fromJavaScript({
-                            ...(result as {}),
-                            kind: 'Project',
-                            inputs: news
-                        })
-                    );
-
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
-                    } else if (err instanceof ProjectNotFound) {
-                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
-            );
-    }
-
-    read(req: ServerUnaryCall<ReadRequest>, callback: sendUnaryData<ReadResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
-        const id = Id.parse(req.request.getId());
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
-
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .project(id[0][1])
-            .read()
-            .then(
-                result => {
-                    const response = new ReadResponse();
-                    response.setId(req.request.getId());
-                    response.setInputs(Struct.fromJavaScript(props as {}));
-                    response.setProperties(
-                        Struct.fromJavaScript({
-                            ...(result as {}),
-                            kind: 'Project',
-                            inputs: props
-                        })
-                    );
-
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
-                    } else if (err instanceof ProjectNotFound) {
-                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
-            );
-    }
-
-    diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const olds = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyProjectProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyProjectState;
-
-        const response = new DiffResponse();
-
-        for (const [key, replacement] of [
-            ['name', true],
-            ['display_name', false],
-            ['integration', true],
-            ['external_project_id', true],
-            ['custom_repo_url', true],
-            ['custom_repo_user', true],
-            ['custom_repo_pass', true]
-        ] as [string, boolean][]) {
-            const oldValue = JSON.stringify((olds.inputs as any)[key]);
-            const newValue = JSON.stringify((news as any)[key]);
-            if (oldValue !== newValue) {
-                const diff = new PropertyDiff();
-                if (replacement) {
-                    response.addReplaces(key);
-                    diff.setKind(
-                        null == oldValue
-                            ? PropertyDiff.Kind.ADD_REPLACE
-                            : null == newValue
-                            ? PropertyDiff.Kind.DELETE_REPLACE
-                            : PropertyDiff.Kind.UPDATE_REPLACE
-                    );
-                } else {
-                    diff.setKind(
-                        null == oldValue ? PropertyDiff.Kind.ADD : null == newValue ? PropertyDiff.Kind.DELETE : PropertyDiff.Kind.UPDATE
-                    );
-                }
-                diff.setInputdiff(true);
-                response.getDetaileddiffMap().set(key, diff);
-                response.addDiffs(key);
-            }
-        }
-
-        callback(null, response);
     }
 }

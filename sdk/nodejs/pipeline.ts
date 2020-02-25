@@ -1,26 +1,27 @@
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Kind } from './kinds';
+import { AsInputs, AsOutputs } from './utils';
 export type TriggerMode = 'MANUAL' | 'SCHEDULED' | 'ON_EVERY_PUSH';
 export type RefType = 'BRANCH' | 'TAG' | 'WILDCARD' | 'PULL_REQUEST' | 'NONE';
 
-export interface BuddyPipelineArgs {
-    project_name: Input<string>;
-    name: Input<string>;
-    ref_name: Input<string>;
-    trigger_mode: Input<TriggerMode>;
-    ref_type?: Input<RefType | undefined>;
-    always_from_scratch?: Input<boolean | undefined>;
-    auto_clear_cache?: Input<boolean | undefined>;
-    no_skip_to_most_recent?: Input<boolean | undefined>;
-    do_not_create_commit_status?: Input<boolean | undefined>;
-    start_date?: Input<string | undefined>;
-    delay?: Input<number | undefined>;
-    cron?: Input<string | undefined>;
-    run_always?: Input<boolean | undefined>;
-    paused?: Input<boolean | undefined>;
-    ignore_fail_on_project_status?: Input<boolean | undefined>;
-    execution_message_template?: Input<string | undefined>;
-}
+// export interface BuddyPipelineArgs {
+//     project_name: Input<string>;
+//     name: Input<string>;
+//     ref_name: Input<string>;
+//     trigger_mode: Input<TriggerMode>;
+//     ref_type?: Input<RefType | undefined>;
+//     always_from_scratch?: Input<boolean | undefined>;
+//     auto_clear_cache?: Input<boolean | undefined>;
+//     no_skip_to_most_recent?: Input<boolean | undefined>;
+//     do_not_create_commit_status?: Input<boolean | undefined>;
+//     start_date?: Input<string | undefined>;
+//     delay?: Input<number | undefined>;
+//     cron?: Input<string | undefined>;
+//     run_always?: Input<boolean | undefined>;
+//     paused?: Input<boolean | undefined>;
+//     ignore_fail_on_project_status?: Input<boolean | undefined>;
+//     execution_message_template?: Input<string | undefined>;
+// }
 
 export interface BuddyPipelineState {
     project_name: string;
@@ -40,6 +41,8 @@ export interface BuddyPipelineState {
     ignore_fail_on_project_status?: boolean;
     execution_message_template?: string;
 }
+
+export type BuddyPipelineArgs = AsInputs<BuddyPipelineState>;
 
 export interface BuddyPipelineProps {
     url: string;
@@ -76,11 +79,7 @@ export interface BuddyPipelineProps {
     actions: unknown[];
 }
 
-export type BuddyPipelineOutputs = {
-    [K in keyof BuddyPipelineProps]: K extends 'id' ? Output<string> : Output<BuddyPipelineProps[K]>
-}
-
-export class BuddyPipeline extends CustomResource implements BuddyPipelineOutputs {
+export class BuddyPipeline extends CustomResource implements AsOutputs<BuddyPipelineState> {
     static __pulumiType = 'buddy:index/project:BuddyPipeline';
 
     static get(name: string, id: Input<ID>, state?: Partial<BuddyPipelineState>, opts?: CustomResourceOptions) {
@@ -95,25 +94,25 @@ export class BuddyPipeline extends CustomResource implements BuddyPipelineOutput
     }
 
     readonly kind!: Output<Kind.Project>;
-    readonly url!: Output<string>;
-    readonly html_url!: Output<string>;
-    // readonly id!: Output<number>;
+
+    readonly always_from_scratch!: Output<boolean|undefined>;
+    readonly auto_clear_cache!: Output<boolean|undefined>;
+    readonly cron!: Output<string|undefined>;
+    readonly delay!: Output<number|undefined>;
+    readonly do_not_create_commit_status!: Output<boolean|undefined>;
+    readonly execution_message_template!: Output<string|undefined>;
+    readonly ignore_fail_on_project_status!: Output<boolean|undefined>;
     readonly name!: Output<string>;
-    readonly trigger_mode!: Output<string>;
-    readonly ref_type!: Output<string>;
+    readonly no_skip_to_most_recent!: Output<boolean|undefined>;
+    readonly paused!: Output<boolean|undefined>;
+    readonly project_name!: Output<string>;
     readonly ref_name!: Output<string>;
-    readonly execution_message_template!: Output<string>;
-    readonly last_execution_status!: Output<string>;
-    readonly last_execution_revision!: Output<string|null>;
-    readonly create_date!: Output<string>;
-    readonly always_from_scratch!: Output<boolean>;
-    readonly auto_clear_cache!: Output<boolean>;
-    readonly no_skip_to_most_recent!: Output<boolean>;
-    readonly do_not_create_commit_status!: Output<boolean>;
-    readonly ignore_fail_on_project_status!: Output<boolean>;
-    readonly project!: Output<BuddyPipelineProps['project']>;
-    readonly creator!: Output<BuddyPipelineProps['creator']>;
-    readonly actions!: Output<BuddyPipelineProps['actions']>;
+    readonly ref_type!: Output<RefType|undefined>;
+    readonly run_always!: Output<boolean|undefined>;
+    readonly start_date!: Output<string|undefined>;
+    readonly trigger_mode!: Output<TriggerMode>;
+
+    readonly outputs!: Output<BuddyPipelineProps>;
 
     constructor(name: string, argsOrState: BuddyPipelineArgs|BuddyPipelineState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -178,6 +177,7 @@ export class BuddyPipeline extends CustomResource implements BuddyPipelineOutput
         }
 
         inputs.kind = Kind.Pipeline;
+        inputs.outputs = undefined;
 
         super(BuddyPipeline.__pulumiType, name, inputs, opts)
     }

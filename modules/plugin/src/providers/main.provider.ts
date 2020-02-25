@@ -34,7 +34,6 @@ export interface IProviderConfig {
 export type SubProvider = Pick<IResourceProviderServer, 'check' | 'diff' | 'create' | 'read' | 'update' | 'delete'> & {
     readonly kind: Kind;
     setConfig(config: IProviderConfig): void;
-    // cancel(): void;
 };
 
 export const SUB_PROVIDER = new InjectionToken<SubProvider[]>('Sub Provider');
