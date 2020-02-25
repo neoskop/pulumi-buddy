@@ -77,14 +77,12 @@ export class BuddyPipelineApi {
     }
 
     async create(pipeline: IBuddyPipelineInput): Promise<IBuddyPipeline> {
-        this.api.canceler = Axios.CancelToken.source();
-
         try {
             const result = await Axios.post<IBuddyPipeline>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines`,
                 pipeline,
                 {
-                    cancelToken: this.api.canceler.token,
+                    cancelToken: this.api.registerCanceler('pipeline').token,
                     headers: {
                         Authorization: `Bearer ${this.api.getToken()}`
                     }
@@ -112,15 +110,13 @@ export class BuddyPipelineApi {
             throw new PipelineIdRequired();
         }
 
-        this.api.canceler = Axios.CancelToken.source();
-
         try {
             const result = await Axios.get<IBuddyPipeline>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${
                     this.pipelineId
                 }`,
                 {
-                    cancelToken: this.api.canceler.token,
+                    cancelToken: this.api.registerCanceler('pipeline').token,
                     headers: {
                         Authorization: `Bearer ${this.api.getToken()}`
                     }
@@ -148,8 +144,6 @@ export class BuddyPipelineApi {
             throw new PipelineIdRequired();
         }
 
-        this.api.canceler = Axios.CancelToken.source();
-
         try {
             const result = await Axios.patch<IBuddyPipeline>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${
@@ -157,7 +151,7 @@ export class BuddyPipelineApi {
                 }`,
                 update,
                 {
-                    cancelToken: this.api.canceler.token,
+                    cancelToken: this.api.registerCanceler('pipeline').token,
                     headers: {
                         Authorization: `Bearer ${this.api.getToken()}`
                     }
@@ -185,15 +179,13 @@ export class BuddyPipelineApi {
             throw new PipelineIdRequired();
         }
 
-        this.api.canceler = Axios.CancelToken.source();
-
         try {
             await Axios.delete(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${
                     this.pipelineId
                 }`,
                 {
-                    cancelToken: this.api.canceler.token,
+                    cancelToken: this.api.registerCanceler('pipeline').token,
                     headers: {
                         Authorization: `Bearer ${this.api.getToken()}`
                     }

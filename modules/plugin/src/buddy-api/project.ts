@@ -76,14 +76,13 @@ export class BuddyProjectApi {
     }
 
     async create(project: BuddyProjectCreate): Promise<IBuddyProject> {
-        this.api.canceler = Axios.CancelToken.source();
 
         try {
             const result = await Axios.post<IBuddyProject>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects`,
                 project,
                 {
-                    cancelToken: this.api.canceler.token,
+                    cancelToken: this.api.registerCanceler('project').token,
                     headers: {
                         Authorization: `Bearer ${this.api.getToken()}`
                     }
@@ -107,13 +106,11 @@ export class BuddyProjectApi {
             throw new ProjectNameRequired();
         }
 
-        this.api.canceler = Axios.CancelToken.source();
-
         try {
             const result = await Axios.get<IBuddyProject>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}`,
                 {
-                    cancelToken: this.api.canceler.token,
+                    cancelToken: this.api.registerCanceler('project').token,
                     headers: {
                         Authorization: `Bearer ${this.api.getToken()}`
                     }
@@ -141,14 +138,12 @@ export class BuddyProjectApi {
             throw new ProjectNameRequired();
         }
 
-        this.api.canceler = Axios.CancelToken.source();
-
         try {
             const result = await Axios.patch<IBuddyProject>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}`,
                 update,
                 {
-                    cancelToken: this.api.canceler.token,
+                    cancelToken: this.api.registerCanceler('project').token,
                     headers: {
                         Authorization: `Bearer ${this.api.getToken()}`
                     }
@@ -176,11 +171,9 @@ export class BuddyProjectApi {
             throw new ProjectNameRequired();
         }
 
-        this.api.canceler = Axios.CancelToken.source();
-
         try {
             await Axios.delete(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}`, {
-                cancelToken: this.api.canceler.token,
+                cancelToken: this.api.registerCanceler('project').token,
                 headers: {
                     Authorization: `Bearer ${this.api.getToken()}`
                 }

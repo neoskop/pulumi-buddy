@@ -141,7 +141,7 @@ export class MainProvider implements IResourceProviderServer {
     }
 
     cancel(req: ServerUnaryCall<unknown>, callback: sendUnaryData<Empty>) {
-        this.buddyApi.canceler && this.buddyApi.canceler.cancel();
+        this.buddyApi.cancel();
 
         callback(null, new Empty());
     }
