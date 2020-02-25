@@ -94,11 +94,7 @@ export class BuddyProjectApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
-                if (e.response.code === 404) {
-                    throw new ProjectNotFound(this.projectName);
-                } else {
-                    throw new ProjectError(e.response.data.errors[0].message);
-                }
+                throw new ProjectError(e.response.data.errors[0].message);
             } else {
                 throw new ProjectError(e.message);
             }

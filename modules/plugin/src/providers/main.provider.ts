@@ -24,6 +24,7 @@ import {
     UpdateResponse,
 } from '../generated/provider_pb';
 import { Id } from '../utils/id';
+import { BuddyApi } from '../buddy-api/api';
 
 export interface IProviderConfig {
     apiUrl: string;
@@ -33,7 +34,7 @@ export interface IProviderConfig {
 export type SubProvider = Pick<IResourceProviderServer, 'check' | 'diff' | 'create' | 'read' | 'update' | 'delete'> & {
     readonly kind: Kind;
     setConfig(config: IProviderConfig): void;
-    cancel(): void;
+    // cancel(): void;
 };
 
 export const SUB_PROVIDER = new InjectionToken<SubProvider[]>('Sub Provider');
@@ -42,10 +43,14 @@ export const SUB_PROVIDER = new InjectionToken<SubProvider[]>('Sub Provider');
 export class MainProvider implements IResourceProviderServer {
     config?: { apiUrl: string; workspace: string; token: string };
 
-    constructor(@Inject(SUB_PROVIDER) protected readonly providers: SubProvider[]) {}
+    constructor(@Inject(SUB_PROVIDER) protected readonly providers: SubProvider[],
+    protected readonly buddyApi: BuddyApi) {}
 
     setConfig(config: IProviderConfig) {
         this.config = config;
+
+        this.buddyApi.setToken(config.token);
+        this.buddyApi.setApiUrl(config.apiUrl);
 
         for (const provider of this.providers) {
             provider.setConfig(config);
@@ -138,9 +143,10 @@ export class MainProvider implements IResourceProviderServer {
     }
 
     cancel(req: ServerUnaryCall<unknown>, callback: sendUnaryData<Empty>) {
-        for (const provider of this.providers) {
-            provider.cancel();
-        }
+        this.buddyApi.canceler && this.buddyApi.canceler.cancel();
+        // for (const provider of this.providers) {
+        //     provider.cancel();
+        // }
         callback(null, new Empty());
     }
 

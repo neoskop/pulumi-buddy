@@ -1,4 +1,5 @@
 import { BuddyApi } from './api';
+import { BuddyProjectApi } from './project';
 
 export class BuddyWorkspaceApi {
     constructor(protected readonly api: BuddyApi, protected readonly domain?: string) {}
@@ -22,7 +23,7 @@ export class BuddyWorkspaceApi {
     }
 
     project(name?: string) {
-
+        return new BuddyProjectApi(this.api, this, name);
     }
 }
 

@@ -23,22 +23,19 @@ import {
 } from '../generated/provider_pb';
 import { Id } from '../utils/id';
 import { IProviderConfig, SubProvider } from './main.provider';
+import { BuddyApi } from '../buddy-api/api';
+import { ProjectNotFound } from '../buddy-api/project';
 
 @Injectable()
 export class ProjectProvider implements SubProvider {
     readonly kind = 'Project' as Kind;
 
     config?: IProviderConfig;
-    canceler?: CancelTokenSource;
+
+    constructor(protected readonly buddyApi: BuddyApi) {}
 
     setConfig(config: IProviderConfig) {
         this.config = config;
-    }
-
-    cancel() {
-        if (this.canceler) {
-            this.canceler.cancel();
-        }
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
@@ -56,34 +53,25 @@ export class ProjectProvider implements SubProvider {
 
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
 
-        this.canceler = Axios.CancelToken.source();
-        Axios.post<BuddyProjectProps>(`${this.config.apiUrl}/workspaces/${this.config.workspace}/projects`, props, {
-            cancelToken: this.canceler.token,
-            headers: {
-                Authorization: `Bearer ${this.config.token}`
-            }
-        }).then(
-            result => {
-                const response = new CreateResponse();
-                response.setId(Id.stringify([['Project' as Kind, result.data.name]]));
+        this.buddyApi.workspace(this.config.workspace).project().create(props).then(result => {
+            const response = new CreateResponse();
+                response.setId(Id.stringify([['Project' as Kind, result.name]]));
                 response.setProperties(
                     Struct.fromJavaScript({
-                        ...(result.data as {}),
+                        ...(result as {}),
                         kind: 'Project',
                         inputs: props
                     })
                 );
 
                 callback(null, response);
-            },
-            err => {
-                if (Axios.isCancel(err)) {
-                    callback(new ServiceError('Canceled', status.CANCELLED), null);
-                } else {
-                    callback(new ServiceError(err.response.data.errors[0].message, status.INTERNAL), null);
-                }
+        }, err => {
+            if (Axios.isCancel(err)) {
+                callback(new ServiceError('Canceled', status.CANCELLED), null);
+            } else {
+                callback(new ServiceError(err.message, status.INTERNAL), null);
             }
-        );
+        });
     }
 
     delete(req: ServerUnaryCall<DeleteRequest>, callback: sendUnaryData<Empty>) {
@@ -93,23 +81,17 @@ export class ProjectProvider implements SubProvider {
 
         const id = Id.parse(req.request.getId());
 
-        this.canceler = Axios.CancelToken.source();
-        Axios.delete(`${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${id[0][1]}`, {
-            cancelToken: this.canceler.token,
-            headers: {
-                Authorization: `Bearer ${this.config.token}`
-            }
-        }).then(
+        this.buddyApi.workspace(this.config.workspace).project(id[0][1]).delete().then(
             () => {
                 callback(null, new Empty());
             },
             err => {
                 if (Axios.isCancel(err)) {
                     callback(new ServiceError('Canceled', status.CANCELLED), null);
-                } else if (err.response.status === 404) {
-                    callback(new ServiceError(err.response.data.errors[0].message, status.NOT_FOUND), null);
+                } else if (err instanceof ProjectNotFound) {
+                    callback(new ServiceError(err.message, status.NOT_FOUND), null);
                 } else {
-                    callback(new ServiceError(err.response.data.errors[0].message, status.INTERNAL), null);
+                    callback(new ServiceError(err.message, status.INTERNAL), null);
                 }
             }
         );
@@ -122,24 +104,12 @@ export class ProjectProvider implements SubProvider {
 
         const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyProjectState;
 
-        this.canceler = Axios.CancelToken.source();
-        Axios.patch<BuddyProjectProps>(
-            `${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${news.name}`,
-            {
-                display_name: news.display_name
-            },
-            {
-                cancelToken: this.canceler.token,
-                headers: {
-                    Authorization: `Bearer ${this.config.token}`
-                }
-            }
-        ).then(
+        this.buddyApi.workspace(this.config.workspace).project(news.name).update(news).then(
             result => {
                 const response = new UpdateResponse();
                 response.setProperties(
                     Struct.fromJavaScript({
-                        ...(result.data as {}),
+                        ...(result as {}),
                         kind: 'Project',
                         inputs: news
                     })
@@ -150,8 +120,10 @@ export class ProjectProvider implements SubProvider {
             err => {
                 if (Axios.isCancel(err)) {
                     callback(new ServiceError('Canceled', status.CANCELLED), null);
+                } else if (err instanceof ProjectNotFound) {
+                    callback(new ServiceError(err.message, status.NOT_FOUND), null);
                 } else {
-                    callback(new ServiceError(err.response.data.errors[0].message, status.INTERNAL), null);
+                    callback(new ServiceError(err.message, status.INTERNAL), null);
                 }
             }
         );
@@ -165,37 +137,29 @@ export class ProjectProvider implements SubProvider {
         const id = Id.parse(req.request.getId());
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
 
-        this.canceler = Axios.CancelToken.source();
-        Axios.get(`${this.config.apiUrl}/workspaces/${this.config.workspace}/projects/${id[0][1]}`, {
-            cancelToken: this.canceler.token,
-            headers: {
-                Authorization: `Bearer ${this.config.token}`
-            }
-        }).then(
-            result => {
-                const response = new ReadResponse();
+        this.buddyApi.workspace(this.config.workspace).project(id[0][1]).read().then(result => {
+            const response = new ReadResponse();
                 response.setId(req.request.getId());
                 response.setInputs(Struct.fromJavaScript(props as {}));
                 response.setProperties(
                     Struct.fromJavaScript({
-                        ...(result.data as {}),
+                        ...(result as {}),
                         kind: 'Project',
                         inputs: props
                     })
                 );
 
                 callback(null, response);
-            },
-            err => {
-                if (Axios.isCancel(err)) {
-                    callback(new ServiceError('Canceled', status.CANCELLED), null);
-                } else if (err.response.status === 404) {
-                    callback(new ServiceError(err.response.data.errors[0].message, status.NOT_FOUND), null);
-                } else {
-                    callback(new ServiceError(err.response.data.errors[0].message, status.INTERNAL), null);
-                }
+        },
+        err => {
+            if (Axios.isCancel(err)) {
+                callback(new ServiceError('Canceled', status.CANCELLED), null);
+            } else if (err instanceof ProjectNotFound) {
+                callback(new ServiceError(err.message, status.NOT_FOUND), null);
+            } else {
+                callback(new ServiceError(err.message, status.INTERNAL), null);
             }
-        );
+        });
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {

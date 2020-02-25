@@ -96,11 +96,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
-                if (e.response.code === 404) {
-                    throw new PipelineNotFound(this.pipelineId);
-                } else {
-                    throw new PipelineError(e.response.data.errors[0].message);
-                }
+                throw new PipelineError(e.response.data.errors[0].message);
             } else {
                 throw new PipelineError(e.message);
             }
@@ -116,7 +112,7 @@ export class BuddyPipelineApi {
 
         try {
             const result = await Axios.get<IBuddyPipeline>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/${this.pipelineId}`,
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipelineId}`,
                 {
                     cancelToken: this.api.canceler.token,
                     headers: {
@@ -150,7 +146,7 @@ export class BuddyPipelineApi {
 
         try {
             const result = await Axios.patch<IBuddyPipeline>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/${this.pipelineId}`,
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipelineId}`,
                 update,
                 {
                     cancelToken: this.api.canceler.token,
@@ -184,7 +180,7 @@ export class BuddyPipelineApi {
         this.api.canceler = Axios.CancelToken.source();
 
         try {
-            await Axios.delete(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/${this.pipelineId}`, {
+            await Axios.delete(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipelineId}`, {
                 cancelToken: this.api.canceler.token,
                 headers: {
                     Authorization: `Bearer ${this.api.getToken()}`
