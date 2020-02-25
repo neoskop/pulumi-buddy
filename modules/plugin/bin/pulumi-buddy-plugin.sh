@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [[ -s "$0" ]]; then
     BINDIR=$(cd $(dirname $(readlink -f $0)) && pwd);
 else
