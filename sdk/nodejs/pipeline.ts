@@ -68,7 +68,7 @@ export interface BuddyPipelineProps {
     creator: {
         url: string;
         html_url: string;
-        id: 1;
+        id: number;
         name: string;
         avatar_url: string;
         title: string;
