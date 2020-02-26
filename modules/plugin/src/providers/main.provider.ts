@@ -3,7 +3,7 @@ import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { sendUnaryData, ServerUnaryCall, ServerWritableStream } from 'grpc';
 import { Inject, Injectable, InjectionToken } from 'injection-js';
 
-import { BuddyApi } from '../buddy-api/api';
+import { BuddyApi } from '../buddy/api/api';
 import { PluginInfo } from '../grpc/plugin_pb';
 import { IResourceProviderServer } from '../grpc/provider_grpc_pb';
 import {

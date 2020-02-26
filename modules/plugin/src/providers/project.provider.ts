@@ -5,8 +5,8 @@ import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
 
-import { BuddyApi } from '../buddy-api/api';
-import { ProjectNotFound } from '../buddy-api/project';
+import { BuddyApi } from '../buddy/api/api';
+import { ProjectNotFound } from '../buddy/api/project';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
