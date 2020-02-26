@@ -35,12 +35,16 @@ export class BuddyScraper {
             .map(el => this.baseUrl + $(el).attr('href')!.toString());
     }
 
-    parseType(type: string, description: string): ParameterType {
+    parseType(name: string, type: string, description: string): ParameterType {
         const isArray = type.endsWith('[]') || undefined;
         if(isArray) {
             type = type.substr(0, type.length - 2);
         }
-        if ('String' === type || 'Number' === type || 'Boolean' === type) {
+        if('ISO-8601 UTC date' === type) {
+            return { scalar: 'String' };
+        } else if('Integer' === type || 'Float' === type) {
+            return { scalar: 'Number', isArray };
+        } else if ('String' === type || 'Boolean' === type) {
             const exact = /Should be set to ([\w-]+)/.exec(description);
             const oneOf = /Can be one of ([\w-]+(?:\s?,\s?[\w-]+)* or [\w-]+)/.exec(description);
             if ('String' === type && exact) {
@@ -50,8 +54,13 @@ export class BuddyScraper {
             } else {
                 return { scalar: type, isArray };
             }
-        } else {
+        } else if(type) {
             return { ref: type, isArray };
+        } else {
+            if('integration' === name) {
+                return { ref: 'Integration' };
+            }
+            throw new Error(`Unkown parameter type '${type}' for '${name}'`)
         }
     }
 
@@ -66,11 +75,11 @@ export class BuddyScraper {
             .remove();
         const name = $(tds[0])
             .text()
-            .trim();
+            .replace(/[^\w]/g, '');
         return {
             name,
             required,
-            type: this.parseType(
+            type: this.parseType(name,
                 $(tds[1])
                     .text()
                     .trim(),
@@ -104,17 +113,17 @@ export class BuddyScraper {
             }
 
             return a.required ? -1 : 1;
-        })
+        }).filter((c, i, a) => a.findIndex(e => e.name === c.name) === i)
     }
 
     async getActionDetails(url: string): Promise<Action> {
         const response = await Axios.get(url);
         const $ = cheerio.load(response.data);
         const name = $('h1').text();
-        const type = name.replace(/\s+/, '_').toUpperCase();
-        const parameters = $('article.post-content > table tr:has(> td)')
+        const parameters = $('article.post-content > table:nth-of-type(1) tr:has(> td)')
             .toArray()
             .map(p => this.parseParameter(p));
+        const type = (parameters.find(p => p.name === 'type')!.type as ParamaterTypeText).text[0];
         return { name, type, parameters: this.mergeParameters(await this.getDefaultParameters(), parameters) };
     }
 
