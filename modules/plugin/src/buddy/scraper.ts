@@ -21,10 +21,14 @@ export interface Action {
 }
 
 export class BuddyScraper {
+    static readonly ROOT_PAGE = '/docs/api/pipelines/create-manage-actions/add-action';
+
+    protected defaultParameters?: ActionParameter[];
+
     constructor(protected readonly baseUrl = 'https://buddy.works') {}
 
     async getActionDetailUrls(): Promise<string[]> {
-        const response = await Axios.get<string>(`${this.baseUrl}/docs/api/pipelines/create-manage-actions/add-action`);
+        const response = await Axios.get<string>(`${this.baseUrl}${BuddyScraper.ROOT_PAGE}`);
         const $ = cheerio.load(response.data);
         return $('li.list__card-element a')
             .toArray()
@@ -76,6 +80,33 @@ export class BuddyScraper {
         };
     }
 
+    async getDefaultParameters(): Promise<ActionParameter[]> {
+        if(!this.defaultParameters) {
+            const response = await Axios.get(`${this.baseUrl}${BuddyScraper.ROOT_PAGE}`);
+            const $ = cheerio.load(response.data);
+            this.defaultParameters = $(`article.post-content > table:nth-of-type(2) tr:has(> td)`)
+                .toArray()
+                .map(p => this.parseParameter(p));
+        }
+
+        return this.defaultParameters;
+    }
+
+    protected mergeParameters(defaults: ActionParameter[], params: ActionParameter[]): ActionParameter[] {
+        const names = new Set(params.map(p => p.name));
+
+        return [
+            ...defaults.filter(d => !names.has(d.name)),
+            ...params
+        ].sort((a, b) => {
+            if(a.required === b.required) {
+                return a.name.localeCompare(b.name);
+            }
+
+            return a.required ? -1 : 1;
+        })
+    }
+
     async getActionDetails(url: string): Promise<Action> {
         const response = await Axios.get(url);
         const $ = cheerio.load(response.data);
@@ -84,7 +115,7 @@ export class BuddyScraper {
         const parameters = $('article.post-content > table tr:has(> td)')
             .toArray()
             .map(p => this.parseParameter(p));
-        return { name, type, parameters };
+        return { name, type, parameters: this.mergeParameters(await this.getDefaultParameters(), parameters) };
     }
 
     async getActions(): Promise<Action[]> {
