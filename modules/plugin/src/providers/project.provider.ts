@@ -184,7 +184,7 @@ export class ProjectProvider implements SubProvider {
             .delete()
             .then(
                 () => {
-                    callback(null, new Empty());
+                    setTimeout(() => callback(null, new Empty()), 1000);
                 },
                 err => {
                     if (Axios.isCancel(err)) {
