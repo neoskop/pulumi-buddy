@@ -1,5 +1,5 @@
 import { Kind } from '@neoskop/pulumi-buddy';
-import { BuddyPipelineProps, BuddyPipelineState } from '@neoskop/pulumi-buddy/pipeline';
+import { BuddyPipelineProps, BuddyPipelineState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
