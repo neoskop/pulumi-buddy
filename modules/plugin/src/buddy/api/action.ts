@@ -15,7 +15,7 @@ export interface IBuddyAction {
     last_execution_status: string;
     variables?: IBuddyActionVariable[];
     trigger_condition?: TriggerCondition;
-    trigger_condition_paths?: string;
+    trigger_condition_paths?: string[];
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     pipeline: IBuddyPipeline
@@ -35,7 +35,7 @@ export interface IBuddyActionCreate {
     trigger_time?: TriggerTime;
     variables?: IBuddyActionVariable[];
     trigger_condition?: TriggerCondition;
-    trigger_condition_paths?: string;
+    trigger_condition_paths?: string[];
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     after_action_id?: number;

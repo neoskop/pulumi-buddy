@@ -29,11 +29,59 @@ export class BuddyCodegenActions {
     addIndexFile() {
         const file = this.project.createSourceFile('index.ts');
 
+        const states: InterfaceDeclaration[] = [];
+        const args: TypeAliasDeclaration[] = [];
+        const props: InterfaceDeclaration[] = [];
+
+        function getImp(f: SourceFile) {
+            let imp = file.getImportDeclaration(d => d.getModuleSpecifierValue() === `./${f.getBaseNameWithoutExtension()}`);
+            if(!imp) {
+                imp = file.addImportDeclaration({
+                    moduleSpecifier: `./${f.getBaseNameWithoutExtension()}`
+                });
+            }
+
+            return imp;
+        }
+
         for (const f of this.getFiles()) {
             file.addExportDeclaration({
                 moduleSpecifier: `./${f.getBaseNameWithoutExtension()}`
             });
+            for(const i of f.getInterfaces()) {
+                if(i.getName().endsWith('State')) {
+                    states.push(i);
+                    getImp(f).addNamedImport(i.getName());
+                } else if(i.getName().endsWith('Props')) {
+                    props.push(i);
+                    getImp(f).addNamedImport(i.getName());
+                }
+            }
+            for(const t of f.getTypeAliases()) {
+                if(t.getName().endsWith('Args')) {
+                    args.push(t);
+                    getImp(f).addNamedImport(t.getName());
+                }
+            }
         }
+
+        file.addTypeAlias({
+            name: 'BuddyActionState',
+            isExported: true,
+            type: states.map(s => s.getName()).join(' | ')
+        });
+
+        file.addTypeAlias({
+            name: 'BuddyActionArgs',
+            isExported: true,
+            type: args.map(s => s.getName()).join(' | ')
+        });
+
+        file.addTypeAlias({
+            name: 'BuddyActionProps',
+            isExported: true,
+            type: props.map(s => s.getName()).join(' | ')
+        });
     }
 
     protected addCommon() {
