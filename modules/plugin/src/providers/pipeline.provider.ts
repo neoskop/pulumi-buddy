@@ -208,8 +208,10 @@ export class PipelineProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED), null);
-                    } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound) {
+                    } else if (err instanceof ProjectNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
+                    } else if (err instanceof PipelineNotFound) {
+                        callback(null, new Empty());
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
                     }
