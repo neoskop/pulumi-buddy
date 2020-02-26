@@ -80,7 +80,7 @@ export interface BuddyPipelineProps {
 }
 
 export class BuddyPipeline extends CustomResource implements AsOutputs<BuddyPipelineState> {
-    static __pulumiType = 'buddy:index/project:BuddyPipeline';
+    static __pulumiType = 'buddy:index/pipeline:BuddyPipeline';
 
     static get(name: string, id: Input<ID>, state?: Partial<BuddyPipelineState>, opts?: CustomResourceOptions) {
         return new BuddyPipeline(name, state as any, { ...opts, id });
