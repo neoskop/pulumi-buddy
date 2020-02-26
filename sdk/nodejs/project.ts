@@ -125,6 +125,10 @@ export class BuddyProject extends CustomResource implements AsOutputs<BuddyInteg
             opts.version = require('./package').version;
         }
 
+        if(null == opts.deleteBeforeReplace) {
+            opts.deleteBeforeReplace = true;
+        }
+
         inputs.kind = Kind.Project;
         inputs.outputs = undefined;
 
