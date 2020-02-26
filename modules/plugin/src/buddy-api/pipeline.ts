@@ -1,5 +1,6 @@
 import Axios from 'axios';
 
+import { BuddyActionApi } from './action';
 import { BuddyApi } from './api';
 import { BuddyProjectApi, ProjectNotFound } from './project';
 import { BuddyWorkspaceApi } from './workspace';
@@ -76,6 +77,10 @@ export class BuddyPipelineApi {
         return this.pipelineId;
     }
 
+    action(actionId?: number) {
+        return new BuddyActionApi(this.api, this.workspace, this.project, this, actionId);
+    }
+
     async create(pipeline: IBuddyPipelineInput): Promise<IBuddyPipeline> {
         try {
             const result = await Axios.post<IBuddyPipeline>(
@@ -94,7 +99,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
-                if(e.response.status === 404) {
+                if (e.response.status === 404) {
                     throw new ProjectNotFound(this.project.getProjectName());
                 } else {
                     throw new PipelineError(e.response.data.errors[0].message);
