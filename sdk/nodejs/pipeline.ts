@@ -176,6 +176,8 @@ export class BuddyPipeline extends CustomResource implements AsOutputs<BuddyPipe
             opts.version = require('./package').version;
         }
 
+        opts.ignoreChanges = [ 'project_name', ...(opts.ignoreChanges || []) ];
+
         inputs.kind = Kind.Pipeline;
         inputs.outputs = undefined;
 
