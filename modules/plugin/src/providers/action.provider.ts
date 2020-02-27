@@ -1,4 +1,4 @@
-import { Kind, BuddyActionState } from '@neoskop/pulumi-buddy';
+import { BuddyActionState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
@@ -23,13 +23,13 @@ import {
     UpdateResponse
 } from '../grpc/provider_pb';
 import { Id } from '../utils/id';
-import { IProviderConfig, SubProvider } from './main.provider';
+import { IProviderConfig, SubProvider, Kind } from './main.provider';
 import { PipelineNotFound } from '../buddy/api/pipeline';
 
 
 @Injectable()
 export class ActionProvider implements SubProvider {
-    readonly kind = 'Action' as Kind;
+    readonly kind = Kind.Action
 
     config?: IProviderConfig;
     constructor(protected readonly buddyApi: BuddyApi) {}

@@ -1,6 +1,5 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
 
-import { Kind } from './kinds';
 import { AsInputs, AsOutputs } from './utils';
 
 export interface BuddyIdIntegrationState {
@@ -53,7 +52,7 @@ export interface BuddyProjectProps {
 }
 
 export class BuddyProject extends CustomResource implements AsOutputs<BuddyIntegrationProjectState>, AsOutputs<BuddyCustomProjectState> {
-    static __pulumiType = 'buddy:index/project:BuddyProject';
+    static __pulumiType = 'buddy:project:BuddyProject';
 
     static get(name: string, id: Input<ID>, state?: Partial<BuddyProjectState>, opts?: CustomResourceOptions) {
         return new BuddyProject(name, state as any, { ...opts, id });

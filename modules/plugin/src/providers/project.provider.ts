@@ -1,4 +1,9 @@
-import { BuddyCustomProjectState, BuddyIntegrationProjectState, BuddyProjectState, Kind } from '@neoskop/pulumi-buddy';
+import {
+    BuddyCustomProjectState,
+    BuddyIntegrationProjectState,
+    BuddyProjectProps,
+    BuddyProjectState,
+} from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
@@ -27,7 +32,7 @@ import { IProviderConfig, SubProvider } from './main.provider';
 
 @Injectable()
 export class ProjectProvider implements SubProvider {
-    readonly kind = 'Project' as Kind;
+    readonly kind = Kind.Project;
 
     config?: IProviderConfig;
 

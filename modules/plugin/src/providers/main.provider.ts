@@ -1,4 +1,3 @@
-import { Kind } from '@neoskop/pulumi-buddy';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { sendUnaryData, ServerUnaryCall, ServerWritableStream } from 'grpc';
 import { Inject, Injectable, InjectionToken } from 'injection-js';
@@ -25,6 +24,7 @@ import {
     UpdateResponse,
 } from '../grpc/provider_pb';
 import { Id } from '../utils/id';
+import { Urn } from '../utils/urn';
 
 export interface IProviderConfig {
     apiUrl: string;
@@ -37,6 +37,12 @@ export type SubProvider = Pick<IResourceProviderServer, 'check' | 'diff' | 'crea
 };
 
 export const SUB_PROVIDER = new InjectionToken<SubProvider[]>('Sub Provider');
+
+export enum Kind {
+    Action = 'action',
+    Pipeline = 'pipeline',
+    Project = 'project',
+}
 
 @Injectable()
 export class MainProvider implements IResourceProviderServer {
@@ -135,7 +141,8 @@ export class MainProvider implements IResourceProviderServer {
     }
 
     check(req: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const provider = this.getProvider(req.request.getNews()!.toJavaScript().kind as Kind);
+        const urn = Urn.parse(req.request.getUrn());
+        const provider = this.getProvider(urn.typeGroup as Kind);
 
         provider!.check(req, callback);
     }
@@ -147,35 +154,36 @@ export class MainProvider implements IResourceProviderServer {
     }
 
     create(req: ServerUnaryCall<CreateRequest>, callback: sendUnaryData<CreateResponse>) {
-        const provider = this.getProvider(req.request.getProperties()!.toJavaScript().kind as Kind);
+        const urn = Urn.parse(req.request.getUrn());
+        const provider = this.getProvider(urn.typeGroup as Kind);
 
         provider!.create(req, callback);
     }
 
     delete(req: ServerUnaryCall<DeleteRequest>, callback: sendUnaryData<Empty>) {
-        const id = Id.parse(req.request.getId());
-        const provider = this.getProvider(id[id.length - 1][0]);
+        const urn = Urn.parse(req.request.getUrn());
+        const provider = this.getProvider(urn.typeGroup as Kind);
 
         provider!.delete(req, callback);
     }
 
     update(req: ServerUnaryCall<UpdateRequest>, callback: sendUnaryData<UpdateResponse>) {
-        const id = Id.parse(req.request.getId());
-        const provider = this.getProvider(id[id.length - 1][0]);
+        const urn = Urn.parse(req.request.getUrn());
+        const provider = this.getProvider(urn.typeGroup as Kind);
 
         provider!.update(req, callback);
     }
 
     read(req: ServerUnaryCall<ReadRequest>, callback: sendUnaryData<ReadResponse>) {
-        const id = Id.parse(req.request.getId());
-        const provider = this.getProvider(id[id.length - 1][0]);
+        const urn = Urn.parse(req.request.getUrn());
+        const provider = this.getProvider(urn.typeGroup as Kind);
 
         provider!.read(req, callback);
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const id = Id.parse(req.request.getId());
-        const provider = this.getProvider(id[id.length - 1][0]);
+        const urn = Urn.parse(req.request.getUrn());
+        const provider = this.getProvider(urn.typeGroup as Kind);
 
         provider!.diff(req, callback);
     }

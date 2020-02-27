@@ -1,4 +1,3 @@
-import { Kind } from '@neoskop/pulumi-buddy';
 import { BuddyPipelineProps, BuddyPipelineState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
@@ -24,12 +23,12 @@ import {
     UpdateResponse
 } from '../grpc/provider_pb';
 import { Id } from '../utils/id';
-import { IProviderConfig, SubProvider } from './main.provider';
+import { IProviderConfig, SubProvider, Kind } from './main.provider';
 import { Differ } from '../utils/differ';
 
 @Injectable()
 export class PipelineProvider implements SubProvider {
-    readonly kind = 'Pipeline' as Kind;
+    readonly kind = Kind.Pipeline
 
     config?: IProviderConfig;
     constructor(protected readonly buddyApi: BuddyApi) {}
