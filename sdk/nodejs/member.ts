@@ -1,0 +1,80 @@
+import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
+
+import { AsInputs, AsOutputs } from './utils';
+
+export interface BuddyMemberState {
+    email: string;
+    isAdmin?: boolean;
+}
+
+export type BuddyMemberArgs = AsInputs<BuddyMemberState>;
+
+export interface BuddyMemberProps {
+    url: string;
+    html_url: string;
+    member_id: number;
+    avatar_url: string;
+    title: string|null;
+    admin: boolean;
+    workspace_owner: boolean;
+}
+
+export class BuddyMember extends CustomResource implements AsOutputs<BuddyMemberProps> {
+    static __pulumiType = 'buddy:member:BuddyMember';
+
+    static get(name: string, id: Input<ID>, state?: Partial<BuddyMemberState>, opts?: CustomResourceOptions) {
+        return new BuddyMember(name, state as any, { ...opts, id });
+    }
+
+    static isInstance(obj: any): obj is BuddyMember {
+        if (null == obj) {
+            return false;
+        }
+        return obj['__pulumiType'] === BuddyMember.__pulumiType;
+    }
+
+    readonly url!: Output<string>;
+    readonly html_url!: Output<string>;
+    readonly member_id!: Output<number>;
+    readonly avatar_url!: Output<string>;
+    readonly title!: Output<string|null>;
+    readonly admin!: Output<boolean>;
+    readonly workspace_owner!: Output<boolean>;
+
+    constructor(name: string, argsOrState: BuddyMemberArgs | BuddyMemberState, opts?: CustomResourceOptions) {
+        const inputs: Inputs = {};
+        if (!opts) {
+            opts = {};
+        }
+        if (opts.id) {
+            const state = argsOrState as BuddyMemberState | undefined;
+            inputs['email'] = state?.email;
+            inputs['isAdmin'] = state?.isAdmin;
+        } else {
+            const args = argsOrState as BuddyMemberArgs | undefined;
+            if (!args || !args.email) {
+                throw new Error('Missing required property "email"');
+            }
+            inputs['email'] = args?.email;
+            inputs['isAdmin'] = args?.isAdmin;
+        }
+
+        if (!opts.version) {
+            opts.version = require('./package').version;
+        }
+
+        if (null == opts.deleteBeforeReplace) {
+            opts.deleteBeforeReplace = true;
+        }
+
+        inputs['url'] = undefined;
+        inputs['html_url'] = undefined;
+        inputs['member_id'] = undefined;
+        inputs['avatar_url'] = undefined;
+        inputs['title'] = undefined;
+        inputs['admin'] = undefined;
+        inputs['workspace_owner'] = undefined;
+
+        super(BuddyMember.__pulumiType, name, inputs, opts);
+    }
+}

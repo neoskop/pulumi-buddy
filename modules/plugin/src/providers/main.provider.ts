@@ -40,6 +40,7 @@ export const SUB_PROVIDER = new InjectionToken<SubProvider[]>('Sub Provider');
 
 export enum Kind {
     Action = 'action',
+    Member = 'member',
     Pipeline = 'pipeline',
     Project = 'project',
 }
