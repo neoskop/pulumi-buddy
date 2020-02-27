@@ -11,7 +11,7 @@ import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
 
 import { BuddyApi } from '../buddy/api/api';
-import { ProjectNotFound } from '../buddy/api/project';
+import { ProjectNotFinished, ProjectNotFound } from '../buddy/api/project';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -24,17 +24,21 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse
+    UpdateResponse,
 } from '../grpc/provider_pb';
 import { Differ } from '../utils/differ';
-import { Id } from '../utils/id';
-import { IProviderConfig, SubProvider } from './main.provider';
+import { sleep } from '../utils/sleep';
+import { Unique } from '../utils/unique';
+import { Urn } from '../utils/urn';
+import { IProviderConfig, Kind, SubProvider } from './main.provider';
 
 @Injectable()
 export class ProjectProvider implements SubProvider {
     readonly kind = Kind.Project;
 
     config?: IProviderConfig;
+
+    protected readonly olds = new Map<string, BuddyIntegrationProjectState & BuddyCustomProjectState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -43,7 +47,9 @@ export class ProjectProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const news = request.getNews()!.toJavaScript();
+        const olds = request.getOlds()!.toJavaScript() as unknown as BuddyIntegrationProjectState & BuddyCustomProjectState;
+        const news = request.getNews()!.toJavaScript()
+        this.olds.set(request.getUrn(), olds);
 
         const checkResponse = new CheckResponse();
         checkResponse.setInputs(Struct.fromJavaScript(news));
@@ -51,19 +57,20 @@ export class ProjectProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const olds = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyIntegrationProjectState & BuddyCustomProjectState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyProjectProps;
         const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyIntegrationProjectState & BuddyCustomProjectState;
+        const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
             null,
-            new Differ(olds, news)
-                .diff('name', true)
-                .diff('display_name')
-                .diff('integration', true)
-                .diff('external_project_id', true)
-                .diff('custom_repo_url', true)
-                .diff('custom_repo_user', true)
-                .diff('custom_repo_pass', true)
+            new Differ(olds, news, props)
+                .diff('name', null, true)
+                .diff('display_name', 'display_name')
+                .diff('integration', null, true)
+                .diff('external_project_id', null, true)
+                .diff('custom_repo_url', null, true)
+                .diff('custom_repo_user', null, true)
+                .diff('custom_repo_pass', null, true)
                 .toResponse()
         );
     }
@@ -73,21 +80,43 @@ export class ProjectProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyIntegrationProjectState & BuddyCustomProjectState;
+        const urn = Urn.parse(req.request.getUrn());
+
+        if (!props.name) {
+            props.name = Unique.name(urn.name);
+        }
 
         this.buddyApi
             .workspace(this.config.workspace)
             .project()
             .create(props)
+            .then(async outputs => {
+                while (true) {
+                    try {
+                        return await this.buddyApi
+                            .workspace(this.config!.workspace)
+                            .project(outputs.name)
+                            .update({ name: props.name });
+                    } catch (e) {
+                        if (!(e instanceof ProjectNotFinished)) {
+                            await this.buddyApi
+                                .workspace(this.config!.workspace)
+                                .project(outputs.name)
+                                .delete();
+                            throw e;
+                        } else {
+                            await sleep(2500);
+                        }
+                    }
+                }
+            })
             .then(
                 outputs => {
                     const response = new CreateResponse();
-                    response.setId(Id.stringify([['Project' as Kind, outputs.name]]));
+                    response.setId(outputs.name);
                     response.setProperties(
-                        Struct.fromJavaScript({
-                            ...(props as {}),
-                            outputs
-                        })
+                        Struct.fromJavaScript({ ...outputs })
                     );
 
                     callback(null, response);
@@ -107,23 +136,20 @@ export class ProjectProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const id = Id.parse(req.request.getId());
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
+        const id = req.request.getId();
 
         this.buddyApi
             .workspace(this.config.workspace)
-            .project(id[0][1])
+            .project(id)
             .read()
             .then(
                 outputs => {
                     const response = new ReadResponse();
-                    response.setId(req.request.getId());
-                    response.setInputs(Struct.fromJavaScript(props as {}));
+                    response.setId(id);
+                    response.setInputs(Struct.fromJavaScript({ ...props as any }));
                     response.setProperties(
-                        Struct.fromJavaScript({
-                            ...(props as {}),
-                            outputs
-                        })
+                        Struct.fromJavaScript({...outputs })
                     );
 
                     callback(null, response);
@@ -146,20 +172,17 @@ export class ProjectProvider implements SubProvider {
         }
 
         const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyProjectState;
-        const id = Id.parse(req.request.getId());
+        const id = req.request.getId();
 
         this.buddyApi
             .workspace(this.config.workspace)
-            .project(id[0][1])
+            .project(id)
             .update(news)
             .then(
                 outputs => {
                     const response = new UpdateResponse();
                     response.setProperties(
-                        Struct.fromJavaScript({
-                            ...(news as {}),
-                            outputs
-                        })
+                        Struct.fromJavaScript({ ...outputs })
                     );
 
                     callback(null, response);
@@ -181,11 +204,11 @@ export class ProjectProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const id = Id.parse(req.request.getId());
+        const id = req.request.getId();
 
         this.buddyApi
             .workspace(this.config.workspace)
-            .project(id[0][1])
+            .project(id)
             .delete()
             .then(
                 () => {

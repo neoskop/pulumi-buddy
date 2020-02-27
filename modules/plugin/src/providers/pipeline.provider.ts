@@ -51,8 +51,8 @@ export class PipelineProvider implements SubProvider {
 
         callback(
             null,
-            new Differ(olds, news)
-                .diff('project_name', true)
+            new Differ(olds, news, {})
+                .diff('project_name', null, true)
                 .diff('name')
                 .diff('ref_name')
                 .diff('trigger_mode')
@@ -60,14 +60,14 @@ export class PipelineProvider implements SubProvider {
                 .diff('always_from_scratch')
                 .diff('auto_clear_cache')
                 .diff('no_skip_to_most_recent')
-                .diff('do_not_create_commit_status', true)
+                .diff('do_not_create_commit_status', null, true)
                 .diff('start_date')
                 .diff('delay')
                 .diff('cron')
                 .diff('run_always')
                 .diff('paused')
-                .diff('ignore_fail_on_project_status', true)
-                .diff('execution_message_template', true)
+                .diff('ignore_fail_on_project_status', null, true)
+                .diff('execution_message_template', null, true)
                 .toResponse()
         );
     }

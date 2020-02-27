@@ -13,13 +13,14 @@ export interface BuddyHashIdIntegrationState {
 export type BuddyIntegrationState = BuddyIdIntegrationState | BuddyHashIdIntegrationState;
 
 export interface BuddyIntegrationProjectState {
+    name?: string;
     display_name: string;
     integration: BuddyIntegrationState;
     external_project_id: string;
 }
 
 export interface BuddyCustomProjectState {
-    name: string;
+    name?: string;
     display_name: string;
     custom_repo_url?: string;
     custom_repo_user?: string;
@@ -35,7 +36,7 @@ export interface BuddyProjectProps {
     html_url: string;
     name: string;
     display_name: string;
-    status: string; // 'ACTIVE'
+    status: string;
     create_date: string;
     created_by: {
         url: string;
@@ -51,7 +52,7 @@ export interface BuddyProjectProps {
     default_branch: string;
 }
 
-export class BuddyProject extends CustomResource implements AsOutputs<BuddyIntegrationProjectState>, AsOutputs<BuddyCustomProjectState> {
+export class BuddyProject extends CustomResource implements AsOutputs<BuddyProjectProps> {
     static __pulumiType = 'buddy:project:BuddyProject';
 
     static get(name: string, id: Input<ID>, state?: Partial<BuddyProjectState>, opts?: CustomResourceOptions) {
@@ -65,17 +66,17 @@ export class BuddyProject extends CustomResource implements AsOutputs<BuddyInteg
         return obj['__pulumiType'] === BuddyProject.__pulumiType;
     }
 
-    readonly kind!: Output<Kind.Project>;
-
+    readonly url!: Output<string>;
+    readonly html_url!: Output<string>;
     readonly name!: Output<string>;
     readonly display_name!: Output<string>;
-    readonly integration!: Output<BuddyIntegrationState>;
-    readonly external_project_id!: Output<string>;
-    readonly custom_repo_url!: Output<string | undefined>;
-    readonly custom_repo_user!: Output<string | undefined>;
-    readonly custom_repo_pass!: Output<string | undefined>;
-
-    readonly outputs!: Output<BuddyProjectProps>;
+    readonly status!: Output<string>;
+    readonly create_date!: Output<string>;
+    readonly created_by!: Output<BuddyProjectProps['created_by']>;
+    readonly http_repository!: Output<string>;
+    readonly ssh_repository!: Output<string>;
+    readonly size!: Output<number>;
+    readonly default_branch!: Output<string>;
 
     constructor(name: string, argsOrState: BuddyProjectArgs | BuddyProjectState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -124,12 +125,19 @@ export class BuddyProject extends CustomResource implements AsOutputs<BuddyInteg
             opts.version = require('./package').version;
         }
 
-        if(null == opts.deleteBeforeReplace) {
+        if (null == opts.deleteBeforeReplace) {
             opts.deleteBeforeReplace = true;
         }
 
-        inputs.kind = Kind.Project;
-        inputs.outputs = undefined;
+        inputs['url'] = undefined;
+        inputs['html_url'] = undefined;
+        inputs['status'] = undefined;
+        inputs['create_date'] = undefined;
+        inputs['created_by'] = undefined;
+        inputs['http_repository'] = undefined;
+        inputs['ssh_repository'] = undefined;
+        inputs['size'] = undefined;
+        inputs['default_branch'] = undefined;
 
         super(BuddyProject.__pulumiType, name, inputs, opts);
     }
