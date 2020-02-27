@@ -18,7 +18,6 @@
         "@grpc/proto-loader": "0.5.3",
         "@neoskop/pulumi-buddy": "1.0.0",
         "@pulumi/pulumi": "^1.0.0",
-        "@pulumi/sources": "git+https://github.com/pulumi/pulumi",
         "axios": "0.19.2",
         "google-protobuf": "3.11.4",
         "grpc": "1.24.2",
@@ -29,6 +28,7 @@
         "yargs": "15.1.0"
     },
     "devDependencies": {
+        "@pulumi/sources": "git+https://github.com/pulumi/pulumi",
         "@types/cheerio": "0.22.16",
         "@types/fs-extra": "8.1.0",
         "@types/google-protobuf": "3.7.2",
