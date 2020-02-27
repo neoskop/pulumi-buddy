@@ -11,7 +11,7 @@ import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
 
 import { BuddyApi } from '../buddy/api/api';
-import { ProjectNotFinished, ProjectNotFound } from '../buddy/api/project';
+import { ProjectNotReady, ProjectNotFound } from '../buddy/api/project';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -31,6 +31,7 @@ import { sleep } from '../utils/sleep';
 import { Unique } from '../utils/unique';
 import { Urn } from '../utils/urn';
 import { IProviderConfig, Kind, SubProvider } from './main.provider';
+import { deleteUndefined } from '../utils/delete-undefined';
 
 @Injectable()
 export class ProjectProvider implements SubProvider {
@@ -99,7 +100,7 @@ export class ProjectProvider implements SubProvider {
                             .project(outputs.name)
                             .update({ name: props.name });
                     } catch (e) {
-                        if (!(e instanceof ProjectNotFinished)) {
+                        if (!(e instanceof ProjectNotReady)) {
                             await this.buddyApi
                                 .workspace(this.config!.workspace)
                                 .project(outputs.name)
@@ -116,7 +117,7 @@ export class ProjectProvider implements SubProvider {
                     const response = new CreateResponse();
                     response.setId(outputs.name);
                     response.setProperties(
-                        Struct.fromJavaScript({ ...outputs })
+                        Struct.fromJavaScript(deleteUndefined(outputs))
                     );
 
                     callback(null, response);
@@ -147,7 +148,7 @@ export class ProjectProvider implements SubProvider {
                 outputs => {
                     const response = new ReadResponse();
                     response.setId(id);
-                    response.setInputs(Struct.fromJavaScript({ ...props as any }));
+                    response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
                     response.setProperties(
                         Struct.fromJavaScript({...outputs })
                     );

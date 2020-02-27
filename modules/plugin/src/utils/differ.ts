@@ -5,15 +5,15 @@ export class Differ<T, P> {
 
     protected hasChanged = false;
 
-    constructor(protected readonly olds: T, protected readonly news: T, protected readonly props: P) {}
+    constructor(protected readonly olds: T|undefined, protected readonly news: T, protected readonly props: P) {}
 
     diff<K1 extends keyof T, K2 extends keyof P>(key: K1 & string, propKey?: (K2 & string) | null, triggerReplacement?: boolean): this {
-        const oldValue = JSON.stringify(this.olds[key]);
+        const oldValue = this.olds && JSON.stringify(this.olds[key]);
         const newValue = JSON.stringify(this.news[key]);
         const propsValue = null != propKey ? JSON.stringify(this.props[propKey]) : undefined;
-        if (0 < Object.keys(this.olds).length && oldValue !== newValue) {
+        if (this.olds && 0 < Object.keys(this.olds).length && oldValue !== newValue) {
             this.addDiff(oldValue, newValue, key, !!triggerReplacement);
-        } else if (propKey && propsValue !== newValue) {
+        } else if (propKey && propsValue !== newValue && newValue !== undefined) {
             this.addDiff(propsValue, newValue, key, !!triggerReplacement);
         }
 
