@@ -4,6 +4,7 @@ import { Action, ParameterType } from '../scraper';
 export interface ICodegenOptions {
     utilsImport: string;
     kindsImport: string;
+    commonImport: string;
     pipelineImport: string;
 }
 
@@ -16,10 +17,10 @@ export class BuddyCodegenActions {
         this.options = {
             utilsImport: '@neoskop/pulumi-buddy',
             kindsImport: '@neoskop/pulumi-buddy',
+            commonImport: '@neoskop/pulumi-buddy',
             pipelineImport: '@neoskop/pulumi-buddy',
             ...options
         };
-        this.addCommon();
     }
 
     getFiles() {
@@ -84,141 +85,6 @@ export class BuddyCodegenActions {
         });
     }
 
-    protected addCommon() {
-        const common = this.project.createSourceFile('common.ts');
-
-        const idIntegration = common.addInterface({
-            name: 'IdIntegration',
-            isExported: true,
-            properties: [
-                {
-                    name: 'id',
-                    type: 'number'
-                }
-            ]
-        });
-
-        const hashIntegration = common.addInterface({
-            name: 'HashIntegration',
-            isExported: true,
-            properties: [
-                {
-                    name: 'hash_id',
-                    type: 'string'
-                }
-            ]
-        });
-
-        common.addTypeAlias({
-            name: 'Integration',
-            isExported: true,
-            type: `${idIntegration.getName()} | ${hashIntegration.getName()}`
-        });
-
-        common.addInterface({
-            name: 'Variable',
-            isExported: true,
-            properties: [
-                {
-                    name: 'key',
-                    type: 'string'
-                },
-                {
-                    name: 'value',
-                    type: 'string'
-                }
-            ]
-        });
-
-        common.addInterface({
-            name: 'APKs',
-            isExported: true,
-            properties: [
-                {
-                    name: 'apk_path',
-                    type: 'string'
-                },
-                {
-                    name: 'main_expansion_path',
-                    hasQuestionToken: true,
-                    type: 'string'
-                },
-                {
-                    name: 'patch_expansion_path',
-                    hasQuestionToken: true,
-                    type: 'string'
-                }
-            ]
-        });
-
-        common.addInterface({
-            name: 'Replacement',
-            isExported: true,
-            properties: [
-                {
-                    name: 'replace_from',
-                    type: 'string'
-                },
-                {
-                    name: 'replace_to',
-                    type: 'string'
-                }
-            ]
-        });
-
-        common.addInterface({
-            name: 'Header',
-            isExported: true,
-            properties: [
-                {
-                    name: 'name',
-                    type: 'string'
-                },
-                {
-                    name: 'value',
-                    type: 'string'
-                }
-            ]
-        });
-
-        common.addInterface({
-            name: 'Pipeline',
-            isExported: true,
-            properties: [
-                {
-                    name: 'id',
-                    type: 'number'
-                }
-            ]
-        });
-
-        const serviceTypes = common.addTypeAlias({
-            name: 'ServiceType',
-            isExported: true,
-            type: '"MYSQL" | "MONGO_DB" | "MARIADB" | "POSTGRE_SQL" | "REDIS" | "MEMCACHED" | "ELASTICSEARCH" | "CUSTOM"'
-        });
-
-        common.addInterface({
-            name: 'Service',
-            isExported: true,
-            properties: [
-                {
-                    name: 'type',
-                    type: serviceTypes.getName()
-                },
-                {
-                    name: 'version',
-                    type: 'string'
-                },
-                {
-                    name: 'connection',
-                    hasQuestionToken: true,
-                    type: 'any'
-                }
-            ]
-        });
-    }
-
     protected toFileName(str: string) {
         return str
             .replace(/ +/g, '-')
@@ -227,15 +93,15 @@ export class BuddyCodegenActions {
     }
 
     protected toKeyword(str: string) {
-        return str.replace(/[^\w-]/g, '');
+        return str.replace(/ [a-z]/g, str => str.toUpperCase()).replace(/[^\w-]/g, '');
     }
 
     toTsType(type: ParameterType, file: SourceFile) {
         if ('ref' in type) {
-            let imp = file.getImportDeclaration(d => d.getModuleSpecifierValue() === './common');
+            let imp = file.getImportDeclaration(d => d.getModuleSpecifierValue() === this.options.commonImport);
             if (!imp) {
                 imp = file.addImportDeclaration({
-                    moduleSpecifier: './common'
+                    moduleSpecifier: this.options.commonImport
                 });
             }
             if (!imp.getNamedImports().some(i => i.getName() === type.ref)) {
@@ -342,7 +208,7 @@ export class BuddyCodegenActions {
                 type: 'string'
             },
             {
-                name: 'id',
+                name: 'action_id',
                 type: 'number'
             }
         ]);
@@ -358,9 +224,17 @@ export class BuddyCodegenActions {
         props.addProperty({
             name: 'pipeline',
             type: 'BuddyPipelineProps'
-        })
+        });
 
-        // @TODO: add pipeline output
+        props.addProperty({
+            name: 'project_name',
+            type: 'string'
+        });
+
+        props.addProperty({
+            name: 'pipeline_id',
+            type: 'number'
+        });
 
         return props;
     }
@@ -381,7 +255,7 @@ export class BuddyCodegenActions {
         actionClass.addProperty({
             name: '__pulumiType',
             isStatic: true,
-            initializer: `'buddy:index/action:${actionClass.getName()}'`
+            initializer: `'buddy:action:${actionClass.getName()}'`
         });
 
         actionClass.addMethod({
@@ -423,11 +297,11 @@ export class BuddyCodegenActions {
             ]
         });
 
-        const kind = actionClass.addProperty({
-            name: 'kind',
-            hasExclamationToken: true,
-            type: 'Output<Kind.Action>'
-        });
+        // const kind = actionClass.addProperty({
+        //     name: 'kind',
+        //     hasExclamationToken: true,
+        //     type: 'Output<Kind.Action>'
+        // });
 
         actionClass.addProperty({
             name: 'project_name',
@@ -441,6 +315,12 @@ export class BuddyCodegenActions {
             type: 'Output<number>'
         });
 
+        actionClass.addProperty({
+            name: 'action_id',
+            hasExclamationToken: true,
+            type: 'Output<number>'
+        });
+
         for (const param of action.parameters) {
             actionClass.addProperty({
                 name: param.name,
@@ -449,13 +329,13 @@ export class BuddyCodegenActions {
             });
         }
 
-        const outputs = actionClass.addProperty({
-            name: 'outputs',
-            hasExclamationToken: true,
-            type: `Output<${props.getName()}>`
-        });
-        kind.appendWhitespace('\n');
-        outputs.prependWhitespace('\n');
+        // const outputs = actionClass.addProperty({
+        //     name: 'outputs',
+        //     hasExclamationToken: true,
+        //     type: `Output<${props.getName()}>`
+        // });
+        // kind.appendWhitespace('\n');
+        // outputs.prependWhitespace('\n');
 
         const stateAdaption: string[] = [];
         const argsChecks: string[] = [];
@@ -512,11 +392,12 @@ export class BuddyCodegenActions {
                 'if (!opts.version) {',
                 "  opts.version = require('../package').version;",
                 '}',
-                `opts.ignoreChanges = ['project_name', 'pipeline_id', 'after_action_id', ...(opts.ignoreChanges || [])];`,
+                `opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];`,
                 '',
-                'inputs.kind = Kind.Action',
-                `inputs.type = "${action.type}"`,
-                'inputs.outputs = undefined',
+                `inputs['type'] = "${action.type}";`,
+                `inputs['url'] = undefined;`,
+                `inputs['html_url'] = undefined;`,
+                `inputs['action_id'] = undefined;`,
                 '',
                 `super(${actionClass.getName()}.__pulumiType, name, inputs, opts)`
             ]

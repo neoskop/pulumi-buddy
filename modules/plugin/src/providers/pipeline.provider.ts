@@ -133,7 +133,7 @@ export class PipelineProvider implements SubProvider {
                 outputs => {
                     const response = new ReadResponse();
                     response.setId(req.request.getId());
-                    response.setInputs(Struct.fromJavaScript(props as {}));
+                    response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
                     response.setProperties(
                         Struct.fromJavaScript(deleteUndefined({
                             ...outputs,
