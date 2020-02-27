@@ -8,8 +8,11 @@
     "scripts": {
         "build": "tsc",
         "watch": "tsc -w",
-        "install-plugin": "bin/install-plugin.sh",
-        "generate-grpc": "mkdir -p src/generated && mkdir -p dist/generated && pbjs -t static-module -w commonjs  -o dist/generated/grpc.js ../../node_modules/@pulumi/sources/sdk/proto/*.proto && pbts -o src/generated/grpc.d.ts dist/generated/grpc.js"
+        "prepare": "npm run generate",
+        "generate": "npm run generate:grpc-code && npm run generate:buddy-actions",
+        "generate:grpc-code": "./bin/generate-grpc-code.sh",
+        "generate:buddy-actions": "./bin/generate-buddy-actions.ts",
+        "install-plugin": "bin/install-plugin.sh"
     },
     "dependencies": {
         "@grpc/proto-loader": "0.5.3",
