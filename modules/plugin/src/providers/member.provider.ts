@@ -1,4 +1,4 @@
-import { BuddyMemberState, BuddyProjectState, BuddyMemberProps } from '@neoskop/pulumi-buddy';
+import { BuddyMemberProps, BuddyMemberState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
@@ -6,7 +6,7 @@ import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
 
 import { BuddyApi } from '../buddy/api/api';
-import { ProjectNotFound } from '../buddy/api/project';
+import { MemberNotFound } from '../buddy/api/member';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -115,7 +115,7 @@ export class MemberProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyMemberState;
         const id = +req.request.getId();
 
         this.buddyApi
@@ -128,11 +128,13 @@ export class MemberProvider implements SubProvider {
                     response.setId(req.request.getId());
                     response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
                     response.setProperties(
-                        Struct.fromJavaScript({
-                            ...outputs,
-                            id: undefined!,
-                            member_id: outputs.id
-                        })
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined!,
+                                member_id: outputs.id
+                            })
+                        )
                     );
 
                     callback(null, response);
@@ -140,7 +142,7 @@ export class MemberProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof ProjectNotFound) {
+                    } else if (err instanceof MemberNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
@@ -165,11 +167,13 @@ export class MemberProvider implements SubProvider {
                 outputs => {
                     const response = new UpdateResponse();
                     response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined({
-                            ...outputs,
-                            id: undefined!,
-                            member_id: outputs.id
-                        }))
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined!,
+                                member_id: outputs.id
+                            })
+                        )
                     );
 
                     callback(null, response);
@@ -177,7 +181,7 @@ export class MemberProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof ProjectNotFound) {
+                    } else if (err instanceof MemberNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
@@ -204,7 +208,7 @@ export class MemberProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof ProjectNotFound) {
+                    } else if (err instanceof MemberNotFound) {
                         setTimeout(() => callback(null, new Empty()), 1000);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
