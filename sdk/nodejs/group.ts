@@ -59,10 +59,6 @@ export class BuddyGroup extends CustomResource implements AsOutputs<BuddyGroupPr
             opts.version = require('./package').version;
         }
 
-        if (null == opts.deleteBeforeReplace) {
-            opts.deleteBeforeReplace = true;
-        }
-
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['group_id'] = undefined;
