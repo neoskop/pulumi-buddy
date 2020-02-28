@@ -1,11 +1,10 @@
 import Axios from 'axios';
-
 import { BuddyApi } from './api';
 import { BuddyWorkspaceApi } from './workspace';
 
 export interface IBuddyGroupInput {
     name: string;
-    description?: string|null;
+    description?: string | null;
 }
 
 export interface IBuddyGroup {
@@ -13,7 +12,7 @@ export interface IBuddyGroup {
     html_url: string;
     id: number;
     name: string;
-    description: string|null;
+    description: string | null;
 }
 
 export class BuddyGroupApi {
@@ -149,7 +148,7 @@ export class GroupIdRequired extends GroupError {
 }
 
 export class GroupNotFound extends GroupError {
-    constructor(GroupId: number) {
-        super(`Group '${GroupId}' not found.`);
+    constructor(groupId: number) {
+        super(`Group '${groupId}' not found.`);
     }
 }

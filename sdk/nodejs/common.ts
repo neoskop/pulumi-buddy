@@ -6,7 +6,7 @@ export interface HashIntegration {
     hash_id: string;
 }
 
-export type Integration = IdIntegration | HashIntegration;
+export type IntegrationRef = IdIntegration | HashIntegration;
 
 export interface Variable {
     key: string;

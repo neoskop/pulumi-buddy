@@ -98,8 +98,8 @@ export class BuddyCodegenActions {
         if ('ref' in type) {
             let ref = type.ref;
 
-            if (ref === 'Pipeline') {
-                ref = 'PipelineRef';
+            if (['Pipeline', 'Integration'].includes(ref)) {
+                ref = `${ref}Ref`;
             }
 
             let imp = file.getImportDeclaration(d => d.getModuleSpecifierValue() === this.options.commonImport);

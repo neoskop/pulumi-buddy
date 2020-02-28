@@ -1,11 +1,11 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
-import { Integration } from './common';
+import { IntegrationRef } from './common';
 import { AsInputs, AsOutputs } from './utils';
 
 export interface IntegrationProjectState {
     name?: string;
     display_name: string;
-    integration: Integration;
+    integration: IntegrationRef;
     external_project_id: string;
 }
 
@@ -91,7 +91,7 @@ export class Project extends CustomResource implements AsOutputs<ProjectProps> {
                 if (!args.integration) {
                     throw new Error('Missing required property "integration"');
                 }
-                if (!('id' in args.integration) && !('hash_id' in args.integration)) {
+                if (!(args.integration instanceof Promise) && !('id' in args.integration) && !('hash_id' in args.integration)) {
                     throw new Error('Missing required property "id" or "hash_id" in "integration"');
                 }
                 if (!args.external_project_id) {
