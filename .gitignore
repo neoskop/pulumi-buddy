@@ -2,3 +2,4 @@
 /Pulumi.*.yaml
 /Pulumi.yaml
 /stack.json
+/index.ts
