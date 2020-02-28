@@ -20,12 +20,12 @@ export class Provider extends ProviderResource {
             opts.version = require('./package').version;
         }
 
-        const config = new Config();
+        const config = new Config('buddy');
 
         const inputs : Inputs = {
-            apiUrl: args?.apiUrl ?? config.get('BUDDY_API_URL')?.replace(/\/?/, '') ?? 'https://api.buddy.works',
-            workspace: args?.workspace ?? config.require('BUDDY_WORKSPACE'),
-            token: args?.token ?? config.requireSecret('BUDDY_AUTH_TOKEN')
+            apiUrl: args?.apiUrl ?? config.get('apiUrl')?.replace(/\/?/, '') ?? 'https://api.buddy.works',
+            workspace: args?.workspace ?? config.require('workspace'),
+            token: args?.token ?? config.requireSecret('token')
         }
 
         super(Provider.__pulumiType, name, inputs, opts);
