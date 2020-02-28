@@ -6,7 +6,7 @@
     "author": "Mark Wecke <wecke@neoskop.de>",
     "license": "MIT",
     "bin": {
-        "pulumi-buddy-plugin": "bin/pulumi-buddy-plugin.sh"
+        "pulumi-buddy-plugin": "bin/install-plugin.sh"
     },
     "scripts": {
         "build": "tsc",
@@ -14,8 +14,7 @@
         "prepare": "npm run generate",
         "generate": "npm run generate:grpc-code && npm run generate:buddy-actions",
         "generate:grpc-code": "./bin/generate-grpc-code.sh",
-        "generate:buddy-actions": "./bin/generate-buddy-actions.ts",
-        "install-plugin": "bin/install-plugin.sh"
+        "generate:buddy-actions": "./bin/generate-buddy-actions.ts"
     },
     "dependencies": {
         "@grpc/proto-loader": "0.5.3",
