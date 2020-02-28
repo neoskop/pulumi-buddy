@@ -10,7 +10,7 @@ fi
 BASEDIR=$(dirname $BINDIR);
 
 NAME="buddy"
-VERSION="1.0.0"
+VERSION=$(node -e "console.log(require('$BASEDIR/package').version)")
 
 PLUGIN_DIR="${PULUMI_PLUGINS_DIR}/resource-${NAME}-v${VERSION}"
 
