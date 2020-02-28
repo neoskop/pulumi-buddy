@@ -1,10 +1,8 @@
 {
     "name": "neoskop-pulumi-buddy",
-    "description": "Pulumi integration for Buddy",
     "author": "Mark Wecke <wecke@neoskop.de>",
     "version": "0.0.0",
     "license": "MIT",
-    "private": true,
     "scripts": {
         "prepare": "cd modules/plugin && npm run prepare"
     },
