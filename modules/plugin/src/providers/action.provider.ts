@@ -102,7 +102,7 @@ export class ActionProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
@@ -143,7 +143,7 @@ export class ActionProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound || err instanceof ActionNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
@@ -182,7 +182,7 @@ export class ActionProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
                     }
@@ -208,7 +208,7 @@ export class ActionProvider implements SubProvider {
                 () => callback(null, new Empty()),
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else if (err instanceof ActionNotFound) {

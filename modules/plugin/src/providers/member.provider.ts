@@ -102,7 +102,7 @@ export class MemberProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
                     }
@@ -139,7 +139,7 @@ export class MemberProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else if (err instanceof ProjectNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
@@ -176,7 +176,7 @@ export class MemberProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else if (err instanceof ProjectNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
@@ -203,7 +203,7 @@ export class MemberProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else if (err instanceof ProjectNotFound) {
                         setTimeout(() => callback(null, new Empty()), 1000);
                     } else {

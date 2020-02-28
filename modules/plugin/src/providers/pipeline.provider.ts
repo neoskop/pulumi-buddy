@@ -106,7 +106,7 @@ export class PipelineProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else if (err instanceof ProjectNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
@@ -147,7 +147,7 @@ export class PipelineProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
@@ -186,7 +186,7 @@ export class PipelineProvider implements SubProvider {
                 },
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
                     }
@@ -211,7 +211,7 @@ export class PipelineProvider implements SubProvider {
                 () => callback(null, new Empty()),
                 err => {
                     if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED), null);
+                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
                     } else if (err instanceof ProjectNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else if (err instanceof PipelineNotFound) {
