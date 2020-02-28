@@ -4,6 +4,7 @@ import { BuddyMemberApi } from './member';
 import { BuddyGroupApi } from './group';
 import { BuddyPermissionApi } from './permission';
 import { BuddyWebhookApi } from './webhook';
+import { BuddyEnvironmentVariableApi } from './environment-variable';
 
 export class BuddyWorkspaceApi {
     constructor(protected readonly api: BuddyApi, protected readonly domain?: string) {}
@@ -44,6 +45,10 @@ export class BuddyWorkspaceApi {
 
     webhook(webhookId?: number) {
         return new BuddyWebhookApi(this.api, this, webhookId);
+    }
+
+    environmentVariable(variableId?: number) {
+        return new BuddyEnvironmentVariableApi(this.api, this, variableId);
     }
 }
 

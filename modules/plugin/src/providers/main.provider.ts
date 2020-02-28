@@ -42,6 +42,7 @@ export const SUB_PROVIDER = new InjectionToken<SubProvider[]>('Sub Provider');
 
 export enum Kind {
     Action = 'action',
+    EnvironmentVariable = 'environment-variable',
     Member = 'member',
     Group = 'group',
     Permission = 'permission',

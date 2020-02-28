@@ -1,5 +1,6 @@
 export * from './action';
 export * from './common';
+export * from './environment-variable';
 export * from './group';
 export * from './member';
 export * from './permission';
