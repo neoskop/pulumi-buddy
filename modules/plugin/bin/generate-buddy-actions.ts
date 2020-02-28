@@ -2,6 +2,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as Listr from 'listr';
+import * as Prettier from 'prettier';
 
 import { BuddyCodegenActions } from '../src/buddy/codegen/actions';
 import { BuddyScraper, Action } from '../src/buddy/scraper';
@@ -58,7 +59,9 @@ async function main() {
                 for (const file of ctx.codegen.getFiles()) {
                     const p = Math.round(i++ / ctx.actions.length * 100);
                     task.output = `${p}% ${file.getBaseName()}`;
-                    await fs.writeFile(path.join(ctx.targetDir, file.getBaseName()), file.getFullText());
+                    let code = file.getFullText()
+                    code = Prettier.format(code, { ...require('../../../package').prettier, parser: 'typescript' });
+                    await fs.writeFile(path.join(ctx.targetDir, file.getBaseName()), code);
                     await sleep(1);
                 }
             }
