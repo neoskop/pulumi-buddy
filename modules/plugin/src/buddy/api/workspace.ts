@@ -3,6 +3,7 @@ import { BuddyProjectApi } from './project';
 import { BuddyMemberApi } from './member';
 import { BuddyGroupApi } from './group';
 import { BuddyPermissionApi } from './permission';
+import { BuddyWebhookApi } from './webhook';
 
 export class BuddyWorkspaceApi {
     constructor(protected readonly api: BuddyApi, protected readonly domain?: string) {}
@@ -39,6 +40,10 @@ export class BuddyWorkspaceApi {
 
     permission(permissionId?: number) {
         return new BuddyPermissionApi(this.api, this, permissionId);
+    }
+
+    webhook(webhookId?: number) {
+        return new BuddyWebhookApi(this.api, this, webhookId);
     }
 }
 

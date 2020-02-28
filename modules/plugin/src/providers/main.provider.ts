@@ -46,7 +46,8 @@ export enum Kind {
     Group = 'group',
     Permission = 'permission',
     Pipeline = 'pipeline',
-    Project = 'project'
+    Project = 'project',
+    Webhook = 'webhook'
 }
 
 @Injectable()
