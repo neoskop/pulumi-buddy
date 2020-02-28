@@ -13,6 +13,7 @@ import { MemberProvider } from './providers/member.provider';
 import { PipelineProvider } from './providers/pipeline.provider';
 import { ProjectProvider } from './providers/project.provider';
 import { GroupProvider } from './providers/group.provider';
+import { PermissionProvider } from './providers/permission.provider';
 
 async function main(args: string[]) {
     if (1 !== args.length) {
@@ -39,6 +40,7 @@ async function main(args: string[]) {
         { provide: SUB_PROVIDER, useClass: ActionProvider, multi: true },
         { provide: SUB_PROVIDER, useClass: MemberProvider, multi: true },
         { provide: SUB_PROVIDER, useClass: GroupProvider, multi: true },
+        { provide: SUB_PROVIDER, useClass: PermissionProvider, multi: true },
         MainProvider,
         { provide: BuddyApi, useValue: new BuddyApi() }
     ]);

@@ -2,6 +2,7 @@ import { BuddyApi } from './api';
 import { BuddyProjectApi } from './project';
 import { BuddyMemberApi } from './member';
 import { BuddyGroupApi } from './group';
+import { BuddyPermissionApi } from './permission';
 
 export class BuddyWorkspaceApi {
     constructor(protected readonly api: BuddyApi, protected readonly domain?: string) {}
@@ -34,6 +35,10 @@ export class BuddyWorkspaceApi {
 
     group(groupId?: number) {
         return new BuddyGroupApi(this.api, this, groupId);
+    }
+
+    permission(permissionId?: number) {
+        return new BuddyPermissionApi(this.api, this, permissionId);
     }
 }
 

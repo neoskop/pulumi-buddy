@@ -44,6 +44,7 @@ export enum Kind {
     Action = 'action',
     Member = 'member',
     Group = 'group',
+    Permission = 'permission',
     Pipeline = 'pipeline',
     Project = 'project'
 }
