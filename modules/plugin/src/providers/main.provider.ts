@@ -1,8 +1,9 @@
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
-import { sendUnaryData, ServerUnaryCall, ServerWritableStream } from 'grpc';
+import { sendUnaryData, ServerUnaryCall, ServerWritableStream, status } from 'grpc';
 import { Inject, Injectable, InjectionToken } from 'injection-js';
 
 import { BuddyApi } from '../buddy/api/api';
+import { ServiceError } from '../errors/service.error';
 import { PluginInfo } from '../grpc/plugin_pb';
 import { IResourceProviderServer } from '../grpc/provider_grpc_pb';
 import {
@@ -23,7 +24,7 @@ import {
     UpdateRequest,
     UpdateResponse,
 } from '../grpc/provider_pb';
-import { Id } from '../utils/id';
+import { Tok } from '../utils/tok';
 import { Urn } from '../utils/urn';
 
 export interface IProviderConfig {
@@ -31,10 +32,11 @@ export interface IProviderConfig {
     workspace: string;
     token: string;
 }
-export type SubProvider = Pick<IResourceProviderServer, 'check' | 'diff' | 'create' | 'read' | 'update' | 'delete'> & {
-    readonly kind: Kind;
-    setConfig(config: IProviderConfig): void;
-};
+export type SubProvider = Pick<IResourceProviderServer, 'check' | 'diff' | 'create' | 'read' | 'update' | 'delete'> &
+    Partial<Pick<IResourceProviderServer, 'invoke' | 'streamInvoke'>> & {
+        readonly kind: Kind;
+        setConfig(config: IProviderConfig): void;
+    };
 
 export const SUB_PROVIDER = new InjectionToken<SubProvider[]>('Sub Provider');
 
@@ -42,7 +44,7 @@ export enum Kind {
     Action = 'action',
     Member = 'member',
     Pipeline = 'pipeline',
-    Project = 'project',
+    Project = 'project'
 }
 
 @Injectable()
@@ -124,21 +126,38 @@ export class MainProvider implements IResourceProviderServer {
     }
 
     invoke(req: ServerUnaryCall<InvokeRequest>, callback: sendUnaryData<InvokeResponse>) {
-        console.log('invoke:provider', req.request.getProvider());
-        console.log('invoke:args', req.request.getArgs());
-        console.log('invoke:tok', req.request.getTok());
-        console.log('invoke:version', req.request.getVersion());
+        const tok = Tok.parse(req.request.getTok());
+        const provider = this.getProvider(tok.provider as Kind);
 
-        callback(null, new InvokeResponse());
+        if (!provider) {
+            return callback(new ServiceError(`Provider '${tok.provider}' not found`, status.INVALID_ARGUMENT), null);
+        }
+
+        if (!provider.invoke) {
+            return callback(new ServiceError(`Invoke not implemented in provider '${tok.provider}'`, status.UNIMPLEMENTED), null);
+        }
+
+        provider.invoke(req, callback);
     }
 
+    /**
+     * @TODO: make this working
+     */
     streamInvoke(req: ServerWritableStream<InvokeRequest>) {
-        console.log('streamInvoke:provider', req.request.getProvider());
-        console.log('streamInvoke:args', req.request.getArgs());
-        console.log('streamInvoke:tok', req.request.getTok());
-        console.log('streamInvoke:version', req.request.getVersion());
+        const tok = Tok.parse(req.request.getTok());
+        const provider = this.getProvider(tok.provider as Kind);
 
-        req.write(new InvokeResponse());
+        if (!provider) {
+            return req.emit('error', new ServiceError(`Provider '${tok.provider}' not found`, status.INVALID_ARGUMENT));
+        }
+
+        if (!provider.streamInvoke) {
+            return req.emit('error', new ServiceError(`Invoke not implemented in provider '${tok.provider}'`, status.UNIMPLEMENTED));
+        }
+
+        provider.streamInvoke(req);
+
+        return true;
     }
 
     check(req: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
