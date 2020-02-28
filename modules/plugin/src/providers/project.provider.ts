@@ -1,17 +1,11 @@
-import {
-    BuddyCustomProjectState,
-    BuddyIntegrationProjectState,
-    BuddyProjectProps,
-    BuddyProjectState,
-} from '@neoskop/pulumi-buddy';
+import { CustomProjectState, IntegrationProjectState, ProjectProps, ProjectState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
-
 import { BuddyApi } from '../buddy/api/api';
-import { ProjectNotReady, ProjectNotFound } from '../buddy/api/project';
+import { ProjectNotFound, ProjectNotReady } from '../buddy/api/project';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -24,14 +18,14 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
+    UpdateResponse
 } from '../grpc/provider_pb';
+import { deleteUndefined } from '../utils/delete-undefined';
 import { Differ } from '../utils/differ';
 import { sleep } from '../utils/sleep';
 import { Unique } from '../utils/unique';
 import { Urn } from '../utils/urn';
 import { IProviderConfig, Kind, SubProvider } from './main.provider';
-import { deleteUndefined } from '../utils/delete-undefined';
 
 @Injectable()
 export class ProjectProvider implements SubProvider {
@@ -39,7 +33,7 @@ export class ProjectProvider implements SubProvider {
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, BuddyIntegrationProjectState & BuddyCustomProjectState>();
+    protected readonly olds = new Map<string, IntegrationProjectState & CustomProjectState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -48,8 +42,8 @@ export class ProjectProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const olds = request.getOlds()!.toJavaScript() as unknown as BuddyIntegrationProjectState & BuddyCustomProjectState;
-        const news = request.getNews()!.toJavaScript()
+        const olds = (request.getOlds()!.toJavaScript() as unknown) as IntegrationProjectState & CustomProjectState;
+        const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
         const checkResponse = new CheckResponse();
@@ -58,8 +52,8 @@ export class ProjectProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyProjectProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyIntegrationProjectState & BuddyCustomProjectState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as ProjectProps;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as IntegrationProjectState & CustomProjectState;
         const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
@@ -81,7 +75,7 @@ export class ProjectProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyIntegrationProjectState & BuddyCustomProjectState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as IntegrationProjectState & CustomProjectState;
         const urn = Urn.parse(req.request.getUrn());
 
         if (!props.name) {
@@ -116,9 +110,7 @@ export class ProjectProvider implements SubProvider {
                 outputs => {
                     const response = new CreateResponse();
                     response.setId(outputs.name);
-                    response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined(outputs))
-                    );
+                    response.setProperties(Struct.fromJavaScript(deleteUndefined(outputs)));
 
                     callback(null, response);
                 },
@@ -137,7 +129,7 @@ export class ProjectProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyProjectState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as ProjectState;
         const id = req.request.getId();
 
         this.buddyApi
@@ -149,9 +141,7 @@ export class ProjectProvider implements SubProvider {
                     const response = new ReadResponse();
                     response.setId(id);
                     response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
-                    response.setProperties(
-                        Struct.fromJavaScript({...outputs })
-                    );
+                    response.setProperties(Struct.fromJavaScript({ ...outputs }));
 
                     callback(null, response);
                 },
@@ -172,7 +162,7 @@ export class ProjectProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyProjectState;
+        const news = (req.request.getNews()!.toJavaScript() as unknown) as ProjectState;
         const id = req.request.getId();
 
         this.buddyApi
@@ -182,9 +172,7 @@ export class ProjectProvider implements SubProvider {
             .then(
                 outputs => {
                     const response = new UpdateResponse();
-                    response.setProperties(
-                        Struct.fromJavaScript({ ...outputs })
-                    );
+                    response.setProperties(Struct.fromJavaScript({ ...outputs }));
 
                     callback(null, response);
                 },

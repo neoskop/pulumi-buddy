@@ -1,53 +1,52 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
-
 import { AsInputs, AsOutputs } from './utils';
 
-export interface BuddyGroupState {
+export interface GroupState {
     name: string;
     description?: string;
 }
 
-export type BuddyGroupArgs = AsInputs<BuddyGroupState>;
+export type GroupArgs = AsInputs<GroupState>;
 
-export interface BuddyGroupProps {
+export interface GroupProps {
     url: string;
     html_url: string;
     group_id: number;
     name: string;
-    description: string|null;
+    description: string | null;
 }
 
-export class BuddyGroup extends CustomResource implements AsOutputs<BuddyGroupProps> {
-    static __pulumiType = 'buddy:group:BuddyGroup';
+export class Group extends CustomResource implements AsOutputs<GroupProps> {
+    static __pulumiType = 'buddy:group:Group';
 
-    static get(name: string, id: Input<ID>, state?: Partial<BuddyGroupState>, opts?: CustomResourceOptions) {
-        return new BuddyGroup(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<GroupState>, opts?: CustomResourceOptions) {
+        return new Group(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is BuddyGroup {
+    static isInstance(obj: any): obj is Group {
         if (null == obj) {
             return false;
         }
-        return obj['__pulumiType'] === BuddyGroup.__pulumiType;
+        return obj['__pulumiType'] === Group.__pulumiType;
     }
 
     readonly url!: Output<string>;
     readonly html_url!: Output<string>;
     readonly group_id!: Output<number>;
     readonly name!: Output<string>;
-    readonly description!: Output<string|null>;
+    readonly description!: Output<string | null>;
 
-    constructor(name: string, argsOrState: BuddyGroupArgs | BuddyGroupState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GroupArgs | GroupState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
         if (opts.id) {
-            const state = argsOrState as BuddyGroupState | undefined;
+            const state = argsOrState as GroupState | undefined;
             inputs['name'] = state?.name;
             inputs['description'] = state?.description;
         } else {
-            const args = argsOrState as BuddyGroupArgs | undefined;
+            const args = argsOrState as GroupArgs | undefined;
             if (!args || !args.name) {
                 throw new Error('Missing required property "name"');
             }
@@ -63,6 +62,6 @@ export class BuddyGroup extends CustomResource implements AsOutputs<BuddyGroupPr
         inputs['html_url'] = undefined;
         inputs['group_id'] = undefined;
 
-        super(BuddyGroup.__pulumiType, name, inputs, opts);
+        super(Group.__pulumiType, name, inputs, opts);
     }
 }

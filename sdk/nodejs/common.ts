@@ -29,11 +29,11 @@ export interface Header {
     value: string;
 }
 
-export interface Pipeline {
+export interface PipelineRef {
     id: number;
 }
 
-export type ServiceType = "MYSQL" | "MONGO_DB" | "MARIADB" | "POSTGRE_SQL" | "REDIS" | "MEMCACHED" | "ELASTICSEARCH" | "CUSTOM";
+export type ServiceType = 'MYSQL' | 'MONGO_DB' | 'MARIADB' | 'POSTGRE_SQL' | 'REDIS' | 'MEMCACHED' | 'ELASTICSEARCH' | 'CUSTOM';
 
 export interface Service {
     type: ServiceType;

@@ -1,10 +1,9 @@
-import { BuddyMemberProps, BuddyMemberState } from '@neoskop/pulumi-buddy';
+import { MemberProps, MemberState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
-
 import { BuddyApi } from '../buddy/api/api';
 import { MemberNotFound } from '../buddy/api/member';
 import { ServiceError } from '../errors/service.error';
@@ -19,7 +18,7 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
+    UpdateResponse
 } from '../grpc/provider_pb';
 import { deleteUndefined } from '../utils/delete-undefined';
 import { Differ } from '../utils/differ';
@@ -31,7 +30,7 @@ export class MemberProvider implements SubProvider {
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, BuddyMemberState>();
+    protected readonly olds = new Map<string, MemberState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -40,7 +39,7 @@ export class MemberProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const olds = (request.getOlds()!.toJavaScript() as unknown) as BuddyMemberState;
+        const olds = (request.getOlds()!.toJavaScript() as unknown) as MemberState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
@@ -50,8 +49,8 @@ export class MemberProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyMemberProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyMemberState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as MemberProps;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as MemberState;
         const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
@@ -68,7 +67,7 @@ export class MemberProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyMemberState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as MemberState;
 
         this.buddyApi
             .workspace(this.config.workspace)
@@ -115,7 +114,7 @@ export class MemberProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyMemberState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as MemberState;
         const id = +req.request.getId();
 
         this.buddyApi
@@ -156,7 +155,7 @@ export class MemberProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyMemberState;
+        const news = (req.request.getNews()!.toJavaScript() as unknown) as MemberState;
         const id = +req.request.getId();
 
         this.buddyApi

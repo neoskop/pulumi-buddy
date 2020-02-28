@@ -1,11 +1,11 @@
-import { BuddyMemberState, BuddyProjectState, BuddyMemberProps, BuddyWebhookState, BuddyWebhookProps } from '@neoskop/pulumi-buddy';
+import { WebhookProps, WebhookState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
-
 import { BuddyApi } from '../buddy/api/api';
+import { WebhookNotFound } from '../buddy/api/webhook';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -18,12 +18,11 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
+    UpdateResponse
 } from '../grpc/provider_pb';
 import { deleteUndefined } from '../utils/delete-undefined';
 import { Differ } from '../utils/differ';
 import { IProviderConfig, Kind, SubProvider } from './main.provider';
-import { WebhookNotFound } from '../buddy/api/webhook';
 
 @Injectable()
 export class WebhookProvider implements SubProvider {
@@ -31,7 +30,7 @@ export class WebhookProvider implements SubProvider {
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, BuddyWebhookState>();
+    protected readonly olds = new Map<string, WebhookState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -40,7 +39,7 @@ export class WebhookProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const olds = (request.getOlds()!.toJavaScript() as unknown) as BuddyWebhookState;
+        const olds = (request.getOlds()!.toJavaScript() as unknown) as WebhookState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
@@ -50,8 +49,8 @@ export class WebhookProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyWebhookProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyWebhookState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as WebhookProps;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as WebhookState;
         const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
@@ -70,7 +69,7 @@ export class WebhookProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyWebhookState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as WebhookState;
 
         this.buddyApi
             .workspace(this.config.workspace)
@@ -110,7 +109,7 @@ export class WebhookProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyWebhookState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as WebhookState;
         const id = +req.request.getId();
 
         this.buddyApi
@@ -123,11 +122,13 @@ export class WebhookProvider implements SubProvider {
                     response.setId(req.request.getId());
                     response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
                     response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined({
-                            ...outputs,
-                            id: undefined!,
-                            webhook_id: outputs.id
-                        }))
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined!,
+                                webhook_id: outputs.id
+                            })
+                        )
                     );
 
                     callback(null, response);
@@ -149,7 +150,7 @@ export class WebhookProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyWebhookState;
+        const news = (req.request.getNews()!.toJavaScript() as unknown) as WebhookState;
         const id = +req.request.getId();
 
         this.buddyApi
@@ -163,11 +164,13 @@ export class WebhookProvider implements SubProvider {
                 outputs => {
                     const response = new UpdateResponse();
                     response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined({
-                            ...outputs,
-                            id: undefined!,
-                            webhook_id: outputs.id
-                        }))
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined!,
+                                webhook_id: outputs.id
+                            })
+                        )
                     );
 
                     callback(null, response);

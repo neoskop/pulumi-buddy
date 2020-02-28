@@ -1,11 +1,11 @@
-import { BuddyMemberState, BuddyProjectState, BuddyMemberProps, BuddyGroupState, BuddyGroupProps } from '@neoskop/pulumi-buddy';
+import { GroupProps, GroupState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
-
 import { BuddyApi } from '../buddy/api/api';
+import { GroupNotFound } from '../buddy/api/group';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -18,12 +18,11 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
+    UpdateResponse
 } from '../grpc/provider_pb';
 import { deleteUndefined } from '../utils/delete-undefined';
 import { Differ } from '../utils/differ';
 import { IProviderConfig, Kind, SubProvider } from './main.provider';
-import { GroupNotFound } from '../buddy/api/group';
 
 @Injectable()
 export class GroupProvider implements SubProvider {
@@ -31,7 +30,7 @@ export class GroupProvider implements SubProvider {
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, BuddyGroupState>();
+    protected readonly olds = new Map<string, GroupState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -40,7 +39,7 @@ export class GroupProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const olds = (request.getOlds()!.toJavaScript() as unknown) as BuddyGroupState;
+        const olds = (request.getOlds()!.toJavaScript() as unknown) as GroupState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
@@ -50,8 +49,8 @@ export class GroupProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyGroupProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyGroupState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as GroupProps;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as GroupState;
         const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
@@ -68,7 +67,7 @@ export class GroupProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyGroupState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as GroupState;
 
         this.buddyApi
             .workspace(this.config.workspace)
@@ -105,7 +104,7 @@ export class GroupProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyGroupState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as GroupState;
         const id = +req.request.getId();
 
         this.buddyApi
@@ -118,11 +117,13 @@ export class GroupProvider implements SubProvider {
                     response.setId(req.request.getId());
                     response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
                     response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined({
-                            ...outputs,
-                            id: undefined!,
-                            group_id: outputs.id
-                        }))
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined!,
+                                group_id: outputs.id
+                            })
+                        )
                     );
 
                     callback(null, response);
@@ -144,7 +145,7 @@ export class GroupProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyGroupState;
+        const news = (req.request.getNews()!.toJavaScript() as unknown) as GroupState;
         const id = +req.request.getId();
 
         this.buddyApi
@@ -155,11 +156,13 @@ export class GroupProvider implements SubProvider {
                 outputs => {
                     const response = new UpdateResponse();
                     response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined({
-                            ...outputs,
-                            id: undefined!,
-                            group_id: outputs.id
-                        }))
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined!,
+                                group_id: outputs.id
+                            })
+                        )
                     );
 
                     callback(null, response);

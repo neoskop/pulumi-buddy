@@ -1,7 +1,6 @@
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { sendUnaryData, ServerUnaryCall, ServerWritableStream, status } from 'grpc';
 import { Inject, Injectable, InjectionToken } from 'injection-js';
-
 import { BuddyApi } from '../buddy/api/api';
 import { ServiceError } from '../errors/service.error';
 import { PluginInfo } from '../grpc/plugin_pb';
@@ -22,7 +21,7 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
+    UpdateResponse
 } from '../grpc/provider_pb';
 import { Tok } from '../utils/tok';
 import { Urn } from '../utils/urn';

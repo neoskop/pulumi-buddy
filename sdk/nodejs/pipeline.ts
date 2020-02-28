@@ -1,12 +1,10 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
-
 import { AsInputs, AsOutputs } from './utils';
 
 export type TriggerMode = 'MANUAL' | 'SCHEDULED' | 'ON_EVERY_PUSH';
 export type RefType = 'BRANCH' | 'TAG' | 'WILDCARD' | 'PULL_REQUEST' | 'NONE';
 
-
-export interface BuddyPipelineState {
+export interface PipelineState {
     project_name: string;
     name: string;
     ref_name: string;
@@ -25,9 +23,9 @@ export interface BuddyPipelineState {
     execution_message_template?: string;
 }
 
-export type BuddyPipelineArgs = AsInputs<BuddyPipelineState>;
+export type PipelineArgs = AsInputs<PipelineState>;
 
-export interface BuddyPipelineProps {
+export interface PipelineProps {
     url: string;
     html_url: string;
     name: string;
@@ -36,7 +34,7 @@ export interface BuddyPipelineProps {
     ref_name: string;
     execution_message_template: string;
     last_execution_status: string;
-    last_execution_revision: string|null;
+    last_execution_revision: string | null;
     create_date: string;
     always_from_scratch: boolean;
     auto_clear_cache: boolean;
@@ -69,18 +67,18 @@ export interface BuddyPipelineProps {
     project_name: string;
 }
 
-export class BuddyPipeline extends CustomResource implements AsOutputs<BuddyPipelineProps> {
-    static __pulumiType = 'buddy:pipeline:BuddyPipeline';
+export class Pipeline extends CustomResource implements AsOutputs<PipelineProps> {
+    static __pulumiType = 'buddy:pipeline:Pipeline';
 
-    static get(name: string, id: Input<ID>, state?: Partial<BuddyPipelineState>, opts?: CustomResourceOptions) {
-        return new BuddyPipeline(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<PipelineState>, opts?: CustomResourceOptions) {
+        return new Pipeline(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is BuddyPipeline {
-        if(null == obj) {
+    static isInstance(obj: any): obj is Pipeline {
+        if (null == obj) {
             return false;
         }
-        return obj['__pulumiType'] === BuddyPipeline.__pulumiType;
+        return obj['__pulumiType'] === Pipeline.__pulumiType;
     }
 
     readonly url!: Output<string>;
@@ -89,34 +87,33 @@ export class BuddyPipeline extends CustomResource implements AsOutputs<BuddyPipe
     readonly pipeline_id!: Output<number>;
     readonly always_from_scratch!: Output<boolean>;
     readonly auto_clear_cache!: Output<boolean>;
-    readonly cron!: Output<string|undefined>;
-    readonly delay!: Output<number|undefined>;
+    readonly cron!: Output<string | undefined>;
+    readonly delay!: Output<number | undefined>;
     readonly do_not_create_commit_status!: Output<boolean>;
     readonly execution_message_template!: Output<string>;
     readonly ignore_fail_on_project_status!: Output<boolean>;
     readonly no_skip_to_most_recent!: Output<boolean>;
-    readonly paused!: Output<boolean|undefined>;
+    readonly paused!: Output<boolean | undefined>;
     readonly project_name!: Output<string>;
     readonly ref_name!: Output<string>;
     readonly ref_type!: Output<RefType>;
-    readonly run_always!: Output<boolean|undefined>;
-    readonly start_date!: Output<string|undefined>;
+    readonly run_always!: Output<boolean | undefined>;
+    readonly start_date!: Output<string | undefined>;
     readonly trigger_mode!: Output<TriggerMode>;
     readonly create_date!: Output<string>;
     readonly last_execution_status!: Output<string>;
     readonly last_execution_revision!: Output<string>;
-    readonly project!: Output<BuddyPipelineProps['project']>;
-    readonly creator!: Output<BuddyPipelineProps['creator']>;
-    readonly actions!: Output<BuddyPipelineProps['actions']>;
+    readonly project!: Output<PipelineProps['project']>;
+    readonly creator!: Output<PipelineProps['creator']>;
+    readonly actions!: Output<PipelineProps['actions']>;
 
-
-    constructor(name: string, argsOrState: BuddyPipelineArgs|BuddyPipelineState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: PipelineArgs | PipelineState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
-        if(!opts) {
+        if (!opts) {
             opts = {};
         }
-        if(opts.id) {
-            const state = argsOrState as BuddyPipelineState | undefined;
+        if (opts.id) {
+            const state = argsOrState as PipelineState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['name'] = state?.name;
             inputs['ref_name'] = state?.ref_name;
@@ -134,20 +131,20 @@ export class BuddyPipeline extends CustomResource implements AsOutputs<BuddyPipe
             inputs['ignore_fail_on_project_status'] = state?.ignore_fail_on_project_status;
             inputs['execution_message_template'] = state?.execution_message_template;
         } else {
-            const args = argsOrState as BuddyPipelineState | undefined;
-            if(!args || !args.project_name) {
+            const args = argsOrState as PipelineState | undefined;
+            if (!args || !args.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
-            if(!args.name) {
+            if (!args.name) {
                 throw new Error('Missing required property "name"');
             }
-            if(!args.ref_name) {
+            if (!args.ref_name) {
                 throw new Error('Missing required property "ref_name"');
             }
-            if(!args.trigger_mode) {
+            if (!args.trigger_mode) {
                 throw new Error('Missing required property "trigger_mode"');
             }
-            if(args.trigger_mode === 'SCHEDULED' && (!args.cron && (!args.start_date || !args.delay))) {
+            if (args.trigger_mode === 'SCHEDULED' && !args.cron && (!args.start_date || !args.delay)) {
                 throw new Error('Missing required property "cron" or "start_date" and "delay"');
             }
             inputs['project_name'] = args?.project_name;
@@ -168,11 +165,11 @@ export class BuddyPipeline extends CustomResource implements AsOutputs<BuddyPipe
             inputs['execution_message_template'] = args?.execution_message_template;
         }
 
-        if(!opts.version) {
+        if (!opts.version) {
             opts.version = require('./package').version;
         }
 
-        opts.ignoreChanges = [ 'project_name', ...(opts.ignoreChanges || []) ];
+        opts.ignoreChanges = ['project_name', ...(opts.ignoreChanges || [])];
 
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
@@ -184,6 +181,6 @@ export class BuddyPipeline extends CustomResource implements AsOutputs<BuddyPipe
         inputs['creator'] = undefined;
         inputs['actions'] = undefined;
 
-        super(BuddyPipeline.__pulumiType, name, inputs, opts)
+        super(Pipeline.__pulumiType, name, inputs, opts);
     }
 }
