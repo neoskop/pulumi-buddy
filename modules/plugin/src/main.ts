@@ -44,10 +44,10 @@ async function main(args: string[]) {
     const server = injector.get(Server);
 
     server.addService(ResourceProviderService, injector.get(MainProvider));
-    server.bind('0.0.0.0:51234', ServerCredentials.createInsecure());
+    const port = server.bind('0.0.0.0:0', ServerCredentials.createInsecure());
     server.start();
 
-    console.log('51234');
+    console.log(port);
 }
 
 main(yargs.argv._).catch(err => {
