@@ -1,0 +1,6 @@
+options:
+    commitMessage: 'chore(release): bump to version %VERSION%'
+scripts:
+    bump:
+        cat <<< "$(jq ".version |= \"$FB_VERSION\" | ." < modules/plugin/package.json)" > modules/plugin/package.json
+        cat <<< "$(jq ".version |= \"$FB_VERSION\" | ." < nodejs/sdk/package.json)" > nodejs/sdk/package.json
