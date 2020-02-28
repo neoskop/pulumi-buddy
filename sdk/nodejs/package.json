@@ -8,11 +8,20 @@
     ],
     "license": "MIT",
     "main": "index.ts",
+    "scripts": {
+        "clean": "rimraf dist",
+        "prebuild": "npm run clean",
+        "build": "tsc",
+        "bundle": "cp README.md dist && jq '.main |= \"index.js\" | del(.scripts) | .' package.json > dist/package.json",
+        "compile": "npm run build && npm run bundle"
+    },
     "dependencies": {
         "@pulumi/pulumi": "^1.0.0"
     },
     "devDependencies": {
-        "@types/node": "^8.0.0"
+        "@types/node": "^8.0.0",
+        "rimraf": "3.0.2",
+        "typescript": "3.8.2"
     },
     "pulumi": {
         "resource": true
