@@ -7,12 +7,11 @@ import * as yargs from 'yargs';
 import { BuddyApi } from './buddy/api/api';
 import { EngineClient } from './grpc/engine_grpc_pb';
 import { ResourceProviderService } from './grpc/provider_grpc_pb';
-import { ResourceMonitorService } from './grpc/resource_grpc_pb';
+import { ActionProvider } from './providers/action.provider';
 import { MainProvider, SUB_PROVIDER } from './providers/main.provider';
+import { MemberProvider } from './providers/member.provider';
 import { PipelineProvider } from './providers/pipeline.provider';
 import { ProjectProvider } from './providers/project.provider';
-import { ActionProvider } from './providers/action.provider';
-import { MemberProvider } from './providers/member.provider';
 
 async function main(args: string[]) {
     if (1 !== args.length) {
@@ -23,7 +22,7 @@ async function main(args: string[]) {
         {
             provide: Server,
             useFactory() {
-                new Server();
+                return new Server();
             },
             deps: []
         },
@@ -42,7 +41,7 @@ async function main(args: string[]) {
         { provide: BuddyApi, useValue: new BuddyApi() }
     ]);
 
-    const server = new Server();
+    const server = injector.get(Server);
 
     server.addService(ResourceProviderService, injector.get(MainProvider));
     server.bind('0.0.0.0:51234', ServerCredentials.createInsecure());
