@@ -3,7 +3,6 @@ import { Action, ParameterType } from '../scraper';
 
 export interface ICodegenOptions {
     utilsImport: string;
-    kindsImport: string;
     commonImport: string;
     pipelineImport: string;
 }
@@ -16,7 +15,6 @@ export class BuddyCodegenActions {
     constructor(options: Partial<ICodegenOptions> = {}) {
         this.options = {
             utilsImport: '@neoskop/pulumi-buddy',
-            kindsImport: '@neoskop/pulumi-buddy',
             commonImport: '@neoskop/pulumi-buddy',
             pipelineImport: '@neoskop/pulumi-buddy',
             ...options
@@ -131,10 +129,6 @@ export class BuddyCodegenActions {
         file.addImportDeclaration({
             moduleSpecifier: this.options.utilsImport,
             namedImports: ['AsInputs']
-        });
-        file.addImportDeclaration({
-            moduleSpecifier: this.options.kindsImport,
-            namedImports: ['Kind']
         });
         file.addImportDeclaration({
             moduleSpecifier: this.options.pipelineImport,
@@ -297,12 +291,6 @@ export class BuddyCodegenActions {
             ]
         });
 
-        // const kind = actionClass.addProperty({
-        //     name: 'kind',
-        //     hasExclamationToken: true,
-        //     type: 'Output<Kind.Action>'
-        // });
-
         actionClass.addProperty({
             name: 'project_name',
             hasExclamationToken: true,
@@ -328,14 +316,6 @@ export class BuddyCodegenActions {
                 type: `Output<${this.toTsType(param.type, file)}${param.required ? '' : ' | undefined'}>`
             });
         }
-
-        // const outputs = actionClass.addProperty({
-        //     name: 'outputs',
-        //     hasExclamationToken: true,
-        //     type: `Output<${props.getName()}>`
-        // });
-        // kind.appendWhitespace('\n');
-        // outputs.prependWhitespace('\n');
 
         const stateAdaption: string[] = [];
         const argsChecks: string[] = [];

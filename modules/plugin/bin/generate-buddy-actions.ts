@@ -36,7 +36,6 @@ async function main() {
             async task(ctx, task) {
                 const codegen = ctx.codegen = new BuddyCodegenActions({
                     utilsImport: '../utils',
-                    kindsImport: '../kinds',
                     pipelineImport: '../pipeline',
                     commonImport: '../common'
                 });

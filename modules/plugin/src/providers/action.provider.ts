@@ -22,7 +22,6 @@ import {
     UpdateRequest,
     UpdateResponse
 } from '../grpc/provider_pb';
-import { Id } from '../utils/id';
 import { IProviderConfig, SubProvider, Kind } from './main.provider';
 import { PipelineNotFound } from '../buddy/api/pipeline';
 import { deleteUndefined } from '../utils/delete-undefined';
