@@ -1,6 +1,7 @@
 import Axios, { CancelTokenSource } from 'axios';
 
 import { BuddyWorkspaceApi } from './workspace';
+import { BuddySshKeyApi } from './ssh-key';
 
 export class BuddyApi {
     protected readonly cancelerMap = new Map<CancelTokenSource, string>();
@@ -39,5 +40,9 @@ export class BuddyApi {
 
     workspace(domain?: string) {
         return new BuddyWorkspaceApi(this, domain);
+    }
+
+    sshKey(sshKeyId?: number) {
+        return new BuddySshKeyApi(this, sshKeyId);
     }
 }

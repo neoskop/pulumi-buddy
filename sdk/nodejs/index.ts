@@ -7,5 +7,6 @@ export * from './permission';
 export * from './pipeline';
 export * from './project';
 export * from './provider';
+export * from './ssh-key';
 export * from './utils';
 export * from './webhook';

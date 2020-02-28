@@ -48,6 +48,7 @@ export enum Kind {
     Permission = 'permission',
     Pipeline = 'pipeline',
     Project = 'project',
+    SshKey = 'ssh-key',
     Webhook = 'webhook'
 }
 
