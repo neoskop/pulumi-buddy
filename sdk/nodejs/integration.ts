@@ -57,20 +57,26 @@ export interface IntegrationProps {
 export class Integration extends CustomResource implements AsOutputs<IntegrationProps> {
     static __pulumiType = 'buddy:integration:Integration';
 
-    static findByType(name: string, type: IntegrationType, opts?: CustomResourceOptions): Output<Integration> {
-        return Output.create(
-            invoke('buddy:integration:list', {}, { ...opts, async: true }).then(
-                ({ integrations }: { integrations: IntegrationProps[] }) => {
-                    const matchingIntegration = integrations.find(integration => integration.type === type);
-
-                    if (matchingIntegration) {
-                        return new Integration(name, { ...opts, id: matchingIntegration.hash_id });
-                    } else {
-                        throw Error(`Integration with type "${type}" not found`);
-                    }
+    static findByType(name: string, type: IntegrationType, opts?: CustomResourceOptions): Integration {
+        return new Integration(name, {
+            ...opts,
+            id: invoke(
+                'buddy:integration:list',
+                {},
+                {
+                    ...opts,
+                    async: true
                 }
-            )
-        );
+            ).then(({ integrations }: { integrations: IntegrationProps[] }) => {
+                const matchingIntegration = integrations.find(integration => integration.type === type);
+
+                if (matchingIntegration) {
+                    return matchingIntegration.hash_id;
+                } else {
+                    throw Error(`Integration with type "${type}" not found`);
+                }
+            })
+        });
     }
 
     static get(name: string, id: Input<ID>, opts?: CustomResourceOptions) {
