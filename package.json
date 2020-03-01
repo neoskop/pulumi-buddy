@@ -21,5 +21,25 @@
         "printWidth": 140,
         "quoteProps": "as-needed",
         "singleQuote": true
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "*.ts": [
+            "prettier --write"
+        ],
+        "*.json": [
+            "prettier --write"
+        ],
+        "*.md": [
+            "prettier --write"
+        ]
+    },
+    "devDependencies": {
+        "husky": "4.2.3",
+        "lint-staged": "10.0.8"
     }
 }
