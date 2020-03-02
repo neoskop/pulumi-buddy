@@ -3,6 +3,8 @@ import Axios from 'axios';
 import { BuddyApi } from './api';
 import { BuddyPipelineApi } from './pipeline';
 import { BuddyWorkspaceApi } from './workspace';
+import { IBuddyMember } from './member';
+import { IBuddyPermission } from './permission';
 
 export interface IBuddyProject {
     url: string;
@@ -57,6 +59,10 @@ export interface IBuddyProjectUpdate {
     display_name?: string;
 }
 
+export interface IBuddyMemberWithPermissionSet extends IBuddyMember {
+    permission_set: IBuddyPermission;
+}
+
 export class BuddyProjectApi {
     constructor(
         protected readonly api: BuddyApi,
@@ -76,7 +82,6 @@ export class BuddyProjectApi {
     }
 
     async create(project: BuddyProjectCreate): Promise<IBuddyProject> {
-
         try {
             const result = await Axios.post<IBuddyProject>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects`,
@@ -157,7 +162,7 @@ export class BuddyProjectApi {
             } else if (e.response) {
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.projectName);
-                } else if(e.response.data.errors[0].message === 'Operation not permitted until all jobs and deployments are completed.') {
+                } else if (e.response.data.errors[0].message === 'Operation not permitted until all jobs and deployments are completed.') {
                     throw new ProjectNotReady(this.projectName);
                 } else {
                     throw new ProjectError(e.response.data.errors[0].message);
@@ -180,6 +185,103 @@ export class BuddyProjectApi {
                     Authorization: `Bearer ${this.api.getToken()}`
                 }
             });
+        } catch (e) {
+            if (Axios.isCancel(e)) {
+                throw e;
+            } else if (e.response) {
+                if (e.response.status === 404) {
+                    throw new ProjectNotFound(this.projectName);
+                } else {
+                    throw new ProjectError(e.response.data.errors[0].message);
+                }
+            } else {
+                throw new ProjectError(e.message);
+            }
+        }
+    }
+
+    async getMember(id: number): Promise<IBuddyMemberWithPermissionSet> {
+        if (!this.projectName) {
+            throw new ProjectNameRequired();
+        }
+
+        try {
+            const result = await Axios.get<IBuddyMemberWithPermissionSet>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}/members/${id}`,
+                {
+                    cancelToken: this.api.registerCanceler('project').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
+                }
+            );
+
+            return result.data;
+        } catch (e) {
+            if (Axios.isCancel(e)) {
+                throw e;
+            } else if (e.response) {
+                if (e.response.status === 404) {
+                    throw new ProjectNotFound(this.projectName);
+                } else {
+                    throw new ProjectError(e.response.data.errors[0].message);
+                }
+            } else {
+                throw new ProjectError(e.message);
+            }
+        }
+    }
+
+    async addMember(id: number, permissionId: number): Promise<IBuddyMemberWithPermissionSet> {
+        if (!this.projectName) {
+            throw new ProjectNameRequired();
+        }
+
+        try {
+            const result = await Axios.post<IBuddyMemberWithPermissionSet>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}/members`,
+                { id, permission_set: { id: permissionId } },
+                {
+                    cancelToken: this.api.registerCanceler('group').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
+                }
+            );
+
+            return result.data;
+        } catch (e) {
+            if (Axios.isCancel(e)) {
+                throw e;
+            } else if (e.response) {
+                if (e.response.status === 404) {
+                    throw new ProjectNotFound(this.projectName);
+                } else {
+                    throw new ProjectError(e.response.data.errors[0].message);
+                }
+            } else {
+                throw new ProjectError(e.message);
+            }
+        }
+    }
+
+    async deleteMember(id: number): Promise<void> {
+        if (!this.projectName) {
+            throw new ProjectNameRequired();
+        }
+
+        try {
+            const result = await Axios.delete<void>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}/members/${id}`,
+                {
+                    cancelToken: this.api.registerCanceler('project').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
+                }
+            );
+
+            return result.data;
         } catch (e) {
             if (Axios.isCancel(e)) {
                 throw e;

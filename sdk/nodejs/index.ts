@@ -8,6 +8,7 @@ export * from './member';
 export * from './permission';
 export * from './pipeline';
 export * from './project';
+export * from './project-member-binding';
 export * from './provider';
 export * from './ssh-key';
 export * from './utils';

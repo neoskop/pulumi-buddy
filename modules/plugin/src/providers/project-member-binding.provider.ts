@@ -1,11 +1,11 @@
-import { GroupMemberBindingProps, GroupMemberBindingState } from '@neoskop/pulumi-buddy';
+import { ProjectMemberBindingProps, ProjectMemberBindingState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
 import { BuddyApi } from '../buddy/api/api';
-import { GroupNotFound } from '../buddy/api/group';
+import { ProjectNotFound } from '../buddy/api/project';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -25,12 +25,12 @@ import { Differ } from '../utils/differ';
 import { IProviderConfig, Kind, SubProvider } from './main.provider';
 
 @Injectable()
-export class GroupMemberBindingProvider implements SubProvider {
-    readonly kind = Kind.GroupMemberBinding;
+export class ProjectMemberBindingProvider implements SubProvider {
+    readonly kind = Kind.ProjectMemberBinding;
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, GroupMemberBindingState>();
+    protected readonly olds = new Map<string, ProjectMemberBindingState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -39,7 +39,7 @@ export class GroupMemberBindingProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const olds = (request.getOlds()!.toJavaScript() as unknown) as GroupMemberBindingState;
+        const olds = (request.getOlds()!.toJavaScript() as unknown) as ProjectMemberBindingState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
@@ -49,15 +49,16 @@ export class GroupMemberBindingProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as GroupMemberBindingProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as GroupMemberBindingState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as ProjectMemberBindingProps;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as ProjectMemberBindingState;
         const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
             null,
             new Differ(olds, news, props)
-                .diff('group_id', null, true)
+                .diff('project_name', null, true)
                 .diff('member_id', null, true)
+                .diff('permission_id', null, true)
                 .toResponse()
         );
     }
@@ -67,15 +68,15 @@ export class GroupMemberBindingProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as GroupMemberBindingState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as ProjectMemberBindingState;
 
         this.buddyApi
             .workspace(this.config.workspace)
-            .group(props.group_id)
-            .addMember(props.member_id)
+            .project(props.project_name)
+            .addMember(props.member_id, props.permission_id)
             .then(
                 outputs => {
-                    const id = `${props.group_id}:::${outputs.id}`;
+                    const id = `${props.project_name}:::${props.permission_id}:::${outputs.id}`;
                     const response = new CreateResponse();
                     response.setId(id);
                     response.setProperties(
@@ -83,7 +84,7 @@ export class GroupMemberBindingProvider implements SubProvider {
                             deleteUndefined({
                                 ...outputs,
                                 id: undefined!,
-                                group_member_binding_id: id
+                                project_member_binding_id: id
                             })
                         )
                     );
@@ -93,7 +94,7 @@ export class GroupMemberBindingProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof GroupNotFound) {
+                    } else if (err instanceof ProjectNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
@@ -107,16 +108,13 @@ export class GroupMemberBindingProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as GroupMemberBindingState;
-        const [groupId, memberId] = req.request
-            .getId()
-            .split(/:::/)
-            .map(Number);
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as ProjectMemberBindingState;
+        const [projectName, memberId] = req.request.getId().split(/:::/);
 
         this.buddyApi
             .workspace(this.config.workspace)
-            .group(groupId)
-            .getMember(memberId)
+            .project(projectName)
+            .getMember(+memberId)
             .then(
                 outputs => {
                     const response = new ReadResponse();
@@ -127,7 +125,7 @@ export class GroupMemberBindingProvider implements SubProvider {
                             deleteUndefined({
                                 ...outputs,
                                 id: undefined!,
-                                group_member_binding_id: req.request.getId()
+                                project_member_binding_id: req.request.getId()
                             })
                         )
                     );
@@ -137,7 +135,7 @@ export class GroupMemberBindingProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof GroupNotFound) {
+                    } else if (err instanceof ProjectNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
@@ -155,15 +153,12 @@ export class GroupMemberBindingProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const [groupId, memberId] = req.request
-            .getId()
-            .split(/:::/)
-            .map(Number);
+        const [projectName, _, memberId] = req.request.getId().split(/:::/);
 
         this.buddyApi
             .workspace(this.config.workspace)
-            .group(groupId)
-            .deleteMember(memberId)
+            .project(projectName)
+            .deleteMember(+memberId)
             .then(
                 () => {
                     setTimeout(() => callback(null, new Empty()), 1000);
@@ -171,7 +166,7 @@ export class GroupMemberBindingProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof GroupNotFound) {
+                    } else if (err instanceof ProjectNotFound) {
                         setTimeout(() => callback(null, new Empty()), 1000);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
