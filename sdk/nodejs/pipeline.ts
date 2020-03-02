@@ -1,5 +1,8 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
 import { AsInputs, AsOutputs } from './utils';
+import { ProjectProps } from './project';
+import { MemberProps } from './member';
+import { ActionProps } from './action';
 
 export type TriggerMode = 'MANUAL' | 'SCHEDULED' | 'ON_EVERY_PUSH';
 export type RefType = 'BRANCH' | 'TAG' | 'WILDCARD' | 'PULL_REQUEST' | 'NONE';
@@ -46,22 +49,9 @@ export interface PipelineProps {
     cron?: string;
     run_always?: boolean;
     paused?: boolean;
-    project: {
-        url: string;
-        html_url: string;
-        name: string;
-        display_name: string;
-        status: string;
-    };
-    creator: {
-        url: string;
-        html_url: string;
-        id: number;
-        name: string;
-        avatar_url: string;
-        title: string;
-    };
-    actions: unknown[];
+    project: ProjectProps;
+    creator: MemberProps;
+    actions: ActionProps[];
 
     pipeline_id: number;
     project_name: string;

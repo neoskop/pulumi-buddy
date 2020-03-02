@@ -11,6 +11,9 @@ export type IntegrationRef = IdIntegration | HashIntegration;
 export interface Variable {
     key: string;
     value: string;
+    ssh_key?: boolean;
+    settable?: boolean;
+    encrypted?: boolean;
 }
 
 export interface APKs {

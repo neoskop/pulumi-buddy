@@ -1,6 +1,7 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
 import { IntegrationRef } from './common';
 import { AsInputs, AsOutputs } from './utils';
+import { MemberProps } from './member';
 
 export interface IntegrationProjectState {
     name?: string;
@@ -28,14 +29,7 @@ export interface ProjectProps {
     display_name: string;
     status: string;
     create_date: string;
-    created_by: {
-        url: string;
-        html_url: string;
-        id: number;
-        name: string;
-        avatar_url: string;
-        title: string;
-    };
+    created_by: MemberProps;
     http_repository: string;
     ssh_repository: string;
     size: number;
