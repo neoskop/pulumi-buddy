@@ -3,6 +3,7 @@ export * from './common';
 export * from './environment-variable';
 export * from './group';
 export * from './integration';
+export * from './group-member-binding';
 export * from './member';
 export * from './permission';
 export * from './pipeline';

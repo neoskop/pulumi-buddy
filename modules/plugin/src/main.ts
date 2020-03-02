@@ -16,6 +16,7 @@ import { PipelineProvider } from './providers/pipeline.provider';
 import { ProjectProvider } from './providers/project.provider';
 import { SshKeyProvider } from './providers/ssh-key.provider';
 import { WebhookProvider } from './providers/webhook.provider';
+import { GroupMemberBindingProvider } from './providers/group-member-binding.provider';
 
 async function main(args: string[]) {
     if (1 !== args.length) {
@@ -47,6 +48,7 @@ async function main(args: string[]) {
         { provide: SUB_PROVIDER, useClass: EnvironmentVariableProvider, multi: true },
         { provide: SUB_PROVIDER, useClass: SshKeyProvider, multi: true },
         { provide: SUB_PROVIDER, useClass: IntegrationProvider, multi: true },
+        { provide: SUB_PROVIDER, useClass: GroupMemberBindingProvider, multi: true },
         MainProvider,
         { provide: BuddyApi, useValue: new BuddyApi() }
     ]);
