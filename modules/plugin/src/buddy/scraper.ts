@@ -1,5 +1,7 @@
 import Axios from 'axios';
 import * as cheerio from 'cheerio';
+import { Observable, from, of } from 'rxjs';
+import { switchMap, mergeMap, toArray } from 'rxjs/operators';
 
 export type ParamaterTypeScalar = { scalar: 'String' | 'Number' | 'Boolean'; isArray?: boolean };
 export type ParamaterTypeText = { text: string[]; isArray?: boolean };
@@ -25,6 +27,9 @@ export class BuddyScraper {
 
     protected defaultParameters?: ActionParameter[];
 
+    readonly warnings: string[] = [];
+    readonly errors: string[] = [];
+
     constructor(protected readonly baseUrl = 'https://buddy.works') {}
 
     async getActionDetailUrls(): Promise<string[]> {
@@ -32,35 +37,41 @@ export class BuddyScraper {
         const $ = cheerio.load(response.data);
         return $('li.list__card-element a')
             .toArray()
-            .map(el => this.baseUrl + $(el).attr('href')!.toString());
+            .map(
+                el =>
+                    this.baseUrl +
+                    $(el)
+                        .attr('href')!
+                        .toString()
+            );
     }
 
     parseType(name: string, type: string, description: string): ParameterType {
         const isArray = type.endsWith('[]') || undefined;
-        if(isArray) {
+        if (isArray) {
             type = type.substr(0, type.length - 2);
         }
-        if('ISO-8601 UTC date' === type) {
+        if ('ISO-8601 UTC date' === type) {
             return { scalar: 'String' };
-        } else if('Integer' === type || 'Float' === type) {
+        } else if ('Integer' === type || 'Float' === type) {
             return { scalar: 'Number', isArray };
         } else if ('String' === type || 'Boolean' === type) {
             const exact = /Should be set to ([\w-]+)/.exec(description);
             const oneOf = /Can be one of ([\w-]+(?:\s?,\s?[\w-]+)* or [\w-]+)/.exec(description);
             if ('String' === type && exact) {
-                return { text: [ exact[1]! ], isArray };
+                return { text: [exact[1]!], isArray };
             } else if ('String' === type && oneOf) {
-                return { text: oneOf[1].split(/\s*(?:,|or)\s*/), isArray }
+                return { text: oneOf[1].split(/\s*(?:,|or)\s*/), isArray };
             } else {
                 return { scalar: type, isArray };
             }
-        } else if(type) {
+        } else if (type) {
             return { ref: type, isArray };
         } else {
-            if('integration' === name) {
+            if ('integration' === name) {
                 return { ref: 'Integration' };
             }
-            throw new Error(`Unkown parameter type '${type}' for '${name}'`)
+            throw new Error(`Unkown parameter type '${type}' for '${name}'`);
         }
     }
 
@@ -79,18 +90,24 @@ export class BuddyScraper {
         return {
             name,
             required,
-            type: this.parseType(name,
+            type: this.parseType(
+                name,
                 $(tds[1])
                     .text()
                     .trim(),
                 $(tds[2]).text()
             ),
-            description: $(tds[2]).clone().find('code').each((_, e) => $(e).replaceWith(`\`${$(e).text()}\``)).end().text()
+            description: $(tds[2])
+                .clone()
+                .find('code')
+                .each((_, e) => $(e).replaceWith(`\`${$(e).text()}\``))
+                .end()
+                .text()
         };
     }
 
     async getDefaultParameters(): Promise<ActionParameter[]> {
-        if(!this.defaultParameters) {
+        if (!this.defaultParameters) {
             const response = await Axios.get(`${this.baseUrl}${BuddyScraper.ROOT_PAGE}`);
             const $ = cheerio.load(response.data);
             this.defaultParameters = $(`article.post-content > table:nth-of-type(2) tr:has(> td)`)
@@ -101,19 +118,25 @@ export class BuddyScraper {
         return this.defaultParameters;
     }
 
-    protected mergeParameters(defaults: ActionParameter[], params: ActionParameter[]): ActionParameter[] {
+    protected mergeParameters(actionName: string, defaults: ActionParameter[], params: ActionParameter[]): ActionParameter[] {
         const names = new Set(params.map(p => p.name));
 
-        return [
-            ...defaults.filter(d => !names.has(d.name)),
-            ...params
-        ].sort((a, b) => {
-            if(a.required === b.required) {
-                return a.name.localeCompare(b.name);
-            }
+        return [...defaults.filter(d => !names.has(d.name)), ...params]
+            .sort((a, b) => {
+                if (a.required === b.required) {
+                    return a.name.localeCompare(b.name);
+                }
 
-            return a.required ? -1 : 1;
-        }).filter((c, i, a) => a.findIndex(e => e.name === c.name) === i)
+                return a.required ? -1 : 1;
+            })
+            .filter((c, i, a) => {
+                const first = a.findIndex(e => e.name === c.name) === i;
+                if (!first) {
+                    this.warnings.push(`Duplicate parameter "${c.name}" in action "${actionName}"`);
+                }
+
+                return first;
+            });
     }
 
     async getActionDetails(url: string): Promise<Action> {
@@ -124,12 +147,23 @@ export class BuddyScraper {
             .toArray()
             .map(p => this.parseParameter(p));
         const type = (parameters.find(p => p.name === 'type')!.type as ParamaterTypeText).text[0];
-        return { name, type, parameters: this.mergeParameters(await this.getDefaultParameters(), parameters) };
+        return { name, type, parameters: this.mergeParameters(name, await this.getDefaultParameters(), parameters) };
     }
 
-    async getActions(): Promise<Action[]> {
-        const urls = await this.getActionDetailUrls();
+    getActions(): Promise<Action[]> {
+        return this.getActionsAsStream()
+            .pipe(toArray())
+            .toPromise();
+    }
 
-        return Promise.all(urls.map(url => this.getActionDetails(url)));
+    getActionsAsStream(): Observable<Action> {
+        return from(this.getActionDetailUrls()).pipe(
+            switchMap(urls => from(urls)),
+            mergeMap(url => from(this.getActionDetails(url)), 1)
+        );
+
+        // const urls = await this.getActionDetailUrls();
+
+        // return Promise.all(urls.map(url => this.getActionDetails(url)));
     }
 }
