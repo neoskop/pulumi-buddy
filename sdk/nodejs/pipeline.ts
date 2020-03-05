@@ -57,6 +57,9 @@ export interface PipelineProps {
     project_name: string;
 }
 
+/**
+ * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
+ */
 export class Pipeline extends CustomResource implements AsOutputs<PipelineProps> {
     static __pulumiType = 'buddy:pipeline:Pipeline';
 

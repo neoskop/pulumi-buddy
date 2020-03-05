@@ -26,6 +26,9 @@ export interface EnvironmentVariableProps {
     encrypted?: boolean;
 }
 
+/**
+ * Required scopes in Buddy API: `WORKSPACE`, `VARIABLE_ADD`, `VARIABLE_MANAGE`, `VARIABLE_INFO`
+ */
 export class EnvironmentVariable extends CustomResource implements AsOutputs<EnvironmentVariableProps> {
     static __pulumiType = 'buddy:environment-variable:EnvironmentVariable';
 

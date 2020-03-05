@@ -36,6 +36,9 @@ export interface ProjectProps {
     default_branch: string;
 }
 
+/**
+ * Required scopes in Buddy API: `WORKSPACE`, `PROJECT_DELETE`
+ */
 export class Project extends CustomResource implements AsOutputs<ProjectProps> {
     static __pulumiType = 'buddy:project:Project';
 

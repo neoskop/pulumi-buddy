@@ -23,6 +23,9 @@ export interface WebhookProps {
     secret_key: string | null;
 }
 
+/**
+ * Required scopes in Buddy API: `WORKSPACE`, `WEBHOOK_ADD`, `WEBHOOK_MANAGE`, `WEBHOOK_INFO`
+ */
 export class Webhook extends CustomResource implements AsOutputs<WebhookProps> {
     static __pulumiType = 'buddy:webhook:Webhook';
 

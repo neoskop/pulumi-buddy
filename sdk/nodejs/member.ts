@@ -18,6 +18,9 @@ export interface MemberProps {
     workspace_owner: boolean;
 }
 
+/**
+ * Required scopes in Buddy API: `WORKSPACE`
+ */
 export class Member extends CustomResource implements AsOutputs<MemberProps> {
     static __pulumiType = 'buddy:member:Member';
 

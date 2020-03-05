@@ -26,6 +26,9 @@ export interface PermissionProps {
     sandbox_access_level: SandboxAccessLevel;
 }
 
+/**
+ * Required scopes in Buddy API: `WORKSPACE`
+ */
 export class Permission extends CustomResource implements AsOutputs<PermissionProps> {
     static __pulumiType = 'buddy:permission:Permission';
 

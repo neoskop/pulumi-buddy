@@ -249,7 +249,10 @@ export class BuddyCodegenActions {
         const actionClass = file.addClass({
             name: `Action${this.toKeyword(action.name)}`,
             isExported: true,
-            extends: 'CustomResource'
+            extends: 'CustomResource',
+            docs: [
+                `\nRequired scopes in Buddy API: \`WORKSPACE\`, \`EXECUTION_MANAGE\`, \`EXECUTION_INFO\``
+            ]
         });
 
         actionClass.addProperty({
