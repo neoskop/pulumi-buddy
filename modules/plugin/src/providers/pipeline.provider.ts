@@ -57,7 +57,7 @@ export class PipelineProvider implements SubProvider {
         callback(
             null,
             new Differ(olds, news, props)
-                .diff('project_name', null, true)
+                .diff('project_name', [ 'project', 'name' ], true)
                 .diff('name', 'name')
                 .diff('ref_name', 'ref_name')
                 .diff('trigger_mode', 'trigger_mode')
@@ -123,7 +123,7 @@ export class PipelineProvider implements SubProvider {
         }
 
         const id = +req.request.getId();
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as PipelineState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as PipelineState;
 
         this.buddyApi
             .workspace(this.config.workspace)

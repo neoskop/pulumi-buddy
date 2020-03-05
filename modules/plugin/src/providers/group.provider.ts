@@ -104,7 +104,7 @@ export class GroupProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as GroupState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as GroupState;
         const id = +req.request.getId();
 
         this.buddyApi

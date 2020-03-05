@@ -33,7 +33,7 @@ export class ProjectProvider implements SubProvider {
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, IntegrationProjectState & CustomProjectState>();
+    protected readonly oldInputs = new Map<string, IntegrationProjectState & CustomProjectState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -44,7 +44,8 @@ export class ProjectProvider implements SubProvider {
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
         const olds = (request.getOlds()!.toJavaScript() as unknown) as IntegrationProjectState & CustomProjectState;
         const news = request.getNews()!.toJavaScript();
-        this.olds.set(request.getUrn(), olds);
+
+        this.oldInputs.set(request.getUrn(), olds);
 
         const checkResponse = new CheckResponse();
         checkResponse.setInputs(Struct.fromJavaScript(news));
@@ -54,11 +55,11 @@ export class ProjectProvider implements SubProvider {
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
         const props = (req.request.getOlds()!.toJavaScript()! as unknown) as ProjectProps;
         const news = (req.request.getNews()!.toJavaScript()! as unknown) as IntegrationProjectState & CustomProjectState;
-        const olds = this.olds.get(req.request.getUrn())!;
+        const oldInputs = this.oldInputs.get(req.request.getUrn())!;
 
         callback(
             null,
-            new Differ(olds, news, props)
+            new Differ(oldInputs, news, props)
                 .diff('name', null, true)
                 .diff('display_name', 'display_name')
                 .diff('integration', null, true)
@@ -129,7 +130,7 @@ export class ProjectProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as ProjectState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as ProjectState;
         const id = req.request.getId();
 
         this.buddyApi

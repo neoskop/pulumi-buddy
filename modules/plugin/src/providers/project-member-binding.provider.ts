@@ -108,7 +108,7 @@ export class ProjectMemberBindingProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as ProjectMemberBindingState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as ProjectMemberBindingState;
         const [projectName, memberId] = req.request.getId().split(/:::/);
 
         this.buddyApi

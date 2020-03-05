@@ -116,7 +116,7 @@ export class EnvironmentVariableProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as EnvironmentVariableState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as EnvironmentVariableState;
         const id = +req.request.getId();
 
         this.buddyApi

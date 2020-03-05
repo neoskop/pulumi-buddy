@@ -107,7 +107,7 @@ export class PermissionProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as PermissionState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as PermissionState;
         const id = +req.request.getId();
 
         this.buddyApi

@@ -120,7 +120,7 @@ export class ActionProvider implements SubProvider {
         }
 
         const id = +req.request.getId();
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as ActionState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as ActionState;
 
         this.buddyApi
             .workspace(this.config.workspace)

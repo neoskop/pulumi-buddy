@@ -107,7 +107,7 @@ export class GroupMemberBindingProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as GroupMemberBindingState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as GroupMemberBindingState;
         const [groupId, memberId] = req.request
             .getId()
             .split(/:::/)
