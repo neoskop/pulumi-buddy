@@ -57,7 +57,7 @@ export class EnvironmentVariableProvider implements SubProvider {
             null,
             new Differ(olds, news, props)
                 .diff('key', 'key')
-                .diff('value', 'value')
+                .diff('value', props?.encrypted ? null : 'value')
                 .diff('description', 'description')
                 .diff('ssh_key', 'ssh_key')
                 .diff('settable', 'settable')
