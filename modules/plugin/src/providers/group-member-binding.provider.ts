@@ -75,7 +75,7 @@ export class GroupMemberBindingProvider implements SubProvider {
             .addMember(props.member_id)
             .then(
                 outputs => {
-                    const id = `${props.group_id}:::${outputs.id}`;
+                    const id = `${props.group_id}~~~${outputs.id}`;
                     const response = new CreateResponse();
                     response.setId(id);
                     response.setProperties(
@@ -110,7 +110,7 @@ export class GroupMemberBindingProvider implements SubProvider {
         const props = (req.request.getInputs()!.toJavaScript() as unknown) as GroupMemberBindingState;
         const [groupId, memberId] = req.request
             .getId()
-            .split(/:::/)
+            .split(/~~~/)
             .map(Number);
 
         this.buddyApi
@@ -157,7 +157,7 @@ export class GroupMemberBindingProvider implements SubProvider {
 
         const [groupId, memberId] = req.request
             .getId()
-            .split(/:::/)
+            .split(/~~~/)
             .map(Number);
 
         this.buddyApi

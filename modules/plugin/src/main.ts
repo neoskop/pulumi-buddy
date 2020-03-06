@@ -19,7 +19,7 @@ import { WebhookProvider } from './providers/webhook.provider';
 import { GroupMemberBindingProvider } from './providers/group-member-binding.provider';
 import { ProjectMemberBindingProvider } from './providers/project-member-binding.provider';
 
-async function main(args: string[]) {
+export async function main(args: string[], { port = 0 }: { port?: number } = {}) {
     if (1 !== args.length) {
         throw new Error('Missing argument for host RPC');
     }
@@ -58,13 +58,19 @@ async function main(args: string[]) {
     const server = injector.get(Server);
 
     server.addService(ResourceProviderService, injector.get(MainProvider));
-    const port = server.bind('0.0.0.0:0', ServerCredentials.createInsecure());
+    const boundPort = server.bind(`0.0.0.0:${port}`, ServerCredentials.createInsecure());
     server.start();
 
-    console.log(port);
+    if(port != boundPort) {
+        console.log(boundPort);
+    }
+
+    return injector;
 }
 
-main(yargs.argv._).catch(err => {
-    console.error(err);
-    process.exit(1);
-});
+if (require.main === module) {
+    main(yargs.argv._).catch(err => {
+        console.error(err);
+        process.exit(1);
+    });
+}

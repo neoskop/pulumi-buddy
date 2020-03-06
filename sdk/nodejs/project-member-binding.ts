@@ -13,7 +13,7 @@ export type ProjectMemberBindingArgs = AsInputs<ProjectMemberBindingState>;
 
 export interface ProjectMemberBindingProps extends Pick<MemberProps, Exclude<keyof MemberProps, 'member_id'>> {
     project_member_binding_id: string;
-    permission_set: PermissionProps;
+    permission_set: Pick<PermissionProps, Exclude<keyof PermissionProps, 'permission_id'>> & { id: number };
 }
 
 export class ProjectMemberBinding extends CustomResource implements AsOutputs<ProjectMemberBindingProps> {
@@ -37,7 +37,7 @@ export class ProjectMemberBinding extends CustomResource implements AsOutputs<Pr
     readonly title!: Output<string | null>;
     readonly admin!: Output<boolean>;
     readonly workspace_owner!: Output<boolean>;
-    readonly permission_set!: Output<PermissionProps>;
+    readonly permission_set!: Output<ProjectMemberBindingProps['permission_set']>;
 
     constructor(name: string, argsOrState: ProjectMemberBindingArgs | ProjectMemberBindingState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};

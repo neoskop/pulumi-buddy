@@ -58,7 +58,7 @@ export class ProjectMemberBindingProvider implements SubProvider {
             new Differ(olds, news, props)
                 .diff('project_name', null, true)
                 .diff('member_id', null, true)
-                .diff('permission_id', null, true)
+                .diff('permission_id', ['permission_set', 'id'], true)
                 .toResponse()
         );
     }
@@ -76,7 +76,7 @@ export class ProjectMemberBindingProvider implements SubProvider {
             .addMember(props.member_id, props.permission_id)
             .then(
                 outputs => {
-                    const id = `${props.project_name}:::${props.permission_id}:::${outputs.id}`;
+                    const id = `${props.project_name}~~~${props.permission_id}~~~${outputs.id}`;
                     const response = new CreateResponse();
                     response.setId(id);
                     response.setProperties(
@@ -109,7 +109,7 @@ export class ProjectMemberBindingProvider implements SubProvider {
         }
 
         const props = (req.request.getInputs()!.toJavaScript() as unknown) as ProjectMemberBindingState;
-        const [projectName, memberId] = req.request.getId().split(/:::/);
+        const [projectName, memberId] = req.request.getId().split(/~~~/);
 
         this.buddyApi
             .workspace(this.config.workspace)
@@ -153,7 +153,7 @@ export class ProjectMemberBindingProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const [projectName, _, memberId] = req.request.getId().split(/:::/);
+        const [projectName, _, memberId] = req.request.getId().split(/~~~/);
 
         this.buddyApi
             .workspace(this.config.workspace)

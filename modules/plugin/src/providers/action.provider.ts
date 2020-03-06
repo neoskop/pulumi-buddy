@@ -55,6 +55,7 @@ export class ActionProvider implements SubProvider {
         const olds = this.olds.get(req.request.getUrn());
 
         const response = new DiffResponse();
+        response.setChanges(DiffResponse.DiffChanges.DIFF_NONE);
 
         const keys = new Set([
             ...(olds ? (Object.keys(olds).filter(k => k !== 'outputs') as (keyof ActionState & string)[]) : []),
@@ -64,6 +65,7 @@ export class ActionProvider implements SubProvider {
         for (const key of keys) {
             if (!olds || olds[key] !== news[key]) {
                 response.addReplaces(key);
+                response.setChanges(DiffResponse.DiffChanges.DIFF_SOME);
             }
         }
 
