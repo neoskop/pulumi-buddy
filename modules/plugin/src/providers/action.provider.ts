@@ -63,7 +63,8 @@ export class ActionProvider implements SubProvider {
         ]);
 
         for (const key of keys) {
-            if (!olds || olds[key] !== news[key]) {
+            if (!olds || JSON.stringify(olds[key]) !== JSON.stringify(news[key])) {
+                console.log(key, olds![key], news[key]);
                 response.addReplaces(key);
                 response.setChanges(DiffResponse.DiffChanges.DIFF_SOME);
             }
