@@ -1,4 +1,4 @@
-![Logo](../../logo.svg)
+![Logo](https://raw.githubusercontent.com/neoskop/pulumi-buddy/master/logo.svg?sanitize=true)
 
 [![Travis master](https://img.shields.io/travis/neoskop/pulumi-buddy/master.svg)](https://travis-ci.org/neoskop/pulumi-buddy)
 [![Snyk master](https://snyk.io/test/github/neoskop/pulumi-buddy/master/badge.svg)](https://snyk.io/test/github/neoskop/pulumi-buddy/master)
@@ -79,4 +79,4 @@ const action = new buddy.ActionRunDockerContainer(
 
 ## License
 
-[MIT](../../LICENSE)
+[MIT](https://raw.githubusercontent.com/neoskop/pulumi-buddy/master/LICENSE)
