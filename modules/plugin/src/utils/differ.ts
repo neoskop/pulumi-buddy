@@ -7,6 +7,11 @@ export class Differ<T, P> {
 
     constructor(protected readonly olds: T, protected readonly news: T, protected readonly props: P) {}
 
+    setDeleteBeforeReplace(value: boolean): this {
+        this.response.setDeletebeforereplace(value);
+        return this;
+    }
+
     diff<
         K1 extends keyof T,
         K2 extends keyof T[K1],
@@ -78,6 +83,6 @@ export class Differ<T, P> {
         } else {
             this.response.setChanges(DiffResponse.DiffChanges.DIFF_SOME);
         }
-        return this.response;
+        return  this.response;
     }
 }

@@ -58,10 +58,6 @@ export class SshKey extends CustomResource implements AsOutputs<SshKeyProps> {
             opts.version = require('./package').version;
         }
 
-        if (null == opts.deleteBeforeReplace) {
-            opts.deleteBeforeReplace = true;
-        }
-
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['ssh_key_id'] = undefined;

@@ -43,5 +43,6 @@ describe('Webhook', () => {
         expect(diffResponse.getChanges()).toBe(DiffResponse.DiffChanges.DIFF_SOME);
         expect(diffResponse.getDiffsList()).toEqual(['events', 'target_url']);
         expect(diffResponse.getReplacesList()).toEqual([]);
+        expect(diffResponse.getDeletebeforereplace()).toBe(false);
     });
 });

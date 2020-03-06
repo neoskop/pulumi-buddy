@@ -60,10 +60,6 @@ export class GroupMemberBinding extends CustomResource implements AsOutputs<Grou
             opts.version = require('./package').version;
         }
 
-        if (null == opts.deleteBeforeReplace) {
-            opts.deleteBeforeReplace = true;
-        }
-
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['group_member_binding_id'] = undefined;

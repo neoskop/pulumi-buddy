@@ -42,5 +42,6 @@ describe('GroupMemberBinding', () => {
         expect(diffResponse.getChanges()).toBe(DiffResponse.DiffChanges.DIFF_SOME);
         expect(diffResponse.getDiffsList()).toEqual(['member_id']);
         expect(diffResponse.getReplacesList()).toEqual(['member_id']);
+        expect(diffResponse.getDeletebeforereplace()).toBe(true);
     });
 });

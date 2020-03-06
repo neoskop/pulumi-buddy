@@ -42,5 +42,6 @@ describe('SshKey', () => {
         expect(diffResponse.getChanges()).toBe(DiffResponse.DiffChanges.DIFF_SOME);
         expect(diffResponse.getDiffsList()).toEqual(['content', 'title']);
         expect(diffResponse.getReplacesList()).toEqual(['content', 'title']);
+        expect(diffResponse.getDeletebeforereplace()).toBe(true);
     });
 });

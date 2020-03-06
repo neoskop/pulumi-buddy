@@ -58,6 +58,7 @@ export class MemberProvider implements SubProvider {
             new Differ(olds, news, props)
                 .diff('email', null, true)
                 .diff('isAdmin', 'admin')
+                .setDeleteBeforeReplace(true)
                 .toResponse()
         );
     }

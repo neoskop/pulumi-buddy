@@ -42,5 +42,6 @@ describe('Member', () => {
         expect(diffResponse.getChanges()).toBe(DiffResponse.DiffChanges.DIFF_SOME);
         expect(diffResponse.getDiffsList()).toEqual(['email', 'isAdmin']);
         expect(diffResponse.getReplacesList()).toEqual(['email']);
+        expect(diffResponse.getDeletebeforereplace()).toBe(true);
     });
 });

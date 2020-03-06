@@ -59,6 +59,7 @@ export class ProjectMemberBindingProvider implements SubProvider {
                 .diff('project_name', null, true)
                 .diff('member_id', null, true)
                 .diff('permission_id', ['permission_set', 'id'], true)
+                .setDeleteBeforeReplace(true)
                 .toResponse()
         );
     }

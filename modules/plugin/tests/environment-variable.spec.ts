@@ -42,5 +42,6 @@ describe('EnvironmentVariable', () => {
         expect(diffResponse.getChanges()).toBe(DiffResponse.DiffChanges.DIFF_SOME);
         expect(diffResponse.getDiffsList()).toEqual(['value', 'project_name']);
         expect(diffResponse.getReplacesList()).toEqual(['project_name']);
+        expect(diffResponse.getDeletebeforereplace()).toBe(false);
     });
 });

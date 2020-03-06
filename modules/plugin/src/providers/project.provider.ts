@@ -67,6 +67,7 @@ export class ProjectProvider implements SubProvider {
                 .diff('custom_repo_url', null, true)
                 .diff('custom_repo_user', null, true)
                 .diff('custom_repo_pass', null, true)
+                .setDeleteBeforeReplace(true)
                 .toResponse()
         );
     }

@@ -58,6 +58,7 @@ export class GroupMemberBindingProvider implements SubProvider {
             new Differ(olds, news, props)
                 .diff('group_id', null, true)
                 .diff('member_id', null, true)
+                .setDeleteBeforeReplace(true)
                 .toResponse()
         );
     }

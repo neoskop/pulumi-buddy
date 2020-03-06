@@ -42,5 +42,6 @@ describe('Permission', () => {
         expect(diffResponse.getChanges()).toBe(DiffResponse.DiffChanges.DIFF_SOME);
         expect(diffResponse.getDiffsList()).toEqual(['name']);
         expect(diffResponse.getReplacesList()).toEqual([]);
+        expect(diffResponse.getDeletebeforereplace()).toBe(false);
     });
 });

@@ -42,5 +42,6 @@ describe('Action', () => {
         expect(diffResponse.getChanges()).toBe(DiffResponse.DiffChanges.DIFF_SOME);
         expect(diffResponse.getDiffsList()).toEqual([]);
         expect(diffResponse.getReplacesList()).toEqual(['name', 'project_name']);
+        expect(diffResponse.getDeletebeforereplace()).toBe(false);
     });
 });

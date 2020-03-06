@@ -65,10 +65,6 @@ export class Member extends CustomResource implements AsOutputs<MemberProps> {
             opts.version = require('./package').version;
         }
 
-        if (null == opts.deleteBeforeReplace) {
-            opts.deleteBeforeReplace = true;
-        }
-
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['member_id'] = undefined;

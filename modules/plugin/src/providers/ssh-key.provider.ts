@@ -58,6 +58,7 @@ export class SshKeyProvider implements SubProvider {
             new Differ(olds, news, props)
                 .diff('content', 'content', true)
                 .diff('title', 'title', true)
+                .setDeleteBeforeReplace(true)
                 .toResponse()
         );
     }

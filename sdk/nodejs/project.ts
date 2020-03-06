@@ -112,10 +112,6 @@ export class Project extends CustomResource implements AsOutputs<ProjectProps> {
             opts.version = require('./package').version;
         }
 
-        if (null == opts.deleteBeforeReplace) {
-            opts.deleteBeforeReplace = true;
-        }
-
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['status'] = undefined;

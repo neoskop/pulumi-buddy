@@ -42,5 +42,6 @@ describe('Group', () => {
         expect(diffResponse.getChanges()).toBe(DiffResponse.DiffChanges.DIFF_SOME);
         expect(diffResponse.getDiffsList()).toEqual(['name', 'description']);
         expect(diffResponse.getReplacesList()).toEqual([]);
+        expect(diffResponse.getDeletebeforereplace()).toBe(false);
     });
 });
