@@ -1,12 +1,11 @@
-import { BuddyPipelineProps, BuddyPipelineState } from '@neoskop/pulumi-buddy';
+import { PipelineProps, PipelineState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
-
 import { BuddyApi } from '../buddy/api/api';
-import { IBuddyPipelineInput, PipelineNotFound } from '../buddy/api/pipeline';
+import { PipelineNotFound } from '../buddy/api/pipeline';
 import { ProjectNotFound } from '../buddy/api/project';
 import { ServiceError } from '../errors/service.error';
 import {
@@ -20,10 +19,10 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
+    UpdateResponse
 } from '../grpc/provider_pb';
-import { Differ } from '../utils/differ';
 import { deleteUndefined } from '../utils/delete-undefined';
+import { Differ } from '../utils/differ';
 import { IProviderConfig, Kind, SubProvider } from './main.provider';
 
 @Injectable()
@@ -32,7 +31,7 @@ export class PipelineProvider implements SubProvider {
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, BuddyPipelineState>();
+    protected readonly olds = new Map<string, PipelineState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -41,7 +40,7 @@ export class PipelineProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const olds = (request.getOlds()!.toJavaScript() as unknown) as BuddyPipelineState;
+        const olds = (request.getOlds()!.toJavaScript() as unknown) as PipelineState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
@@ -51,14 +50,14 @@ export class PipelineProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyPipelineProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyPipelineState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as PipelineProps;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as PipelineState;
         const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
             null,
             new Differ(olds, news, props)
-                .diff('project_name', null, true)
+                .diff('project_name', [ 'project', 'name' ], true)
                 .diff('name', 'name')
                 .diff('ref_name', 'ref_name')
                 .diff('trigger_mode', 'trigger_mode')
@@ -83,7 +82,7 @@ export class PipelineProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyPipelineState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as PipelineState;
         const project = this.buddyApi.workspace(this.config.workspace).project(props.project_name);
 
         project
@@ -94,12 +93,14 @@ export class PipelineProvider implements SubProvider {
                     const response = new CreateResponse();
                     response.setId(outputs.id.toString());
                     response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined({
-                            ...outputs,
-                            id: undefined,
-                            pipeline_id: outputs.id,
-                            project_name: props.project_name
-                        }))
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined,
+                                pipeline_id: outputs.id,
+                                project_name: props.project_name
+                            })
+                        )
                     );
 
                     callback(null, response);
@@ -122,7 +123,7 @@ export class PipelineProvider implements SubProvider {
         }
 
         const id = +req.request.getId();
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyPipelineState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as PipelineState;
 
         this.buddyApi
             .workspace(this.config.workspace)
@@ -135,12 +136,14 @@ export class PipelineProvider implements SubProvider {
                     response.setId(req.request.getId());
                     response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
                     response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined({
-                            ...outputs,
-                            id: undefined,
-                            pipeline_id: outputs.id,
-                            project_name: props.project_name
-                        }))
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined,
+                                pipeline_id: outputs.id,
+                                project_name: props.project_name
+                            })
+                        )
                     );
 
                     callback(null, response);
@@ -162,7 +165,7 @@ export class PipelineProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyPipelineState;
+        const news = (req.request.getNews()!.toJavaScript() as unknown) as PipelineState;
         const id = +req.request.getId();
 
         this.buddyApi
@@ -174,12 +177,14 @@ export class PipelineProvider implements SubProvider {
                 outputs => {
                     const response = new UpdateResponse();
                     response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined({
-                            ...outputs,
-                            id: undefined!,
-                            pipeline_id: outputs.id,
-                            project_name: news.project_name
-                        }))
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined!,
+                                pipeline_id: outputs.id,
+                                project_name: news.project_name
+                            })
+                        )
                     );
 
                     callback(null, response);
@@ -199,7 +204,7 @@ export class PipelineProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyPipelineProps;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as PipelineProps;
         const id = +req.request.getId();
 
         this.buddyApi

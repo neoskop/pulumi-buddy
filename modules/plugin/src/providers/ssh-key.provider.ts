@@ -1,11 +1,11 @@
-import { BuddyMemberState, BuddyProjectState, BuddyMemberProps, BuddySshKeyState, BuddySshKeyProps } from '@neoskop/pulumi-buddy';
+import { SshKeyProps, SshKeyState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
-
 import { BuddyApi } from '../buddy/api/api';
+import { SshKeyNotFound } from '../buddy/api/ssh-key';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -18,12 +18,11 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest,
-    UpdateResponse,
+    UpdateResponse
 } from '../grpc/provider_pb';
 import { deleteUndefined } from '../utils/delete-undefined';
 import { Differ } from '../utils/differ';
 import { IProviderConfig, Kind, SubProvider } from './main.provider';
-import { SshKeyNotFound } from '../buddy/api/ssh-key';
 
 @Injectable()
 export class SshKeyProvider implements SubProvider {
@@ -31,7 +30,7 @@ export class SshKeyProvider implements SubProvider {
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, BuddySshKeyState>();
+    protected readonly olds = new Map<string, SshKeyState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -40,7 +39,7 @@ export class SshKeyProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const olds = (request.getOlds()!.toJavaScript() as unknown) as BuddySshKeyState;
+        const olds = (request.getOlds()!.toJavaScript() as unknown) as SshKeyState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
@@ -50,8 +49,8 @@ export class SshKeyProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddySshKeyProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddySshKeyState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as SshKeyProps;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as SshKeyState;
         const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
@@ -59,6 +58,7 @@ export class SshKeyProvider implements SubProvider {
             new Differ(olds, news, props)
                 .diff('content', 'content', true)
                 .diff('title', 'title', true)
+                .setDeleteBeforeReplace(true)
                 .toResponse()
         );
     }
@@ -68,7 +68,7 @@ export class SshKeyProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddySshKeyState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as SshKeyState;
 
         this.buddyApi
             .sshKey()
@@ -104,7 +104,7 @@ export class SshKeyProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddySshKeyState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as SshKeyState;
         const id = +req.request.getId();
 
         this.buddyApi
@@ -116,11 +116,13 @@ export class SshKeyProvider implements SubProvider {
                     response.setId(req.request.getId());
                     response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
                     response.setProperties(
-                        Struct.fromJavaScript(deleteUndefined({
-                            ...outputs,
-                            id: undefined!,
-                            ssh_key_id: outputs.id
-                        }))
+                        Struct.fromJavaScript(
+                            deleteUndefined({
+                                ...outputs,
+                                id: undefined!,
+                                ssh_key_id: outputs.id
+                            })
+                        )
                     );
 
                     callback(null, response);

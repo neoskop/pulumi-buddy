@@ -1,10 +1,9 @@
-import { BuddyEnvironmentVariableProps, BuddyEnvironmentVariableState } from '@neoskop/pulumi-buddy';
+import { EnvironmentVariableProps, EnvironmentVariableState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
-
 import { BuddyApi } from '../buddy/api/api';
 import { EnvironmentVariableNotFound } from '../buddy/api/environment-variable';
 import { ServiceError } from '../errors/service.error';
@@ -31,7 +30,7 @@ export class EnvironmentVariableProvider implements SubProvider {
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, BuddyEnvironmentVariableState>();
+    protected readonly olds = new Map<string, EnvironmentVariableState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -40,7 +39,7 @@ export class EnvironmentVariableProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const olds = (request.getOlds()!.toJavaScript() as unknown) as BuddyEnvironmentVariableState;
+        const olds = (request.getOlds()!.toJavaScript() as unknown) as EnvironmentVariableState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
@@ -50,8 +49,8 @@ export class EnvironmentVariableProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as BuddyEnvironmentVariableProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as BuddyEnvironmentVariableState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as EnvironmentVariableProps;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as EnvironmentVariableState;
         const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
@@ -75,7 +74,7 @@ export class EnvironmentVariableProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyEnvironmentVariableState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as EnvironmentVariableState;
 
         this.buddyApi
             .workspace(this.config.workspace)
@@ -117,7 +116,7 @@ export class EnvironmentVariableProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as BuddyEnvironmentVariableState;
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as EnvironmentVariableState;
         const id = +req.request.getId();
 
         this.buddyApi
@@ -158,7 +157,7 @@ export class EnvironmentVariableProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const news = (req.request.getNews()!.toJavaScript() as unknown) as BuddyEnvironmentVariableState;
+        const news = (req.request.getNews()!.toJavaScript() as unknown) as EnvironmentVariableState;
         const id = +req.request.getId();
 
         this.buddyApi

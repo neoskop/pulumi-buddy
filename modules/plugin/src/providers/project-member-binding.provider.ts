@@ -1,11 +1,11 @@
-import { MemberProps, MemberState } from '@neoskop/pulumi-buddy';
+import { ProjectMemberBindingProps, ProjectMemberBindingState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
 import { BuddyApi } from '../buddy/api/api';
-import { MemberNotFound } from '../buddy/api/member';
+import { ProjectNotFound } from '../buddy/api/project';
 import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
@@ -25,12 +25,12 @@ import { Differ } from '../utils/differ';
 import { IProviderConfig, Kind, SubProvider } from './main.provider';
 
 @Injectable()
-export class MemberProvider implements SubProvider {
-    readonly kind = Kind.Member;
+export class ProjectMemberBindingProvider implements SubProvider {
+    readonly kind = Kind.ProjectMemberBinding;
 
     config?: IProviderConfig;
 
-    protected readonly olds = new Map<string, MemberState>();
+    protected readonly olds = new Map<string, ProjectMemberBindingState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
@@ -39,7 +39,7 @@ export class MemberProvider implements SubProvider {
     }
 
     check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
-        const olds = (request.getOlds()!.toJavaScript() as unknown) as MemberState;
+        const olds = (request.getOlds()!.toJavaScript() as unknown) as ProjectMemberBindingState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
@@ -49,15 +49,16 @@ export class MemberProvider implements SubProvider {
     }
 
     diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as MemberProps;
-        const news = (req.request.getNews()!.toJavaScript()! as unknown) as MemberState;
+        const props = (req.request.getOlds()!.toJavaScript()! as unknown) as ProjectMemberBindingProps;
+        const news = (req.request.getNews()!.toJavaScript()! as unknown) as ProjectMemberBindingState;
         const olds = this.olds.get(req.request.getUrn())!;
 
         callback(
             null,
             new Differ(olds, news, props)
-                .diff('email', null, true)
-                .diff('isAdmin', 'admin')
+                .diff('project_name', null, true)
+                .diff('member_id', null, true)
+                .diff('permission_id', ['permission_set', 'id'], true)
                 .setDeleteBeforeReplace(true)
                 .toResponse()
         );
@@ -68,32 +69,23 @@ export class MemberProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getProperties()!.toJavaScript() as unknown) as MemberState;
+        const props = (req.request.getProperties()!.toJavaScript() as unknown) as ProjectMemberBindingState;
 
         this.buddyApi
             .workspace(this.config.workspace)
-            .member()
-            .create(props)
-            .then(outputs => {
-                if (!props.isAdmin) {
-                    return outputs;
-                }
-
-                return this.buddyApi
-                    .workspace(this.config!.workspace)
-                    .member(outputs.id)
-                    .setAdmin(true);
-            })
+            .project(props.project_name)
+            .addMember(props.member_id, props.permission_id)
             .then(
                 outputs => {
+                    const id = `${props.project_name}~~~${props.permission_id}~~~${outputs.id}`;
                     const response = new CreateResponse();
-                    response.setId(outputs.id.toString());
+                    response.setId(id);
                     response.setProperties(
                         Struct.fromJavaScript(
                             deleteUndefined({
                                 ...outputs,
                                 id: undefined!,
-                                member_id: outputs.id
+                                project_member_binding_id: id
                             })
                         )
                     );
@@ -103,6 +95,8 @@ export class MemberProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
+                    } else if (err instanceof ProjectNotFound) {
+                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
                     }
@@ -115,13 +109,13 @@ export class MemberProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const props = (req.request.getInputs()!.toJavaScript() as unknown) as MemberState;
-        const id = +req.request.getId();
+        const props = (req.request.getInputs()!.toJavaScript() as unknown) as ProjectMemberBindingState;
+        const [projectName, memberId] = req.request.getId().split(/~~~/);
 
         this.buddyApi
             .workspace(this.config.workspace)
-            .member(id)
-            .read()
+            .project(projectName)
+            .getMember(+memberId)
             .then(
                 outputs => {
                     const response = new ReadResponse();
@@ -132,7 +126,7 @@ export class MemberProvider implements SubProvider {
                             deleteUndefined({
                                 ...outputs,
                                 id: undefined!,
-                                member_id: outputs.id
+                                project_member_binding_id: req.request.getId()
                             })
                         )
                     );
@@ -142,7 +136,7 @@ export class MemberProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof MemberNotFound) {
+                    } else if (err instanceof ProjectNotFound) {
                         callback(new ServiceError(err.message, status.NOT_FOUND), null);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);
@@ -152,42 +146,7 @@ export class MemberProvider implements SubProvider {
     }
 
     update(req: ServerUnaryCall<UpdateRequest>, callback: sendUnaryData<UpdateResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
-        const news = (req.request.getNews()!.toJavaScript() as unknown) as MemberState;
-        const id = +req.request.getId();
-
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .member(id)
-            .setAdmin(!!news.isAdmin)
-            .then(
-                outputs => {
-                    const response = new UpdateResponse();
-                    response.setProperties(
-                        Struct.fromJavaScript(
-                            deleteUndefined({
-                                ...outputs,
-                                id: undefined!,
-                                member_id: outputs.id
-                            })
-                        )
-                    );
-
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof MemberNotFound) {
-                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
-            );
+        callback(new ServiceError('not implemented', status.UNIMPLEMENTED), null);
     }
 
     delete(req: ServerUnaryCall<DeleteRequest>, callback: sendUnaryData<Empty>) {
@@ -195,12 +154,12 @@ export class MemberProvider implements SubProvider {
             return callback(new ServiceError('config not set', status.INTERNAL), null);
         }
 
-        const id = +req.request.getId();
+        const [projectName, _, memberId] = req.request.getId().split(/~~~/);
 
         this.buddyApi
             .workspace(this.config.workspace)
-            .member(id)
-            .delete()
+            .project(projectName)
+            .deleteMember(+memberId)
             .then(
                 () => {
                     setTimeout(() => callback(null, new Empty()), 1000);
@@ -208,7 +167,7 @@ export class MemberProvider implements SubProvider {
                 err => {
                     if (Axios.isCancel(err)) {
                         callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof MemberNotFound) {
+                    } else if (err instanceof ProjectNotFound) {
                         setTimeout(() => callback(null, new Empty()), 1000);
                     } else {
                         callback(new ServiceError(err.message, status.INTERNAL), null);

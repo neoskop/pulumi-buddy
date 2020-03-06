@@ -1,7 +1,7 @@
 import Axios, { CancelTokenSource } from 'axios';
-
-import { BuddyWorkspaceApi } from './workspace';
+import { BuddyIntegrationApi } from './integration';
 import { BuddySshKeyApi } from './ssh-key';
+import { BuddyWorkspaceApi } from './workspace';
 
 export class BuddyApi {
     protected readonly cancelerMap = new Map<CancelTokenSource, string>();
@@ -31,8 +31,8 @@ export class BuddyApi {
     }
 
     cancel(type?: string) {
-        for(const [ canceler, t ] of this.cancelerMap) {
-            if(null == type || type === t) {
+        for (const [canceler, t] of this.cancelerMap) {
+            if (null == type || type === t) {
                 canceler.cancel();
             }
         }
@@ -44,5 +44,9 @@ export class BuddyApi {
 
     sshKey(sshKeyId?: number) {
         return new BuddySshKeyApi(this, sshKeyId);
+    }
+
+    integration(integrationId?: number) {
+        return new BuddyIntegrationApi(this, integrationId);
     }
 }

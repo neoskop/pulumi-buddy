@@ -6,11 +6,14 @@ export interface HashIntegration {
     hash_id: string;
 }
 
-export type Integration = IdIntegration | HashIntegration;
+export type IntegrationRef = IdIntegration | HashIntegration;
 
 export interface Variable {
     key: string;
     value: string;
+    ssh_key?: boolean;
+    settable?: boolean;
+    encrypted?: boolean;
 }
 
 export interface APKs {
@@ -29,11 +32,11 @@ export interface Header {
     value: string;
 }
 
-export interface Pipeline {
+export interface PipelineRef {
     id: number;
 }
 
-export type ServiceType = "MYSQL" | "MONGO_DB" | "MARIADB" | "POSTGRE_SQL" | "REDIS" | "MEMCACHED" | "ELASTICSEARCH" | "CUSTOM";
+export type ServiceType = 'MYSQL' | 'MONGO_DB' | 'MARIADB' | 'POSTGRE_SQL' | 'REDIS' | 'MEMCACHED' | 'ELASTICSEARCH' | 'CUSTOM';
 
 export interface Service {
     type: ServiceType;

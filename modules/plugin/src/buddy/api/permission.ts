@@ -7,6 +7,7 @@ export type PipelineAccessLevel = 'DENIED' | 'READ_ONLY' | 'RUN_ONLY'| 'READ_WRI
 export type RepositoryAccessLevel = 'DENIED' | 'READ_ONLY'| 'READ_WRITE';
 export type SandboxAccessLevel = 'DENIED' | 'READ_WRITE';
 
+const debug = require('debug')('pulumi-buddy:api:permission');
 export interface IBuddyPermissionInput {
     name: string;
     description?: string|null;
@@ -32,9 +33,10 @@ export class BuddyPermissionApi {
         return this.permissionId;
     }
 
-    async create(Permission: IBuddyPermissionInput): Promise<IBuddyPermission> {
+    async create(permission: IBuddyPermissionInput): Promise<IBuddyPermission> {
+        debug('create %O', permission);
         try {
-            const result = await Axios.post<IBuddyPermission>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/permissions`, Permission, {
+            const result = await Axios.post<IBuddyPermission>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/permissions`, permission, {
                 cancelToken: this.api.registerCanceler('permission').token,
                 headers: {
                     Authorization: `Bearer ${this.api.getToken()}`
@@ -54,6 +56,7 @@ export class BuddyPermissionApi {
     }
 
     async read(): Promise<IBuddyPermission> {
+        debug('read %d', this.permissionId);
         if (!this.permissionId) {
             throw new PermissionIdRequired();
         }
@@ -86,6 +89,7 @@ export class BuddyPermissionApi {
     }
 
     async update(update: IBuddyPermissionInput): Promise<IBuddyPermission> {
+        debug('update %d %O', this.permissionId, update);
         if (!this.permissionId) {
             throw new PermissionIdRequired();
         }
@@ -119,6 +123,7 @@ export class BuddyPermissionApi {
     }
 
     async delete(): Promise<void> {
+        debug('delete %d', this.permissionId);
         if (!this.permissionId) {
             throw new PermissionIdRequired();
         }

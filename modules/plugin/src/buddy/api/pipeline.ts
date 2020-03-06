@@ -5,6 +5,8 @@ import { BuddyApi } from './api';
 import { BuddyProjectApi, ProjectNotFound } from './project';
 import { BuddyWorkspaceApi } from './workspace';
 
+const debug = require('debug')('pulumi-buddy:api:pipeline');
+
 export interface IBuddyPipeline {
     url: string;
     html_url: string;
@@ -82,6 +84,7 @@ export class BuddyPipelineApi {
     }
 
     async create(pipeline: IBuddyPipelineInput): Promise<IBuddyPipeline> {
+        debug('create %O', pipeline);
         try {
             const result = await Axios.post<IBuddyPipeline>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines`,
@@ -111,6 +114,7 @@ export class BuddyPipelineApi {
     }
 
     async read(): Promise<IBuddyPipeline> {
+        debug('read %d', this.pipelineId);
         if (!this.pipelineId) {
             throw new PipelineIdRequired();
         }
@@ -145,6 +149,7 @@ export class BuddyPipelineApi {
     }
 
     async update(update: IBuddyPipelineInput): Promise<IBuddyPipeline> {
+        debug('update %d %O', this.pipelineId, update);
         if (!this.pipelineId) {
             throw new PipelineIdRequired();
         }
@@ -180,6 +185,7 @@ export class BuddyPipelineApi {
     }
 
     async delete(): Promise<void> {
+        debug('delete %d', this.pipelineId);
         if (!this.pipelineId) {
             throw new PipelineIdRequired();
         }

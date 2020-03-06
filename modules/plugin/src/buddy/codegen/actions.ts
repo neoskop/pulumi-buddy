@@ -1,4 +1,4 @@
-import { Project, SourceFile, InterfaceDeclaration, TypeAliasDeclaration, StructureKind } from 'ts-morph';
+import { InterfaceDeclaration, Project, SourceFile, TypeAliasDeclaration } from 'ts-morph';
 import { Action, ParameterType } from '../scraper';
 
 export interface ICodegenOptions {
@@ -34,7 +34,7 @@ export class BuddyCodegenActions {
 
         function getImp(f: SourceFile) {
             let imp = file.getImportDeclaration(d => d.getModuleSpecifierValue() === `./${f.getBaseNameWithoutExtension()}`);
-            if(!imp) {
+            if (!imp) {
                 imp = file.addImportDeclaration({
                     moduleSpecifier: `./${f.getBaseNameWithoutExtension()}`
                 });
@@ -47,17 +47,17 @@ export class BuddyCodegenActions {
             file.addExportDeclaration({
                 moduleSpecifier: `./${f.getBaseNameWithoutExtension()}`
             });
-            for(const i of f.getInterfaces()) {
-                if(i.getName().endsWith('State')) {
+            for (const i of f.getInterfaces()) {
+                if (i.getName().endsWith('State')) {
                     states.push(i);
                     getImp(f).addNamedImport(i.getName());
-                } else if(i.getName().endsWith('Props')) {
+                } else if (i.getName().endsWith('Props')) {
                     props.push(i);
                     getImp(f).addNamedImport(i.getName());
                 }
             }
-            for(const t of f.getTypeAliases()) {
-                if(t.getName().endsWith('Args')) {
+            for (const t of f.getTypeAliases()) {
+                if (t.getName().endsWith('Args')) {
                     args.push(t);
                     getImp(f).addNamedImport(t.getName());
                 }
@@ -65,19 +65,19 @@ export class BuddyCodegenActions {
         }
 
         file.addTypeAlias({
-            name: 'BuddyActionState',
+            name: 'ActionState',
             isExported: true,
             type: states.map(s => s.getName()).join(' | ')
         });
 
         file.addTypeAlias({
-            name: 'BuddyActionArgs',
+            name: 'ActionArgs',
             isExported: true,
             type: args.map(s => s.getName()).join(' | ')
         });
 
         file.addTypeAlias({
-            name: 'BuddyActionProps',
+            name: 'ActionProps',
             isExported: true,
             type: props.map(s => s.getName()).join(' | ')
         });
@@ -96,17 +96,23 @@ export class BuddyCodegenActions {
 
     toTsType(type: ParameterType, file: SourceFile) {
         if ('ref' in type) {
+            let ref = type.ref;
+
+            if (['Pipeline', 'Integration'].includes(ref)) {
+                ref = `${ref}Ref`;
+            }
+
             let imp = file.getImportDeclaration(d => d.getModuleSpecifierValue() === this.options.commonImport);
             if (!imp) {
                 imp = file.addImportDeclaration({
                     moduleSpecifier: this.options.commonImport
                 });
             }
-            if (!imp.getNamedImports().some(i => i.getName() === type.ref)) {
-                imp.addNamedImport(type.ref);
+            if (!imp.getNamedImports().some(i => i.getName() === ref)) {
+                imp.addNamedImport(ref);
             }
 
-            return type.isArray ? `${type.ref}[]` : type.ref;
+            return type.isArray ? `${ref}[]` : ref;
         }
         if ('scalar' in type) {
             return type.isArray ? `${type.scalar.toLowerCase()}[]` : type.scalar.toLowerCase();
@@ -132,7 +138,7 @@ export class BuddyCodegenActions {
         });
         file.addImportDeclaration({
             moduleSpecifier: this.options.pipelineImport,
-            namedImports: ['BuddyPipelineProps']
+            namedImports: ['PipelineProps']
         });
 
         file.addImportDeclaration({
@@ -143,7 +149,7 @@ export class BuddyCodegenActions {
 
     protected addActionState(action: Action, file: SourceFile) {
         const state = file.addInterface({
-            name: `BuddyAction${this.toKeyword(action.name)}State`,
+            name: `Action${this.toKeyword(action.name)}State`,
             isExported: true,
             properties: [
                 {
@@ -180,7 +186,7 @@ export class BuddyCodegenActions {
 
     protected addActionArgs(action: Action, state: InterfaceDeclaration) {
         return state.getSourceFile().addTypeAlias({
-            name: `BuddyAction${this.toKeyword(action.name)}Args`,
+            name: `Action${this.toKeyword(action.name)}Args`,
             isExported: true,
             type: `AsInputs<${state.getName()}>`
         });
@@ -188,7 +194,7 @@ export class BuddyCodegenActions {
 
     protected addActionProps(action: Action, file: SourceFile) {
         const props = file.addInterface({
-            name: `BuddyAction${this.toKeyword(action.name)}Props`,
+            name: `Action${this.toKeyword(action.name)}Props`,
             isExported: true
         });
 
@@ -217,7 +223,7 @@ export class BuddyCodegenActions {
 
         props.addProperty({
             name: 'pipeline',
-            type: 'BuddyPipelineProps'
+            type: 'PipelineProps'
         });
 
         props.addProperty({
@@ -241,9 +247,12 @@ export class BuddyCodegenActions {
         args: TypeAliasDeclaration
     ) {
         const actionClass = file.addClass({
-            name: `BuddyAction${this.toKeyword(action.name)}`,
+            name: `Action${this.toKeyword(action.name)}`,
             isExported: true,
-            extends: 'CustomResource'
+            extends: 'CustomResource',
+            docs: [
+                `\nRequired scopes in Buddy API: \`WORKSPACE\`, \`EXECUTION_MANAGE\`, \`EXECUTION_INFO\``
+            ]
         });
 
         actionClass.addProperty({

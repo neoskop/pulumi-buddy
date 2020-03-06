@@ -1,8 +1,7 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
-
 import { AsInputs, AsOutputs } from './utils';
 
-export interface BuddyEnvironmentVariableState {
+export interface EnvironmentVariableState {
     key: string;
     value: string;
     description?: string;
@@ -14,9 +13,9 @@ export interface BuddyEnvironmentVariableState {
     action_id?: number;
 }
 
-export type BuddyEnvironmentVariableArgs = AsInputs<BuddyEnvironmentVariableState>;
+export type EnvironmentVariableArgs = AsInputs<EnvironmentVariableState>;
 
-export interface BuddyEnvironmentVariableProps {
+export interface EnvironmentVariableProps {
     url: string;
     variable_id: number;
     key: string;
@@ -27,36 +26,39 @@ export interface BuddyEnvironmentVariableProps {
     encrypted?: boolean;
 }
 
-export class BuddyEnvironmentVariable extends CustomResource implements AsOutputs<BuddyEnvironmentVariableProps> {
-    static __pulumiType = 'buddy:environment-variable:BuddyEnvironmentVariable';
+/**
+ * Required scopes in Buddy API: `WORKSPACE`, `VARIABLE_ADD`, `VARIABLE_MANAGE`, `VARIABLE_INFO`
+ */
+export class EnvironmentVariable extends CustomResource implements AsOutputs<EnvironmentVariableProps> {
+    static __pulumiType = 'buddy:environment-variable:EnvironmentVariable';
 
-    static get(name: string, id: Input<ID>, state?: Partial<BuddyEnvironmentVariableState>, opts?: CustomResourceOptions) {
-        return new BuddyEnvironmentVariable(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<EnvironmentVariableState>, opts?: CustomResourceOptions) {
+        return new EnvironmentVariable(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is BuddyEnvironmentVariable {
+    static isInstance(obj: any): obj is EnvironmentVariable {
         if (null == obj) {
             return false;
         }
-        return obj['__pulumiType'] === BuddyEnvironmentVariable.__pulumiType;
+        return obj['__pulumiType'] === EnvironmentVariable.__pulumiType;
     }
 
     readonly url!: Output<string>;
     readonly variable_id!: Output<number>;
     readonly key!: Output<string>;
     readonly value!: Output<string>;
-    readonly description!: Output<string|undefined>;
-    readonly ssh_key!: Output<boolean|undefined>;
-    readonly settable!: Output<boolean|undefined>;
-    readonly encrypted!: Output<boolean|undefined>;
+    readonly description!: Output<string | undefined>;
+    readonly ssh_key!: Output<boolean | undefined>;
+    readonly settable!: Output<boolean | undefined>;
+    readonly encrypted!: Output<boolean | undefined>;
 
-    constructor(name: string, argsOrState: BuddyEnvironmentVariableArgs | BuddyEnvironmentVariableState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: EnvironmentVariableArgs | EnvironmentVariableState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
         if (opts.id) {
-            const state = argsOrState as BuddyEnvironmentVariableState | undefined;
+            const state = argsOrState as EnvironmentVariableState | undefined;
             inputs['key'] = state?.key;
             inputs['value'] = state?.value;
             inputs['description'] = state?.description;
@@ -67,17 +69,17 @@ export class BuddyEnvironmentVariable extends CustomResource implements AsOutput
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['action_id'] = state?.action_id;
         } else {
-            const args = argsOrState as BuddyEnvironmentVariableArgs | undefined;
+            const args = argsOrState as EnvironmentVariableArgs | undefined;
             if (!args || !args.key) {
                 throw new Error('Missing required property "key"');
             }
             if (!args || !args.value) {
                 throw new Error('Missing required property "value"');
             }
-            if(args.pipeline_id && !args.project_name) {
+            if (args.pipeline_id && !args.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
-            if(args.action_id && !args.pipeline_id) {
+            if (args.action_id && !args.pipeline_id) {
                 throw new Error('Missing required property "pipeline_id"');
             }
             inputs['key'] = args.key;
@@ -98,6 +100,6 @@ export class BuddyEnvironmentVariable extends CustomResource implements AsOutput
         inputs['url'] = undefined;
         inputs['variable_id'] = undefined;
 
-        super(BuddyEnvironmentVariable.__pulumiType, name, inputs, opts);
+        super(EnvironmentVariable.__pulumiType, name, inputs, opts);
     }
 }

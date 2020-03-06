@@ -1,11 +1,13 @@
 import Axios from 'axios';
-
 import { BuddyApi } from './api';
 import { BuddyWorkspaceApi } from './workspace';
+import { IBuddyMember } from './member';
+
+const debug = require('debug')('pulumi-buddy:api:action');
 
 export interface IBuddyGroupInput {
     name: string;
-    description?: string|null;
+    description?: string | null;
 }
 
 export interface IBuddyGroup {
@@ -13,7 +15,7 @@ export interface IBuddyGroup {
     html_url: string;
     id: number;
     name: string;
-    description: string|null;
+    description: string | null;
 }
 
 export class BuddyGroupApi {
@@ -26,9 +28,10 @@ export class BuddyGroupApi {
         return this.groupId;
     }
 
-    async create(Group: IBuddyGroupInput): Promise<IBuddyGroup> {
+    async create(group: IBuddyGroupInput): Promise<IBuddyGroup> {
+        debug('create %O', group);
         try {
-            const result = await Axios.post<IBuddyGroup>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/groups`, Group, {
+            const result = await Axios.post<IBuddyGroup>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/groups`, group, {
                 cancelToken: this.api.registerCanceler('group').token,
                 headers: {
                     Authorization: `Bearer ${this.api.getToken()}`
@@ -48,6 +51,7 @@ export class BuddyGroupApi {
     }
 
     async read(): Promise<IBuddyGroup> {
+        debug('read %d', this.groupId);
         if (!this.groupId) {
             throw new GroupIdRequired();
         }
@@ -80,6 +84,7 @@ export class BuddyGroupApi {
     }
 
     async update(update: Partial<IBuddyGroupInput>): Promise<IBuddyGroup> {
+        debug('update %d %O', this.groupId, update);
         if (!this.groupId) {
             throw new GroupIdRequired();
         }
@@ -113,6 +118,7 @@ export class BuddyGroupApi {
     }
 
     async delete(): Promise<void> {
+        debug('delete %d', this.groupId);
         if (!this.groupId) {
             throw new GroupIdRequired();
         }
@@ -138,6 +144,106 @@ export class BuddyGroupApi {
             }
         }
     }
+
+    async getMember(id: number): Promise<IBuddyMember> {
+        debug('getMember %d %d', this.groupId, id);
+        if (!this.groupId) {
+            throw new GroupIdRequired();
+        }
+
+        try {
+            const result = await Axios.get<IBuddyMember>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/groups/${this.groupId}/members/${id}`,
+                {
+                    cancelToken: this.api.registerCanceler('group').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
+                }
+            );
+
+            return result.data;
+        } catch (e) {
+            if (Axios.isCancel(e)) {
+                throw e;
+            } else if (e.response) {
+                if (e.response.status === 404) {
+                    throw new GroupNotFound(this.groupId);
+                } else {
+                    throw new GroupError(e.response.data.errors[0].message);
+                }
+            } else {
+                throw new GroupError(e.message);
+            }
+        }
+    }
+
+    async addMember(id: number): Promise<IBuddyMember> {
+        debug('addMember %d %d', this.groupId, id);
+        if (!this.groupId) {
+            throw new GroupIdRequired();
+        }
+
+        try {
+            const result = await Axios.post<IBuddyMember>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/groups/${this.groupId}/members`,
+                { id },
+                {
+                    cancelToken: this.api.registerCanceler('group').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
+                }
+            );
+
+            return result.data;
+        } catch (e) {
+            if (Axios.isCancel(e)) {
+                throw e;
+            } else if (e.response) {
+                if (e.response.status === 404) {
+                    throw new GroupNotFound(this.groupId);
+                } else {
+                    throw new GroupError(e.response.data.errors[0].message);
+                }
+            } else {
+                throw new GroupError(e.message);
+            }
+        }
+    }
+
+    async deleteMember(id: number): Promise<void> {
+        debug('deleteMember %d %d', this.groupId, id);
+        if (!this.groupId) {
+            throw new GroupIdRequired();
+        }
+
+        try {
+            const result = await Axios.delete<void>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/groups/${this.groupId}/members/${id}`,
+                {
+                    cancelToken: this.api.registerCanceler('group').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
+                }
+            );
+
+            return result.data;
+        } catch (e) {
+            if (Axios.isCancel(e)) {
+                throw e;
+            } else if (e.response) {
+                if (e.response.status === 404) {
+                    throw new GroupNotFound(this.groupId);
+                } else {
+                    throw new GroupError(e.response.data.errors[0].message);
+                }
+            } else {
+                throw new GroupError(e.message);
+            }
+        }
+    }
 }
 
 export class GroupError extends Error {}
@@ -149,7 +255,7 @@ export class GroupIdRequired extends GroupError {
 }
 
 export class GroupNotFound extends GroupError {
-    constructor(GroupId: number) {
-        super(`Group '${GroupId}' not found.`);
+    constructor(groupId: number) {
+        super(`Group '${groupId}' not found.`);
     }
 }
