@@ -34,7 +34,7 @@ async function main() {
         {
             title: 'Prepare',
             async task(ctx) {
-                const targetDir = (ctx.targetDir = path.join(__dirname, '../../../sdk/nodejs/action'));
+                const targetDir = (ctx.targetDir = path.join(__dirname, '../../../sdk/nodejs/actions'));
 
                 if (await fs.pathExists(targetDir)) {
                     await fs.remove(targetDir);

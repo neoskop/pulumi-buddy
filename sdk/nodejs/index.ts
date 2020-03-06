@@ -1,4 +1,5 @@
-export * from './action';
+import * as actions from './actions';
+export { actions };
 export * from './common';
 export * from './environment-variable';
 export * from './group';

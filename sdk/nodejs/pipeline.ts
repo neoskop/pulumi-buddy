@@ -2,7 +2,7 @@ import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from
 import { AsInputs, AsOutputs } from './utils';
 import { ProjectProps } from './project';
 import { MemberProps } from './member';
-import { ActionProps } from './action';
+import { ActionProps } from './actions';
 
 export type TriggerMode = 'MANUAL' | 'SCHEDULED' | 'ON_EVERY_PUSH';
 export type RefType = 'BRANCH' | 'TAG' | 'WILDCARD' | 'PULL_REQUEST' | 'NONE';

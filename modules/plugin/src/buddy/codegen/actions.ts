@@ -94,6 +94,10 @@ export class BuddyCodegenActions {
         return str.replace(/ [a-z]/g, str => str.toUpperCase()).replace(/[^\w-]/g, '');
     }
 
+    protected sanitize(str: string) {
+        return str.replace(/^action /i, '').replace(/ action$/i, '');
+    }
+
     toTsType(type: ParameterType, file: SourceFile) {
         if ('ref' in type) {
             let ref = type.ref;
@@ -123,7 +127,7 @@ export class BuddyCodegenActions {
     }
 
     addAction(action: Action) {
-        const file = this.project.createSourceFile(`${this.toFileName(action.name)}.ts`);
+        const file = this.project.createSourceFile(`${this.toFileName(this.sanitize(action.name))}.ts`);
         this.addDefaultImports(file);
         const state = this.addActionState(action, file);
         const args = this.addActionArgs(action, state);
@@ -149,7 +153,7 @@ export class BuddyCodegenActions {
 
     protected addActionState(action: Action, file: SourceFile) {
         const state = file.addInterface({
-            name: `Action${this.toKeyword(action.name)}State`,
+            name: `Action${this.toKeyword(this.sanitize(action.name))}State`,
             isExported: true,
             properties: [
                 {
@@ -186,7 +190,7 @@ export class BuddyCodegenActions {
 
     protected addActionArgs(action: Action, state: InterfaceDeclaration) {
         return state.getSourceFile().addTypeAlias({
-            name: `Action${this.toKeyword(action.name)}Args`,
+            name: `Action${this.toKeyword(this.sanitize(action.name))}Args`,
             isExported: true,
             type: `AsInputs<${state.getName()}>`
         });
@@ -194,7 +198,7 @@ export class BuddyCodegenActions {
 
     protected addActionProps(action: Action, file: SourceFile) {
         const props = file.addInterface({
-            name: `Action${this.toKeyword(action.name)}Props`,
+            name: `Action${this.toKeyword(this.sanitize(action.name))}Props`,
             isExported: true
         });
 
@@ -247,7 +251,7 @@ export class BuddyCodegenActions {
         args: TypeAliasDeclaration
     ) {
         const actionClass = file.addClass({
-            name: `Action${this.toKeyword(action.name)}`,
+            name: `${this.toKeyword(this.sanitize(action.name))}`,
             isExported: true,
             extends: 'CustomResource',
             docs: [

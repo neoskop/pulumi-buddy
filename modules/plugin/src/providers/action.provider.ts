@@ -1,4 +1,4 @@
-import { ActionProps, ActionState } from '@neoskop/pulumi-buddy';
+import { ActionProps, ActionState } from '@neoskop/pulumi-buddy/actions';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
