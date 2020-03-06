@@ -4,9 +4,6 @@
     "version": "0.0.0",
     "license": "MIT",
     "private": true,
-    "scripts": {
-        "prepare": "cd modules/plugin && npm run prepare"
-    },
     "workspaces": [
         "modules/plugin",
         "sdk/nodejs"
