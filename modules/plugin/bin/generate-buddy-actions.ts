@@ -16,6 +16,7 @@ async function main() {
         codegen: BuddyCodegenActions;
         targetDir: string;
         warnings: string[];
+        errors: string[];
     }>([
         {
             title: 'Scrape Buddy API Documentation',
@@ -25,6 +26,7 @@ async function main() {
 
                 stream.pipe(toArray()).subscribe(actions => {
                     ctx.actions = actions;
+                    ctx.errors = scraper.errors;
                     ctx.warnings = scraper.warnings;
                 });
 
@@ -78,7 +80,11 @@ async function main() {
         }
     ]);
 
-    const { warnings } = await tasks.run();
+    const { errors, warnings } = await tasks.run();
+
+    for (const error of errors) {
+        console.warn(chalk.red(error));
+    }
 
     for (const warning of warnings) {
         console.warn(chalk.yellow(warning));
