@@ -2,6 +2,8 @@ import Axios from 'axios';
 
 import { BuddyApi } from './api';
 
+const debug = require('debug')('pulumi-buddy:api:ssh-key');
+
 export interface IBuddySshKeyInput {
     content: string;
     title?: string | null;
@@ -25,9 +27,10 @@ export class BuddySshKeyApi {
         return this.sshKeyId;
     }
 
-    async create(SshKey: IBuddySshKeyInput): Promise<IBuddySshKey> {
+    async create(sshKey: IBuddySshKeyInput): Promise<IBuddySshKey> {
+        debug('create %O', sshKey);
         try {
-            const result = await Axios.post<IBuddySshKey>(`${this.api.getApiUrl()}/user/keys`, SshKey, {
+            const result = await Axios.post<IBuddySshKey>(`${this.api.getApiUrl()}/user/keys`, sshKey, {
                 cancelToken: this.api.registerCanceler('ssh-key').token,
                 headers: {
                     Authorization: `Bearer ${this.api.getToken()}`
@@ -47,6 +50,7 @@ export class BuddySshKeyApi {
     }
 
     async read(): Promise<IBuddySshKey> {
+        debug('read %d', this.sshKeyId);
         if (!this.sshKeyId) {
             throw new SshKeyIdRequired();
         }
@@ -76,6 +80,7 @@ export class BuddySshKeyApi {
     }
 
     async delete(): Promise<void> {
+        debug('delete %d', this.sshKeyId);
         if (!this.sshKeyId) {
             throw new SshKeyIdRequired();
         }

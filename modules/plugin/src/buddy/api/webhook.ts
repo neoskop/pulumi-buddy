@@ -4,6 +4,8 @@ import { BuddyApi } from './api';
 import { BuddyWorkspaceApi } from './workspace';
 import { IBuddyProject } from './project';
 
+const debug = require('debug')('pulumi-buddy:api:webhook');
+
 export type WebhookEvent = 'PUSH' | 'EXECUTION_STARTED' | 'EXECUTION_SUCCESSFUL' | 'EXECUTION_FAILED' | 'EXECUTION_FINISHED';
 
 export interface IBuddyWebhookInput {
@@ -36,6 +38,7 @@ export class BuddyWebhookApi {
     }
 
     async create(webhook: IBuddyWebhookInput): Promise<IBuddyWebhook> {
+        debug('create %O', webhook);
         try {
             const result = await Axios.post<IBuddyWebhook>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/webhooks`, webhook, {
                 cancelToken: this.api.registerCanceler('webhook').token,
@@ -57,6 +60,7 @@ export class BuddyWebhookApi {
     }
 
     async read(): Promise<IBuddyWebhook> {
+        debug('read %d', this.webhookId);
         if (!this.webhookId) {
             throw new WebhookIdRequired();
         }
@@ -89,6 +93,7 @@ export class BuddyWebhookApi {
     }
 
     async update(update: Partial<IBuddyWebhookInput>): Promise<IBuddyWebhook> {
+        debug('update %d %O', this.webhookId, update);
         if (!this.webhookId) {
             throw new WebhookIdRequired();
         }
@@ -122,6 +127,7 @@ export class BuddyWebhookApi {
     }
 
     async delete(): Promise<void> {
+        debug('delete %d', this.webhookId);
         if (!this.webhookId) {
             throw new WebhookIdRequired();
         }

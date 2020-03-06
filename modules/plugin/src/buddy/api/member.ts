@@ -3,6 +3,8 @@ import Axios from 'axios';
 import { BuddyApi } from './api';
 import { BuddyWorkspaceApi } from './workspace';
 
+const debug = require('debug')('pulumi-buddy:api:member');
+
 export interface IBuddyMemberCreate {
     email: string;
 }
@@ -28,6 +30,7 @@ export class BuddyMemberApi {
     }
 
     async create(member: IBuddyMemberCreate): Promise<IBuddyMember> {
+        debug('create %O', member);
         try {
             const result = await Axios.post<IBuddyMember>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/members`,
@@ -53,6 +56,7 @@ export class BuddyMemberApi {
     }
 
     async read(): Promise<IBuddyMember> {
+        debug('read %d', this.memberId);
         if (!this.memberId) {
             throw new MemberIdRequired();
         }
@@ -85,6 +89,7 @@ export class BuddyMemberApi {
     }
 
     async delete(): Promise<void> {
+        debug('delete %d', this.memberId);
         if (!this.memberId) {
             throw new MemberIdRequired();
         }
@@ -112,6 +117,7 @@ export class BuddyMemberApi {
     }
 
     async setAdmin(admin: boolean): Promise<IBuddyMember> {
+        debug('setAdmin %d %j', this.memberId, admin);
         if (!this.memberId) {
             throw new MemberIdRequired();
         }

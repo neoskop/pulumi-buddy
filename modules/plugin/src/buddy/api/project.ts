@@ -6,6 +6,7 @@ import { BuddyWorkspaceApi } from './workspace';
 import { IBuddyMember } from './member';
 import { IBuddyPermission } from './permission';
 
+const debug = require('debug')('pulumi-buddy:api:project');
 export interface IBuddyProject {
     url: string;
     html_url: string;
@@ -82,6 +83,7 @@ export class BuddyProjectApi {
     }
 
     async create(project: BuddyProjectCreate): Promise<IBuddyProject> {
+        debug('create %O', project);
         try {
             const result = await Axios.post<IBuddyProject>(
                 `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects`,
@@ -107,6 +109,7 @@ export class BuddyProjectApi {
     }
 
     async read(): Promise<IBuddyProject> {
+        debug('read %s', this.projectName);
         if (!this.projectName) {
             throw new ProjectNameRequired();
         }
@@ -139,6 +142,7 @@ export class BuddyProjectApi {
     }
 
     async update(update: IBuddyProjectUpdate): Promise<IBuddyProject> {
+        debug('update %s %O', this.projectName, update);
         if (!this.projectName) {
             throw new ProjectNameRequired();
         }
@@ -174,6 +178,7 @@ export class BuddyProjectApi {
     }
 
     async delete(): Promise<void> {
+        debug('delete %s', this.projectName);
         if (!this.projectName) {
             throw new ProjectNameRequired();
         }
@@ -201,6 +206,7 @@ export class BuddyProjectApi {
     }
 
     async getMember(id: number): Promise<IBuddyMemberWithPermissionSet> {
+        debug('getMember %s %d', this.projectName, id);
         if (!this.projectName) {
             throw new ProjectNameRequired();
         }
@@ -233,6 +239,7 @@ export class BuddyProjectApi {
     }
 
     async addMember(id: number, permissionId: number): Promise<IBuddyMemberWithPermissionSet> {
+        debug('addMember %s %d %d', this.projectName, id, permissionId);
         if (!this.projectName) {
             throw new ProjectNameRequired();
         }
@@ -266,6 +273,7 @@ export class BuddyProjectApi {
     }
 
     async deleteMember(id: number): Promise<void> {
+        debug('deleteMember %s %d', this.projectName, id);
         if (!this.projectName) {
             throw new ProjectNameRequired();
         }

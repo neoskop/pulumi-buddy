@@ -3,6 +3,8 @@ import { BuddyApi } from './api';
 import { BuddyWorkspaceApi } from './workspace';
 import { IBuddyMember } from './member';
 
+const debug = require('debug')('pulumi-buddy:api:action');
+
 export interface IBuddyGroupInput {
     name: string;
     description?: string | null;
@@ -26,9 +28,10 @@ export class BuddyGroupApi {
         return this.groupId;
     }
 
-    async create(Group: IBuddyGroupInput): Promise<IBuddyGroup> {
+    async create(group: IBuddyGroupInput): Promise<IBuddyGroup> {
+        debug('create %O', group);
         try {
-            const result = await Axios.post<IBuddyGroup>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/groups`, Group, {
+            const result = await Axios.post<IBuddyGroup>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/groups`, group, {
                 cancelToken: this.api.registerCanceler('group').token,
                 headers: {
                     Authorization: `Bearer ${this.api.getToken()}`
@@ -48,6 +51,7 @@ export class BuddyGroupApi {
     }
 
     async read(): Promise<IBuddyGroup> {
+        debug('read %d', this.groupId);
         if (!this.groupId) {
             throw new GroupIdRequired();
         }
@@ -80,6 +84,7 @@ export class BuddyGroupApi {
     }
 
     async update(update: Partial<IBuddyGroupInput>): Promise<IBuddyGroup> {
+        debug('update %d %O', this.groupId, update);
         if (!this.groupId) {
             throw new GroupIdRequired();
         }
@@ -113,6 +118,7 @@ export class BuddyGroupApi {
     }
 
     async delete(): Promise<void> {
+        debug('delete %d', this.groupId);
         if (!this.groupId) {
             throw new GroupIdRequired();
         }
@@ -140,6 +146,7 @@ export class BuddyGroupApi {
     }
 
     async getMember(id: number): Promise<IBuddyMember> {
+        debug('getMember %d %d', this.groupId, id);
         if (!this.groupId) {
             throw new GroupIdRequired();
         }
@@ -172,6 +179,7 @@ export class BuddyGroupApi {
     }
 
     async addMember(id: number): Promise<IBuddyMember> {
+        debug('addMember %d %d', this.groupId, id);
         if (!this.groupId) {
             throw new GroupIdRequired();
         }
@@ -205,6 +213,7 @@ export class BuddyGroupApi {
     }
 
     async deleteMember(id: number): Promise<void> {
+        debug('deleteMember %d %d', this.groupId, id);
         if (!this.groupId) {
             throw new GroupIdRequired();
         }

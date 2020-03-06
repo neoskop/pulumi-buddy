@@ -6,6 +6,8 @@ import { IBuddyProject } from './project';
 import { IBuddyPipeline } from './pipeline';
 import { IBuddyAction } from './action';
 
+const debug = require('debug')('pulumi-buddy:api:environment-variable');
+
 export type EnvironmentVariableEvent = 'PUSH' | 'EXECUTION_STARTED' | 'EXECUTION_SUCCESSFUL' | 'EXECUTION_FAILED' | 'EXECUTION_FINISHED';
 
 export interface IBuddyEnvironmentVariableInput {
@@ -39,6 +41,7 @@ export class BuddyEnvironmentVariableApi {
     }
 
     async create(variable: IBuddyEnvironmentVariableInput): Promise<IBuddyEnvironmentVariable> {
+        debug('create %O', variable);
         try {
             const result = await Axios.post<IBuddyEnvironmentVariable>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/variables`, variable, {
                 cancelToken: this.api.registerCanceler('environment-variable').token,
@@ -60,6 +63,7 @@ export class BuddyEnvironmentVariableApi {
     }
 
     async read(): Promise<IBuddyEnvironmentVariable> {
+        debug('read %d', this.environmentVariableId);
         if (!this.environmentVariableId) {
             throw new EnvironmentVariableIdRequired();
         }
@@ -92,6 +96,7 @@ export class BuddyEnvironmentVariableApi {
     }
 
     async update(update: Partial<IBuddyEnvironmentVariableInput>): Promise<IBuddyEnvironmentVariable> {
+        debug('update %d %O', this.environmentVariableId, update);
         if (!this.environmentVariableId) {
             throw new EnvironmentVariableIdRequired();
         }
@@ -125,6 +130,7 @@ export class BuddyEnvironmentVariableApi {
     }
 
     async delete(): Promise<void> {
+        debug('delete %d', this.environmentVariableId);
         if (!this.environmentVariableId) {
             throw new EnvironmentVariableIdRequired();
         }

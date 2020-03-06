@@ -1,6 +1,8 @@
 import Axios from 'axios';
 import { BuddyApi } from './api';
 
+const debug = require('debug')('pulumi-buddy:api:integration');
+
 export type IntegrationType =
     | 'SMTP'
     | 'GIT_HUB'
@@ -57,6 +59,7 @@ export class BuddyIntegrationApi {
     }
 
     async read(): Promise<IBuddyIntegration> {
+        debug('read %d', this.integrationId);
         if (!this.integrationId) {
             throw new IntegrationIdRequired();
         }
@@ -86,6 +89,7 @@ export class BuddyIntegrationApi {
     }
 
     async list(): Promise<IBuddyIntegration[]> {
+        debug('list');
         try {
             const result = await Axios.get<{ integrations: IBuddyIntegration[] }>(`${this.api.getApiUrl()}/user/integrations`, {
                 cancelToken: this.api.registerCanceler('integration').token,
