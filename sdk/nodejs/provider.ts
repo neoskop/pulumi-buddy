@@ -1,7 +1,11 @@
-import { ProviderResource, ResourceOptions, Config, Inputs } from '@pulumi/pulumi';
+import { ProviderResource, ResourceOptions, Config, Inputs, Output } from '@pulumi/pulumi';
 
 export class Provider extends ProviderResource {
     static readonly __pulumiType = 'buddy';
+
+    readonly apiUrl!: Output<string>;
+    readonly workspace!: Output<string>;
+    readonly token!: Output<string>;
 
     static isInstance(obj: any): obj is Provider {
         if(obj == null) {
