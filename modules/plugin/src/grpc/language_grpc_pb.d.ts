@@ -4,18 +4,18 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as language_pb from "./language_pb";
 import * as plugin_pb from "./plugin_pb";
 import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 
-interface ILanguageRuntimeService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+interface ILanguageRuntimeService extends grpc.ServiceDefinition {
     getRequiredPlugins: ILanguageRuntimeService_IGetRequiredPlugins;
     run: ILanguageRuntimeService_IRun;
     getPluginInfo: ILanguageRuntimeService_IGetPluginInfo;
 }
 
-interface ILanguageRuntimeService_IGetRequiredPlugins extends grpc.MethodDefinition<language_pb.GetRequiredPluginsRequest, language_pb.GetRequiredPluginsResponse> {
+interface ILanguageRuntimeService_IGetRequiredPlugins extends grpc.ServerMethodDefinition<language_pb.GetRequiredPluginsRequest, language_pb.GetRequiredPluginsResponse> {
     path: string; // "/pulumirpc.LanguageRuntime/GetRequiredPlugins"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -24,7 +24,7 @@ interface ILanguageRuntimeService_IGetRequiredPlugins extends grpc.MethodDefinit
     responseSerialize: grpc.serialize<language_pb.GetRequiredPluginsResponse>;
     responseDeserialize: grpc.deserialize<language_pb.GetRequiredPluginsResponse>;
 }
-interface ILanguageRuntimeService_IRun extends grpc.MethodDefinition<language_pb.RunRequest, language_pb.RunResponse> {
+interface ILanguageRuntimeService_IRun extends grpc.ServerMethodDefinition<language_pb.RunRequest, language_pb.RunResponse> {
     path: string; // "/pulumirpc.LanguageRuntime/Run"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -33,7 +33,7 @@ interface ILanguageRuntimeService_IRun extends grpc.MethodDefinition<language_pb
     responseSerialize: grpc.serialize<language_pb.RunResponse>;
     responseDeserialize: grpc.deserialize<language_pb.RunResponse>;
 }
-interface ILanguageRuntimeService_IGetPluginInfo extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, plugin_pb.PluginInfo> {
+interface ILanguageRuntimeService_IGetPluginInfo extends grpc.ServerMethodDefinition<google_protobuf_empty_pb.Empty, plugin_pb.PluginInfo> {
     path: string; // "/pulumirpc.LanguageRuntime/GetPluginInfo"
     requestStream: boolean; // false
     responseStream: boolean; // false

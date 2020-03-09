@@ -1,8 +1,14 @@
+<<<<<<< Updated upstream
 import { main } from '../dist/main';
 import { Server, credentials, ServiceError } from 'grpc';
 import { ResourceProviderClient } from '../dist/grpc/provider_grpc_pb';
 
 jest.retryTimes(3);
+=======
+import { main } from '../src/main';
+import { Server, credentials, ServiceError } from '@grpc/grpc-js';
+import { ResourceProviderClient } from '../src/grpc/provider_grpc_pb';
+>>>>>>> Stashed changes
 
 export async function createServerAndClient() {
     const injector = await main(['0.0.0.0:0'], { port: 51234 });

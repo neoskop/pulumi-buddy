@@ -4,20 +4,20 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as analyzer_pb from "./analyzer_pb";
 import * as plugin_pb from "./plugin_pb";
 import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 import * as google_protobuf_struct_pb from "google-protobuf/google/protobuf/struct_pb";
 
-interface IAnalyzerService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+interface IAnalyzerService extends grpc.ServiceDefinition {
     analyze: IAnalyzerService_IAnalyze;
     analyzeStack: IAnalyzerService_IAnalyzeStack;
     getAnalyzerInfo: IAnalyzerService_IGetAnalyzerInfo;
     getPluginInfo: IAnalyzerService_IGetPluginInfo;
 }
 
-interface IAnalyzerService_IAnalyze extends grpc.MethodDefinition<analyzer_pb.AnalyzeRequest, analyzer_pb.AnalyzeResponse> {
+interface IAnalyzerService_IAnalyze extends grpc.ServerMethodDefinition<analyzer_pb.AnalyzeRequest, analyzer_pb.AnalyzeResponse> {
     path: string; // "/pulumirpc.Analyzer/Analyze"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -26,7 +26,7 @@ interface IAnalyzerService_IAnalyze extends grpc.MethodDefinition<analyzer_pb.An
     responseSerialize: grpc.serialize<analyzer_pb.AnalyzeResponse>;
     responseDeserialize: grpc.deserialize<analyzer_pb.AnalyzeResponse>;
 }
-interface IAnalyzerService_IAnalyzeStack extends grpc.MethodDefinition<analyzer_pb.AnalyzeStackRequest, analyzer_pb.AnalyzeResponse> {
+interface IAnalyzerService_IAnalyzeStack extends grpc.ServerMethodDefinition<analyzer_pb.AnalyzeStackRequest, analyzer_pb.AnalyzeResponse> {
     path: string; // "/pulumirpc.Analyzer/AnalyzeStack"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -35,7 +35,7 @@ interface IAnalyzerService_IAnalyzeStack extends grpc.MethodDefinition<analyzer_
     responseSerialize: grpc.serialize<analyzer_pb.AnalyzeResponse>;
     responseDeserialize: grpc.deserialize<analyzer_pb.AnalyzeResponse>;
 }
-interface IAnalyzerService_IGetAnalyzerInfo extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, analyzer_pb.AnalyzerInfo> {
+interface IAnalyzerService_IGetAnalyzerInfo extends grpc.ServerMethodDefinition<google_protobuf_empty_pb.Empty, analyzer_pb.AnalyzerInfo> {
     path: string; // "/pulumirpc.Analyzer/GetAnalyzerInfo"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -44,7 +44,7 @@ interface IAnalyzerService_IGetAnalyzerInfo extends grpc.MethodDefinition<google
     responseSerialize: grpc.serialize<analyzer_pb.AnalyzerInfo>;
     responseDeserialize: grpc.deserialize<analyzer_pb.AnalyzerInfo>;
 }
-interface IAnalyzerService_IGetPluginInfo extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, plugin_pb.PluginInfo> {
+interface IAnalyzerService_IGetPluginInfo extends grpc.ServerMethodDefinition<google_protobuf_empty_pb.Empty, plugin_pb.PluginInfo> {
     path: string; // "/pulumirpc.Analyzer/GetPluginInfo"
     requestStream: boolean; // false
     responseStream: boolean; // false

@@ -2,7 +2,7 @@ import { MemberProps, MemberState } from '@neoskop/pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
-import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
+import { sendUnaryData, ServerUnaryCall, status } from '@grpc/grpc-js';
 import { Injectable } from 'injection-js';
 import { BuddyApi } from '../buddy/api/api';
 import { MemberNotFound } from '../buddy/api/member';

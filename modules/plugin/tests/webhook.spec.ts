@@ -1,5 +1,5 @@
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
-import { Server } from 'grpc';
+import { Server } from '@grpc/grpc-js';
 
 import { ResourceProviderClient } from '../dist/grpc/provider_grpc_pb';
 import { CheckRequest, CheckResponse, DiffRequest, DiffResponse } from '../dist/grpc/provider_pb';

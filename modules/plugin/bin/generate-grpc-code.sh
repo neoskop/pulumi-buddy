@@ -40,9 +40,13 @@ $DOCKER_RUN bash -c "set -e                                                     
            --grpc_out=minimum_node_version=6:\$TEMP_DIR \
            --plugin=protoc-gen-grpc=/usr/local/bin/grpc_tools_node_protoc_plugin \
            -I /npm/node_modules/google-proto-files -I /local \$JS_HACK_PROTOS       && \
-    protoc --ts_out=\$SRC_OUT_DIR \
+    protoc --ts_out=\$TEMP_DIR \
            --plugin=\"protoc-gen-ts=/npm/node_modules/.bin/protoc-gen-ts\" \
            -I /npm/node_modules/google-proto-files -I /local  \$JS_HACK_PROTOS      && \
     sed -i \"s/^var global = .*;/var proto = { pulumirpc: {} }, global = proto;/\" \"\$TEMP_DIR\"/*.js && \
+    sed -i \"s/require('grpc')/require('@grpc\/grpc-js')/\" \"\$TEMP_DIR\"/*.js && \
+    sed -i \"s/grpc from \\\"grpc\\\"/grpc from \\\"@grpc\/grpc-js\\\"/\" \"\$TEMP_DIR\"/*.d.ts && \
+    sed -i \"s/grpc.ServiceDefinition<grpc.UntypedServiceImplementation>/grpc.ServiceDefinition/\" \"\$TEMP_DIR\"/*.d.ts && \
+    sed -i \"s/MethodDefinition/ServerMethodDefinition/\" \"\$TEMP_DIR\"/*.d.ts && \
     cp \"\$TEMP_DIR\"/* \"\$SRC_OUT_DIR\"                                          && \
     chown -R $USER_ID:$GROUP_ID \"\$SRC_OUT_DIR\""

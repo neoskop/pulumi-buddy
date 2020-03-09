@@ -1,4 +1,4 @@
-import { Server } from 'grpc';
+import { Server } from '@grpc/grpc-js';
 import { createServerAndClient, makeCallback, sleep } from './utils';
 import { ResourceProviderClient } from '../dist/grpc/provider_grpc_pb';
 import { CheckRequest, CheckResponse, DiffResponse, DiffRequest } from '../dist/grpc/provider_pb';

@@ -20,13 +20,13 @@
         "generate:buddy-actions": "./bin/generate-buddy-actions.ts"
     },
     "dependencies": {
+        "@grpc/grpc-js": "0.7.0",
         "@grpc/proto-loader": "0.5.3",
-        "@neoskop/pulumi-buddy": "*",
+        "@neoskop/pulumi-buddy": "0.1.0-rc.0",
         "@pulumi/pulumi": "^1.0.0",
         "axios": "0.19.2",
         "debug": "4.1.1",
         "google-protobuf": "3.11.4",
-        "grpc": "1.24.2",
         "injection-js": "2.3.0",
         "protobufjs": "6.8.8",
         "reflect-metadata": "0.1.13",

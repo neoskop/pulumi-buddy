@@ -4,13 +4,13 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as provider_pb from "./provider_pb";
 import * as plugin_pb from "./plugin_pb";
 import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 import * as google_protobuf_struct_pb from "google-protobuf/google/protobuf/struct_pb";
 
-interface IResourceProviderService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+interface IResourceProviderService extends grpc.ServiceDefinition {
     checkConfig: IResourceProviderService_ICheckConfig;
     diffConfig: IResourceProviderService_IDiffConfig;
     configure: IResourceProviderService_IConfigure;
@@ -26,7 +26,7 @@ interface IResourceProviderService extends grpc.ServiceDefinition<grpc.UntypedSe
     getPluginInfo: IResourceProviderService_IGetPluginInfo;
 }
 
-interface IResourceProviderService_ICheckConfig extends grpc.MethodDefinition<provider_pb.CheckRequest, provider_pb.CheckResponse> {
+interface IResourceProviderService_ICheckConfig extends grpc.ServerMethodDefinition<provider_pb.CheckRequest, provider_pb.CheckResponse> {
     path: string; // "/pulumirpc.ResourceProvider/CheckConfig"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -35,7 +35,7 @@ interface IResourceProviderService_ICheckConfig extends grpc.MethodDefinition<pr
     responseSerialize: grpc.serialize<provider_pb.CheckResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.CheckResponse>;
 }
-interface IResourceProviderService_IDiffConfig extends grpc.MethodDefinition<provider_pb.DiffRequest, provider_pb.DiffResponse> {
+interface IResourceProviderService_IDiffConfig extends grpc.ServerMethodDefinition<provider_pb.DiffRequest, provider_pb.DiffResponse> {
     path: string; // "/pulumirpc.ResourceProvider/DiffConfig"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -44,7 +44,7 @@ interface IResourceProviderService_IDiffConfig extends grpc.MethodDefinition<pro
     responseSerialize: grpc.serialize<provider_pb.DiffResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.DiffResponse>;
 }
-interface IResourceProviderService_IConfigure extends grpc.MethodDefinition<provider_pb.ConfigureRequest, provider_pb.ConfigureResponse> {
+interface IResourceProviderService_IConfigure extends grpc.ServerMethodDefinition<provider_pb.ConfigureRequest, provider_pb.ConfigureResponse> {
     path: string; // "/pulumirpc.ResourceProvider/Configure"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -53,7 +53,7 @@ interface IResourceProviderService_IConfigure extends grpc.MethodDefinition<prov
     responseSerialize: grpc.serialize<provider_pb.ConfigureResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.ConfigureResponse>;
 }
-interface IResourceProviderService_IInvoke extends grpc.MethodDefinition<provider_pb.InvokeRequest, provider_pb.InvokeResponse> {
+interface IResourceProviderService_IInvoke extends grpc.ServerMethodDefinition<provider_pb.InvokeRequest, provider_pb.InvokeResponse> {
     path: string; // "/pulumirpc.ResourceProvider/Invoke"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -62,7 +62,7 @@ interface IResourceProviderService_IInvoke extends grpc.MethodDefinition<provide
     responseSerialize: grpc.serialize<provider_pb.InvokeResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.InvokeResponse>;
 }
-interface IResourceProviderService_IStreamInvoke extends grpc.MethodDefinition<provider_pb.InvokeRequest, provider_pb.InvokeResponse> {
+interface IResourceProviderService_IStreamInvoke extends grpc.ServerMethodDefinition<provider_pb.InvokeRequest, provider_pb.InvokeResponse> {
     path: string; // "/pulumirpc.ResourceProvider/StreamInvoke"
     requestStream: boolean; // false
     responseStream: boolean; // true
@@ -71,7 +71,7 @@ interface IResourceProviderService_IStreamInvoke extends grpc.MethodDefinition<p
     responseSerialize: grpc.serialize<provider_pb.InvokeResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.InvokeResponse>;
 }
-interface IResourceProviderService_ICheck extends grpc.MethodDefinition<provider_pb.CheckRequest, provider_pb.CheckResponse> {
+interface IResourceProviderService_ICheck extends grpc.ServerMethodDefinition<provider_pb.CheckRequest, provider_pb.CheckResponse> {
     path: string; // "/pulumirpc.ResourceProvider/Check"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -80,7 +80,7 @@ interface IResourceProviderService_ICheck extends grpc.MethodDefinition<provider
     responseSerialize: grpc.serialize<provider_pb.CheckResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.CheckResponse>;
 }
-interface IResourceProviderService_IDiff extends grpc.MethodDefinition<provider_pb.DiffRequest, provider_pb.DiffResponse> {
+interface IResourceProviderService_IDiff extends grpc.ServerMethodDefinition<provider_pb.DiffRequest, provider_pb.DiffResponse> {
     path: string; // "/pulumirpc.ResourceProvider/Diff"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -89,7 +89,7 @@ interface IResourceProviderService_IDiff extends grpc.MethodDefinition<provider_
     responseSerialize: grpc.serialize<provider_pb.DiffResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.DiffResponse>;
 }
-interface IResourceProviderService_ICreate extends grpc.MethodDefinition<provider_pb.CreateRequest, provider_pb.CreateResponse> {
+interface IResourceProviderService_ICreate extends grpc.ServerMethodDefinition<provider_pb.CreateRequest, provider_pb.CreateResponse> {
     path: string; // "/pulumirpc.ResourceProvider/Create"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -98,7 +98,7 @@ interface IResourceProviderService_ICreate extends grpc.MethodDefinition<provide
     responseSerialize: grpc.serialize<provider_pb.CreateResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.CreateResponse>;
 }
-interface IResourceProviderService_IRead extends grpc.MethodDefinition<provider_pb.ReadRequest, provider_pb.ReadResponse> {
+interface IResourceProviderService_IRead extends grpc.ServerMethodDefinition<provider_pb.ReadRequest, provider_pb.ReadResponse> {
     path: string; // "/pulumirpc.ResourceProvider/Read"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -107,7 +107,7 @@ interface IResourceProviderService_IRead extends grpc.MethodDefinition<provider_
     responseSerialize: grpc.serialize<provider_pb.ReadResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.ReadResponse>;
 }
-interface IResourceProviderService_IUpdate extends grpc.MethodDefinition<provider_pb.UpdateRequest, provider_pb.UpdateResponse> {
+interface IResourceProviderService_IUpdate extends grpc.ServerMethodDefinition<provider_pb.UpdateRequest, provider_pb.UpdateResponse> {
     path: string; // "/pulumirpc.ResourceProvider/Update"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -116,7 +116,7 @@ interface IResourceProviderService_IUpdate extends grpc.MethodDefinition<provide
     responseSerialize: grpc.serialize<provider_pb.UpdateResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.UpdateResponse>;
 }
-interface IResourceProviderService_IDelete extends grpc.MethodDefinition<provider_pb.DeleteRequest, google_protobuf_empty_pb.Empty> {
+interface IResourceProviderService_IDelete extends grpc.ServerMethodDefinition<provider_pb.DeleteRequest, google_protobuf_empty_pb.Empty> {
     path: string; // "/pulumirpc.ResourceProvider/Delete"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -125,7 +125,7 @@ interface IResourceProviderService_IDelete extends grpc.MethodDefinition<provide
     responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
     responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
 }
-interface IResourceProviderService_ICancel extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty> {
+interface IResourceProviderService_ICancel extends grpc.ServerMethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty> {
     path: string; // "/pulumirpc.ResourceProvider/Cancel"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -134,7 +134,7 @@ interface IResourceProviderService_ICancel extends grpc.MethodDefinition<google_
     responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
     responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
 }
-interface IResourceProviderService_IGetPluginInfo extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, plugin_pb.PluginInfo> {
+interface IResourceProviderService_IGetPluginInfo extends grpc.ServerMethodDefinition<google_protobuf_empty_pb.Empty, plugin_pb.PluginInfo> {
     path: string; // "/pulumirpc.ResourceProvider/GetPluginInfo"
     requestStream: boolean; // false
     responseStream: boolean; // false

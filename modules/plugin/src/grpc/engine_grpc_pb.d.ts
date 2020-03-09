@@ -4,17 +4,17 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as engine_pb from "./engine_pb";
 import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 
-interface IEngineService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+interface IEngineService extends grpc.ServiceDefinition {
     log: IEngineService_ILog;
     getRootResource: IEngineService_IGetRootResource;
     setRootResource: IEngineService_ISetRootResource;
 }
 
-interface IEngineService_ILog extends grpc.MethodDefinition<engine_pb.LogRequest, google_protobuf_empty_pb.Empty> {
+interface IEngineService_ILog extends grpc.ServerMethodDefinition<engine_pb.LogRequest, google_protobuf_empty_pb.Empty> {
     path: string; // "/pulumirpc.Engine/Log"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -23,7 +23,7 @@ interface IEngineService_ILog extends grpc.MethodDefinition<engine_pb.LogRequest
     responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
     responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
 }
-interface IEngineService_IGetRootResource extends grpc.MethodDefinition<engine_pb.GetRootResourceRequest, engine_pb.GetRootResourceResponse> {
+interface IEngineService_IGetRootResource extends grpc.ServerMethodDefinition<engine_pb.GetRootResourceRequest, engine_pb.GetRootResourceResponse> {
     path: string; // "/pulumirpc.Engine/GetRootResource"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -32,7 +32,7 @@ interface IEngineService_IGetRootResource extends grpc.MethodDefinition<engine_p
     responseSerialize: grpc.serialize<engine_pb.GetRootResourceResponse>;
     responseDeserialize: grpc.deserialize<engine_pb.GetRootResourceResponse>;
 }
-interface IEngineService_ISetRootResource extends grpc.MethodDefinition<engine_pb.SetRootResourceRequest, engine_pb.SetRootResourceResponse> {
+interface IEngineService_ISetRootResource extends grpc.ServerMethodDefinition<engine_pb.SetRootResourceRequest, engine_pb.SetRootResourceResponse> {
     path: string; // "/pulumirpc.Engine/SetRootResource"
     requestStream: boolean; // false
     responseStream: boolean; // false

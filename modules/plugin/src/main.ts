@@ -1,4 +1,4 @@
-import { credentials, Server, ServerCredentials } from 'grpc';
+import { credentials, Server, ServerCredentials } from '@grpc/grpc-js';
 import { ReflectiveInjector } from 'injection-js';
 import 'reflect-metadata';
 import * as yargs from 'yargs';

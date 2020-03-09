@@ -1,5 +1,5 @@
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
-import { sendUnaryData, ServerUnaryCall, ServerWritableStream, status } from 'grpc';
+import { sendUnaryData, ServerUnaryCall, ServerWritableStream, status } from '@grpc/grpc-js';
 import { Inject, Injectable, InjectionToken } from 'injection-js';
 import { BuddyApi } from '../buddy/api/api';
 import { ServiceError } from '../errors/service.error';
@@ -76,7 +76,12 @@ export class MainProvider implements IResourceProviderServer {
     }
 
     getPluginInfo(req: ServerUnaryCall<unknown>, callback: sendUnaryData<PluginInfo>) {
+<<<<<<< Updated upstream
         const { version } = require('../../../../package');
+=======
+        console.log(req.request);
+        const { version } = require('../../package');
+>>>>>>> Stashed changes
         const pluginInfo = new PluginInfo();
         pluginInfo.setVersion(version);
         callback(null, pluginInfo);
@@ -150,8 +155,8 @@ export class MainProvider implements IResourceProviderServer {
     /**
      * @TODO: make this working
      */
-    streamInvoke(req: ServerWritableStream<InvokeRequest>) {
-        const tok = Tok.parse(req.request.getTok());
+    streamInvoke(req: ServerWritableStream<InvokeRequest, InvokeResponse>) {
+        const tok = Tok.parse(req.request!.getTok());
         const provider = this.getProvider(tok.provider as Kind);
 
         if (!provider) {

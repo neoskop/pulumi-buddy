@@ -4,13 +4,13 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as resource_pb from "./resource_pb";
 import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 import * as google_protobuf_struct_pb from "google-protobuf/google/protobuf/struct_pb";
 import * as provider_pb from "./provider_pb";
 
-interface IResourceMonitorService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+interface IResourceMonitorService extends grpc.ServiceDefinition {
     supportsFeature: IResourceMonitorService_ISupportsFeature;
     invoke: IResourceMonitorService_IInvoke;
     streamInvoke: IResourceMonitorService_IStreamInvoke;
@@ -19,7 +19,7 @@ interface IResourceMonitorService extends grpc.ServiceDefinition<grpc.UntypedSer
     registerResourceOutputs: IResourceMonitorService_IRegisterResourceOutputs;
 }
 
-interface IResourceMonitorService_ISupportsFeature extends grpc.MethodDefinition<resource_pb.SupportsFeatureRequest, resource_pb.SupportsFeatureResponse> {
+interface IResourceMonitorService_ISupportsFeature extends grpc.ServerMethodDefinition<resource_pb.SupportsFeatureRequest, resource_pb.SupportsFeatureResponse> {
     path: string; // "/pulumirpc.ResourceMonitor/SupportsFeature"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -28,7 +28,7 @@ interface IResourceMonitorService_ISupportsFeature extends grpc.MethodDefinition
     responseSerialize: grpc.serialize<resource_pb.SupportsFeatureResponse>;
     responseDeserialize: grpc.deserialize<resource_pb.SupportsFeatureResponse>;
 }
-interface IResourceMonitorService_IInvoke extends grpc.MethodDefinition<provider_pb.InvokeRequest, provider_pb.InvokeResponse> {
+interface IResourceMonitorService_IInvoke extends grpc.ServerMethodDefinition<provider_pb.InvokeRequest, provider_pb.InvokeResponse> {
     path: string; // "/pulumirpc.ResourceMonitor/Invoke"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -37,7 +37,7 @@ interface IResourceMonitorService_IInvoke extends grpc.MethodDefinition<provider
     responseSerialize: grpc.serialize<provider_pb.InvokeResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.InvokeResponse>;
 }
-interface IResourceMonitorService_IStreamInvoke extends grpc.MethodDefinition<provider_pb.InvokeRequest, provider_pb.InvokeResponse> {
+interface IResourceMonitorService_IStreamInvoke extends grpc.ServerMethodDefinition<provider_pb.InvokeRequest, provider_pb.InvokeResponse> {
     path: string; // "/pulumirpc.ResourceMonitor/StreamInvoke"
     requestStream: boolean; // false
     responseStream: boolean; // true
@@ -46,7 +46,7 @@ interface IResourceMonitorService_IStreamInvoke extends grpc.MethodDefinition<pr
     responseSerialize: grpc.serialize<provider_pb.InvokeResponse>;
     responseDeserialize: grpc.deserialize<provider_pb.InvokeResponse>;
 }
-interface IResourceMonitorService_IReadResource extends grpc.MethodDefinition<resource_pb.ReadResourceRequest, resource_pb.ReadResourceResponse> {
+interface IResourceMonitorService_IReadResource extends grpc.ServerMethodDefinition<resource_pb.ReadResourceRequest, resource_pb.ReadResourceResponse> {
     path: string; // "/pulumirpc.ResourceMonitor/ReadResource"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -55,7 +55,7 @@ interface IResourceMonitorService_IReadResource extends grpc.MethodDefinition<re
     responseSerialize: grpc.serialize<resource_pb.ReadResourceResponse>;
     responseDeserialize: grpc.deserialize<resource_pb.ReadResourceResponse>;
 }
-interface IResourceMonitorService_IRegisterResource extends grpc.MethodDefinition<resource_pb.RegisterResourceRequest, resource_pb.RegisterResourceResponse> {
+interface IResourceMonitorService_IRegisterResource extends grpc.ServerMethodDefinition<resource_pb.RegisterResourceRequest, resource_pb.RegisterResourceResponse> {
     path: string; // "/pulumirpc.ResourceMonitor/RegisterResource"
     requestStream: boolean; // false
     responseStream: boolean; // false
@@ -64,7 +64,7 @@ interface IResourceMonitorService_IRegisterResource extends grpc.MethodDefinitio
     responseSerialize: grpc.serialize<resource_pb.RegisterResourceResponse>;
     responseDeserialize: grpc.deserialize<resource_pb.RegisterResourceResponse>;
 }
-interface IResourceMonitorService_IRegisterResourceOutputs extends grpc.MethodDefinition<resource_pb.RegisterResourceOutputsRequest, google_protobuf_empty_pb.Empty> {
+interface IResourceMonitorService_IRegisterResourceOutputs extends grpc.ServerMethodDefinition<resource_pb.RegisterResourceOutputsRequest, google_protobuf_empty_pb.Empty> {
     path: string; // "/pulumirpc.ResourceMonitor/RegisterResourceOutputs"
     requestStream: boolean; // false
     responseStream: boolean; // false

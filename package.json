@@ -4,6 +4,9 @@
     "version": "0.0.0",
     "license": "MIT",
     "private": true,
+    "scripts": {
+        "postinstall": "patch-package"
+    },
     "workspaces": [
         "modules/plugin",
         "sdk/nodejs"
@@ -38,5 +41,9 @@
     "devDependencies": {
         "husky": "4.2.3",
         "lint-staged": "10.0.8"
+    },
+    "dependencies": {
+        "patch-package": "6.2.1",
+        "postinstall-postinstall": "2.0.0"
     }
 }

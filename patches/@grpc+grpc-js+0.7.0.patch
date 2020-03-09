@@ -1,0 +1,52 @@
+diff --git a/node_modules/@grpc/grpc-js/build/src/index.d.ts b/node_modules/@grpc/grpc-js/build/src/index.d.ts
+index 434fc27..cb39f2c 100644
+--- a/node_modules/@grpc/grpc-js/build/src/index.d.ts
++++ b/node_modules/@grpc/grpc-js/build/src/index.d.ts
+@@ -11,7 +11,7 @@ import { Metadata } from './metadata';
+ import { Server, UntypedHandleCall, UntypedServiceImplementation } from './server';
+ import { KeyCertPair, ServerCredentials } from './server-credentials';
+ import { StatusBuilder } from './status-builder';
+-import { handleBidiStreamingCall, handleServerStreamingCall, handleUnaryCall, ServerUnaryCall, ServerReadableStream, ServerWritableStream, ServerDuplexStream } from './server-call';
++import { handleBidiStreamingCall, handleServerStreamingCall, handleUnaryCall, ServerUnaryCall, ServerReadableStream, ServerWritableStream, ServerDuplexStream, sendUnaryData } from './server-call';
+ export interface OAuth2Client {
+     getRequestMetadata: (url: string, callback: (err: Error | null, headers?: {
+         [index: string]: string;
+@@ -38,7 +38,7 @@ export declare const closeClient: (client: Client) => void;
+ export declare const waitForClientReady: (client: Client, deadline: Deadline, callback: (error?: Error | undefined) => void) => void;
+ export { ChannelCredentials, CallCredentials, Deadline, Serialize as serialize, Deserialize as deserialize, ClientUnaryCall, ClientReadableStream, ClientWritableStream, ClientDuplexStream, CallOptions, StatusObject, ServiceError, ServerUnaryCall, ServerReadableStream, ServerWritableStream, ServerDuplexStream, ServiceDefinition, UntypedHandleCall, UntypedServiceImplementation, };
+ /**** Server ****/
+-export { handleBidiStreamingCall, handleServerStreamingCall, handleUnaryCall };
++export { handleBidiStreamingCall, handleServerStreamingCall, handleUnaryCall, sendUnaryData };
+ export declare type Call = ClientUnaryCall | ClientReadableStream<any> | ClientWritableStream<any> | ClientDuplexStream<any, any>;
+ /**** Unimplemented function stubs ****/
+ export declare const loadObject: (value: any, options: any) => never;
+@@ -52,4 +52,4 @@ export declare const getClientChannel: (client: Client) => Channel;
+ export { StatusBuilder };
+ export { Listener } from './call-stream';
+ export { Requester, ListenerBuilder, RequesterBuilder, Interceptor, InterceptorProvider, InterceptingCall, InterceptorConfigurationError, } from './client-interceptors';
+-export { GrpcObject } from './make-client';
++export { GrpcObject, ClientMethodDefinition, ServerMethodDefinition } from './make-client';
+diff --git a/node_modules/@grpc/grpc-js/build/src/server-call.d.ts b/node_modules/@grpc/grpc-js/build/src/server-call.d.ts
+index 610713d..fdf276d 100644
+--- a/node_modules/@grpc/grpc-js/build/src/server-call.d.ts
++++ b/node_modules/@grpc/grpc-js/build/src/server-call.d.ts
+@@ -13,8 +13,8 @@ export declare type ServerSurfaceCall = {
+     getPeer(): string;
+     sendMetadata(responseMetadata: Metadata): void;
+ } & EventEmitter;
+-export declare type ServerUnaryCall<RequestType, ResponseType> = ServerSurfaceCall & {
+-    request: RequestType | null;
++export declare type ServerUnaryCall<RequestType, ResponseType = never> = ServerSurfaceCall & {
++    request: RequestType;
+ };
+ export declare type ServerReadableStream<RequestType, ResponseType> = ServerSurfaceCall & ObjectReadable<RequestType>;
+ export declare type ServerWritableStream<RequestType, ResponseType> = ServerSurfaceCall & ObjectWritable<ResponseType> & {
+@@ -25,7 +25,7 @@ export declare class ServerUnaryCallImpl<RequestType, ResponseType> extends Even
+     private call;
+     metadata: Metadata;
+     cancelled: boolean;
+-    request: RequestType | null;
++    request: RequestType;
+     constructor(call: Http2ServerCallStream<RequestType, ResponseType>, metadata: Metadata);
+     getPeer(): string;
+     sendMetadata(responseMetadata: Metadata): void;
