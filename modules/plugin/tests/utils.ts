@@ -2,13 +2,11 @@ import { main } from '../src/main';
 import { Server, credentials, ServiceError } from 'grpc';
 import { ResourceProviderClient } from '../src/grpc/provider_grpc_pb';
 
-jest.retryTimes(3);
-
 export async function createServerAndClient() {
-    const injector = await main(['0.0.0.0:0'], { port: 51234 });
+    const injector = await main(['0.0.0.0:0'], { noPortEmit: true });
 
     const server = injector.get(Server);
-    const client = new ResourceProviderClient('127.0.0.1:51234', credentials.createInsecure());
+    const client = new ResourceProviderClient(`127.0.0.1:${injector.get('PORT')}`, credentials.createInsecure());
 
     return { injector, server, client };
 }

@@ -19,7 +19,7 @@ import { WebhookProvider } from './providers/webhook.provider';
 import { GroupMemberBindingProvider } from './providers/group-member-binding.provider';
 import { ProjectMemberBindingProvider } from './providers/project-member-binding.provider';
 
-export async function main(args: string[], { port = 0 }: { port?: number } = {}) {
+export async function main(args: string[], { noPortEmit }: { noPortEmit?: boolean } = {}) {
     if (1 !== args.length) {
         throw new Error('Missing argument for host RPC');
     }
@@ -55,17 +55,24 @@ export async function main(args: string[], { port = 0 }: { port?: number } = {})
         { provide: BuddyApi, useValue: new BuddyApi() }
     ]);
 
-    const server = injector.get(Server);
+    const server: Server = injector.get(Server);
 
     server.addService(ResourceProviderService, injector.get(MainProvider));
-    const boundPort = server.bind(`0.0.0.0:${port}`, ServerCredentials.createInsecure());
+    const port = await new Promise((resolve, reject) => server.bindAsync(`0.0.0.0:0`, ServerCredentials.createInsecure(), (err, port) => {
+        if(err) {
+            return reject(err);
+        }
+        resolve(port);
+    }));
     server.start();
 
-    if(port != boundPort) {
-        console.log(boundPort);
+    if(!noPortEmit) {
+        console.log(port);
     }
 
-    return injector;
+    return injector.resolveAndCreateChild([
+        { provide: 'PORT', useValue: port }
+    ]);
 }
 
 if (require.main === module) {

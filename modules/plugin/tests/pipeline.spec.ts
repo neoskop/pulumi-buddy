@@ -8,15 +8,11 @@ describe('Pipeline', () => {
     let server!: Server;
     let client!: ResourceProviderClient;
     beforeEach(async () => {
-        await sleep(10);
         ({ server, client } = await createServerAndClient());
-        await sleep(10);
     });
 
     afterEach(async () => {
-        await sleep(10);
         server!.forceShutdown();
-        await sleep(10);
     });
 
     it('should handle check/diff', async () => {
