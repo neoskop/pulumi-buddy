@@ -76,7 +76,7 @@ export class MainProvider implements IResourceProviderServer {
     }
 
     getPluginInfo(req: ServerUnaryCall<unknown>, callback: sendUnaryData<PluginInfo>) {
-        const { version } = require('../../../../package');
+        const { version } = require('../../package');
         const pluginInfo = new PluginInfo();
         pluginInfo.setVersion(version);
         callback(null, pluginInfo);
