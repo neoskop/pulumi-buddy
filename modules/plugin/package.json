@@ -13,7 +13,6 @@
         "build": "tsc",
         "postbuild": "cp -r src/grpc dist/grpc",
         "watch": "tsc -w",
-        "pretest": "npm run build",
         "test": "jest",
         "generate": "npm run generate:grpc-code && npm run generate:buddy-actions",
         "generate:grpc-code": "./bin/generate-grpc-code.sh",

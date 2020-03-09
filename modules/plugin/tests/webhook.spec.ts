@@ -1,8 +1,8 @@
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { Server } from 'grpc';
 
-import { ResourceProviderClient } from '../dist/grpc/provider_grpc_pb';
-import { CheckRequest, CheckResponse, DiffRequest, DiffResponse } from '../dist/grpc/provider_pb';
+import { ResourceProviderClient } from '../src/grpc/provider_grpc_pb';
+import { CheckRequest, CheckResponse, DiffRequest, DiffResponse } from '../src/grpc/provider_pb';
 import { createServerAndClient, makeCallback, sleep } from './utils';
 
 describe('Webhook', () => {

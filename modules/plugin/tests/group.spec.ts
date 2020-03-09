@@ -1,7 +1,7 @@
 import { Server } from 'grpc';
 import { createServerAndClient, makeCallback, sleep } from './utils';
-import { ResourceProviderClient } from '../dist/grpc/provider_grpc_pb';
-import { CheckRequest, CheckResponse, DiffResponse, DiffRequest } from '../dist/grpc/provider_pb';
+import { ResourceProviderClient } from '../src/grpc/provider_grpc_pb';
+import { CheckRequest, CheckResponse, DiffResponse, DiffRequest } from '../src/grpc/provider_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 
 describe('Group', () => {

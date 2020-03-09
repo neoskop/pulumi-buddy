@@ -1,6 +1,6 @@
-import { main } from '../dist/main';
+import { main } from '../src/main';
 import { Server, credentials, ServiceError } from 'grpc';
-import { ResourceProviderClient } from '../dist/grpc/provider_grpc_pb';
+import { ResourceProviderClient } from '../src/grpc/provider_grpc_pb';
 
 jest.retryTimes(3);
 
