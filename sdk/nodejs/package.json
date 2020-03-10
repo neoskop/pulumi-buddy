@@ -27,6 +27,7 @@
         "typescript": "3.8.2"
     },
     "pulumi": {
-        "resource": true
+        "resource": true,
+        "server": "https://neoskop.github.io/pulumi-buddy"
     }
 }
