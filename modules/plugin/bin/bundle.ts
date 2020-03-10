@@ -51,7 +51,7 @@ const PKG_ARCH_MAPPING: Mapping<TargetArch> = {
 };
 
 const PKG_JSON = require('../package');
-const PLUGIN_NAME = 'pulumi-buddy';
+const PLUGIN_NAME = 'buddy';
 const GRPC_PKG_JSON = require('grpc/package');
 const GRPC_BUNDLE_PATH = '%sgrpc/v%s/node-%s-%s-%s-%s.tar.gz'; // version, v8 version, arch, glibc
 const BUNDLE_DIR = `${__dirname}/../bundles`;
@@ -65,7 +65,7 @@ async function main() {
             const pkgSystem = PKG_SYSTEM_MAPPING[system];
             const pkgArch = PKG_ARCH_MAPPING[arch];
 
-            const bundleName = `${PLUGIN_NAME}-v${PKG_JSON.version}-${system}-${arch}`;
+            const bundleName = `pulumi-resource-${PLUGIN_NAME}-v${PKG_JSON.version}-${system}-${arch}`;
             const bundleDir = `${BUNDLE_DIR}/${bundleName}`;
 
             const exeName = `pulumi-resource-${PLUGIN_NAME}${system === 'windows' ? '.exe' : ''}`;
