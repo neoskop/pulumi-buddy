@@ -1,6 +1,6 @@
 import Axios from 'axios';
 import * as cheerio from 'cheerio';
-import { Observable, from, of } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { switchMap, mergeMap, toArray } from 'rxjs/operators';
 
 export type ParamaterTypeScalar = { scalar: 'String' | 'Number' | 'Boolean'; isArray?: boolean };
@@ -24,25 +24,33 @@ export interface Action {
 
 export class BuddyScraper {
     static readonly ROOT_PAGE = '/docs/api/pipelines/create-manage-actions/add-action';
+    static readonly DEFAULT_BASE_URL = 'https://buddy.works';
 
     protected defaultParameters?: ActionParameter[];
 
     readonly warnings: string[] = [];
     readonly errors: string[] = [];
 
-    constructor(protected readonly baseUrl = 'https://buddy.works') {}
+    constructor(
+        protected readonly options: {
+            baseUrl?: string;
+            patchAction?(action: Readonly<Action>): Action | void;
+            patchParameter?(actionName: string, parameter: Readonly<ActionParameter>): ActionParameter | void;
+        } = {}
+    ) {}
 
     async getActionDetailUrls(): Promise<string[]> {
-        const response = await Axios.get<string>(`${this.baseUrl}${BuddyScraper.ROOT_PAGE}`);
+        const response = await Axios.get<string>(`${this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL}${BuddyScraper.ROOT_PAGE}`);
         const $ = cheerio.load(response.data);
         return $('li.list__card-element a')
             .toArray()
             .map(
                 el =>
-                    this.baseUrl +
-                    $(el)
-                        .attr('href')!
-                        .toString()
+                    this.options?.baseUrl ||
+                    BuddyScraper.DEFAULT_BASE_URL +
+                        $(el)
+                            .attr('href')!
+                            .toString()
             );
     }
 
@@ -108,7 +116,7 @@ export class BuddyScraper {
 
     async getDefaultParameters(): Promise<ActionParameter[]> {
         if (!this.defaultParameters) {
-            const response = await Axios.get(`${this.baseUrl}${BuddyScraper.ROOT_PAGE}`);
+            const response = await Axios.get(`${this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL}${BuddyScraper.ROOT_PAGE}`);
             const $ = cheerio.load(response.data);
             this.defaultParameters = $(`article.post-content > table:nth-of-type(2) tr:has(> td)`)
                 .toArray()
@@ -136,6 +144,9 @@ export class BuddyScraper {
                 }
 
                 return first;
+            })
+            .map(action => {
+                return this.options?.patchParameter?.(actionName, action) || action;
             });
     }
 
@@ -147,7 +158,9 @@ export class BuddyScraper {
             .toArray()
             .map(p => this.parseParameter(p));
         const type = (parameters.find(p => p.name === 'type')!.type as ParamaterTypeText).text[0];
-        return { name, type, parameters: this.mergeParameters(name, await this.getDefaultParameters(), parameters) };
+        const action = { name, type, parameters: this.mergeParameters(name, await this.getDefaultParameters(), parameters) };
+
+        return this.options?.patchAction?.(action) || action;
     }
 
     getActions(): Promise<Action[]> {
@@ -159,11 +172,7 @@ export class BuddyScraper {
     getActionsAsStream(): Observable<Action> {
         return from(this.getActionDetailUrls()).pipe(
             switchMap(urls => from(urls)),
-            mergeMap(url => from(this.getActionDetails(url)), 1)
+            mergeMap(url => from(this.getActionDetails(url)), 4)
         );
-
-        // const urls = await this.getActionDetailUrls();
-
-        // return Promise.all(urls.map(url => this.getActionDetails(url)));
     }
 }
