@@ -7,27 +7,23 @@
 
 > A [Pulumi](https://www.pulumi.com/) integration for [Buddy](https://buddy.works/)
 
-[![Travis master](https://img.shields.io/travis/neoskop/pulumi-buddy/master.svg)](https://travis-ci.org/neoskop/pulumi-buddy)
-[![Snyk master](https://snyk.io/test/github/neoskop/pulumi-buddy/master/badge.svg)](https://snyk.io/test/github/neoskop/pulumi-buddy/master)
-[![NPM version](https://badge.fury.io/js/%40neoskop%2Fpulumi-buddy.svg)](https://npmjs.com/package/@neoskop/pulumi-buddy)
-[![License](https://img.shields.io/npm/l/%40neoskop%2Fpulumi-buddy.svg)](https://github.com/neoskop/pulumi-buddy/blob/master/LICENSE)
-
 ## Requirements
 
 -   [Pulumi CLI](https://www.pulumi.com/docs/get-started/install/)
--   [@neoskop/pulumi-buddy-plugin](https://www.npmjs.com/package/@neoskop/pulumi-buddy-plugin)  
-    As long as Pulumi offers no way to publish a custom plugin, you have to install the plugin manually.
 
 ## Quickstart
 
 ```sh
 $ mkdir myproject && cd myproject
-$ pulumi new typescript                                         # "javascript" works as well
+$ pulumi new typescript
+#            "javascript" works as well
 $ npm install
 $ npm install @neoskop/pulumi-buddy
+#             or @neoskop/pulumi-buddy@next for latest preview version
 $ pulumi config set buddy:workspace myworkspace-name
 $ pulumi config set buddy:token myaccesstoken --secret
-$ pulumi config set buddy:apiUrl https://my-buddy-server.com    # for Buddy On-Premise
+# for Buddy On-Premise
+$ pulumi config set buddy:apiUrl https://my-buddy-server.com
 ```
 
 _See [here](https://buddy.works/docs/api/getting-started/oauth2/personal-access-token), how to create an access token._
