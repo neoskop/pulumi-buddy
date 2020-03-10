@@ -15,8 +15,7 @@
         "clean": "rimraf dist",
         "prebuild": "npm run clean",
         "build": "tsc",
-        "bundle": "cp README.md dist && cp ../../LICENSE dist && jq '.main |= \"index.js\" | del(.scripts) | .' package.json > dist/package.json",
-        "compile": "npm run build && npm run bundle"
+        "postbuild": "./bin/bundle.sh"
     },
     "dependencies": {
         "@pulumi/pulumi": "^1.0.0"
