@@ -73,7 +73,7 @@ async function main() {
             const dist = `${bundleDir}/${exeName}`;
 
             console.log(chalk.blue('Pkg'), chalk.gray(`node${TARGET_NODE_VERSION}-${pkgSystem}-${pkgArch}`));
-            await exec([`${__dirname}/..`, '--target', `node${TARGET_NODE_VERSION}-${pkgSystem}-${pkgArch}`, '--output', dist]);
+            await exec([`${__dirname}/../.build`, '--target', `node${TARGET_NODE_VERSION}-${pkgSystem}-${pkgArch}`, '--output', dist]);
 
             const grpcBinary = format(
                 GRPC_BUNDLE_PATH,

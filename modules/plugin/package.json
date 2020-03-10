@@ -15,11 +15,12 @@
         "generate": "npm run generate:grpc-code && npm run generate:buddy-actions",
         "generate:grpc-code": "./bin/generate-grpc-code.sh",
         "generate:buddy-actions": "./bin/generate-buddy-actions.ts",
-        "prebundle": "npm run build",
+        "prebundle": "./bin/build.sh",
         "bundle": "ts-node bin/bundle.ts"
     },
     "dependencies": {
         "@grpc/proto-loader": "0.5.3",
+        "@neoskop/pulumi-buddy": "0.1.0-rc.0",
         "@pulumi/pulumi": "^1.0.0",
         "axios": "0.19.2",
         "debug": "4.1.1",
