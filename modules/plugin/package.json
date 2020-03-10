@@ -16,7 +16,8 @@
         "generate:grpc-code": "./bin/generate-grpc-code.sh",
         "generate:buddy-actions": "./bin/generate-buddy-actions.ts",
         "prebundle": "./bin/build.sh",
-        "bundle": "ts-node bin/bundle.ts"
+        "bundle": "ts-node bin/bundle.ts",
+        "postbundle": "./bin/publish.sh"
     },
     "dependencies": {
         "@grpc/proto-loader": "0.5.3",
