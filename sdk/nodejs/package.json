@@ -15,7 +15,10 @@
         "clean": "rimraf dist",
         "prebuild": "npm run clean",
         "build": "tsc",
-        "postbuild": "./bin/bundle.sh"
+        "postbuild": "./bin/bundle.sh",
+        "publish-next": "npm run build && npm publish dist --tag next",
+        "publish-latest-only": "npm run build && npm publish dist",
+        "publish-latest": "npm run publish-latest-only && npm dist-tag add `jq '.name' package.json -r`@`jq '.version' package.json -r` next"
     },
     "dependencies": {
         "@pulumi/pulumi": "^1.0.0"
