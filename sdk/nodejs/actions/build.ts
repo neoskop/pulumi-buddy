@@ -47,11 +47,6 @@ export interface ActionBuildState {
     main_service_name?: string;
 
     /**
-     * The directory in which the pipeline filesystem will be mounted.
-     */
-    mount_filesystem_path?: string;
-
-    /**
      * All build commands are run as the default user defined in the selected Docker image. Can be set to another username (on the condition that this user exists in the selected image).
      */
     run_as_user?: string;
@@ -117,6 +112,11 @@ export interface ActionBuildState {
     variables?: Variable[];
 
     /**
+     * The path preceding the colon is the filesystem path (the folder from the filesystem to be mounted in the container). The path after the colon is the container path (the path in the container, where this filesystem will be located).
+     */
+    volume_mappings?: string[];
+
+    /**
      * The directory in which the pipeline filesystem will be mounted.
      */
     working_directory?: string;
@@ -137,7 +137,6 @@ export interface ActionBuildProps {
     cached_dirs?: string[];
     disabled?: boolean;
     main_service_name?: string;
-    mount_filesystem_path?: string;
     run_as_user?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
@@ -151,6 +150,7 @@ export interface ActionBuildProps {
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
+    volume_mappings?: string[];
     working_directory?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -187,7 +187,6 @@ export class Build extends CustomResource {
     cached_dirs!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
     main_service_name!: Output<string | undefined>;
-    mount_filesystem_path!: Output<string | undefined>;
     run_as_user!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
@@ -201,6 +200,7 @@ export class Build extends CustomResource {
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
+    volume_mappings!: Output<string[] | undefined>;
     working_directory!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: ActionBuildArgs | ActionBuildState, opts?: CustomResourceOptions) {
@@ -221,7 +221,6 @@ export class Build extends CustomResource {
             inputs['cached_dirs'] = state?.cached_dirs;
             inputs['disabled'] = state?.disabled;
             inputs['main_service_name'] = state?.main_service_name;
-            inputs['mount_filesystem_path'] = state?.mount_filesystem_path;
             inputs['run_as_user'] = state?.run_as_user;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
@@ -235,6 +234,7 @@ export class Build extends CustomResource {
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
+            inputs['volume_mappings'] = state?.volume_mappings;
             inputs['working_directory'] = state?.working_directory;
         } else {
             const args = argsOrState as ActionBuildArgs | undefined;
@@ -270,7 +270,6 @@ export class Build extends CustomResource {
             inputs['cached_dirs'] = args.cached_dirs;
             inputs['disabled'] = args.disabled;
             inputs['main_service_name'] = args.main_service_name;
-            inputs['mount_filesystem_path'] = args.mount_filesystem_path;
             inputs['run_as_user'] = args.run_as_user;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
@@ -284,6 +283,7 @@ export class Build extends CustomResource {
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
+            inputs['volume_mappings'] = args.volume_mappings;
             inputs['working_directory'] = args.working_directory;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;

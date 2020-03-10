@@ -1,7 +1,7 @@
 import { AsInputs } from '../utils';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { IntegrationRef, Variable } from '../common';
 
 export interface ActionHerokuState {
     project_name: string;
@@ -14,7 +14,7 @@ export interface ActionHerokuState {
     /**
      * The integration.
      */
-    integration: string;
+    integration: IntegrationRef;
 
     /**
      * The name of the action.
@@ -109,7 +109,7 @@ export interface ActionHerokuProps {
     html_url: string;
     action_id: number;
     application_name: string;
-    integration: string;
+    integration: IntegrationRef;
     name: string;
     type: 'HEROKU';
     after_action_id?: number;
@@ -155,7 +155,7 @@ export class Heroku extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     application_name!: Output<string>;
-    integration!: Output<string>;
+    integration!: Output<IntegrationRef>;
     name!: Output<string>;
     type!: Output<'HEROKU'>;
     after_action_id!: Output<number | undefined>;

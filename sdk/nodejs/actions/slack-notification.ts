@@ -1,7 +1,7 @@
 import { AsInputs } from '../utils';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { IntegrationRef, Variable } from '../common';
 
 export interface ActionSlackNotificationState {
     project_name: string;
@@ -14,7 +14,7 @@ export interface ActionSlackNotificationState {
     /**
      * The integration.
      */
-    integration: string;
+    integration: IntegrationRef;
 
     /**
      * The name of the action.
@@ -99,7 +99,7 @@ export interface ActionSlackNotificationProps {
     html_url: string;
     action_id: number;
     channel: string;
-    integration: string;
+    integration: IntegrationRef;
     name: string;
     type: 'SLACK';
     after_action_id?: number;
@@ -143,7 +143,7 @@ export class SlackNotification extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     channel!: Output<string>;
-    integration!: Output<string>;
+    integration!: Output<IntegrationRef>;
     name!: Output<string>;
     type!: Output<'SLACK'>;
     after_action_id!: Output<number | undefined>;

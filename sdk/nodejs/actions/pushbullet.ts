@@ -1,7 +1,7 @@
 import { AsInputs } from '../utils';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { IntegrationRef, Variable } from '../common';
 
 export interface ActionPushbulletState {
     project_name: string;
@@ -14,7 +14,7 @@ export interface ActionPushbulletState {
     /**
      * The integration.
      */
-    integration: string;
+    integration: IntegrationRef;
 
     /**
      * The name of the action.
@@ -99,7 +99,7 @@ export interface ActionPushbulletProps {
     html_url: string;
     action_id: number;
     content: string;
-    integration: string;
+    integration: IntegrationRef;
     name: string;
     type: 'PUSHBULLET';
     after_action_id?: number;
@@ -143,7 +143,7 @@ export class Pushbullet extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     content!: Output<string>;
-    integration!: Output<string>;
+    integration!: Output<IntegrationRef>;
     name!: Output<string>;
     type!: Output<'PUSHBULLET'>;
     after_action_id!: Output<number | undefined>;

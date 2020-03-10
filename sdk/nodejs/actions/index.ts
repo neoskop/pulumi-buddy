@@ -35,7 +35,6 @@ import {
 } from './elastic-beanstalk-monitor';
 import { ActionElasticBeanstalkState, ActionElasticBeanstalkProps, ActionElasticBeanstalkArgs } from './elastic-beanstalk';
 import { ActionEmailNotificationState, ActionEmailNotificationProps, ActionEmailNotificationArgs } from './email-notification';
-import { ActionEOSState, ActionEOSProps, ActionEOSArgs } from './eos';
 import { ActionEslintState, ActionEslintProps, ActionEslintArgs } from './eslint';
 import { ActionFirebaseState, ActionFirebaseProps, ActionFirebaseArgs } from './firebase';
 import { ActionFTPState, ActionFTPProps, ActionFTPArgs } from './ftp';
@@ -159,7 +158,6 @@ export * from './download-sftp';
 export * from './elastic-beanstalk-monitor';
 export * from './elastic-beanstalk';
 export * from './email-notification';
-export * from './eos';
 export * from './eslint';
 export * from './firebase';
 export * from './ftp';
@@ -257,7 +255,6 @@ export type ActionState =
     | ActionElasticBeanstalkMonitorState
     | ActionElasticBeanstalkState
     | ActionEmailNotificationState
-    | ActionEOSState
     | ActionEslintState
     | ActionFirebaseState
     | ActionFTPState
@@ -353,7 +350,6 @@ export type ActionArgs =
     | ActionElasticBeanstalkMonitorArgs
     | ActionElasticBeanstalkArgs
     | ActionEmailNotificationArgs
-    | ActionEOSArgs
     | ActionEslintArgs
     | ActionFirebaseArgs
     | ActionFTPArgs
@@ -449,7 +445,6 @@ export type ActionProps =
     | ActionElasticBeanstalkMonitorProps
     | ActionElasticBeanstalkProps
     | ActionEmailNotificationProps
-    | ActionEOSProps
     | ActionEslintProps
     | ActionFirebaseProps
     | ActionFTPProps

@@ -20,7 +20,28 @@ async function main() {
         {
             title: 'Scrape Buddy API Documentation',
             async task(ctx) {
-                const scraper = new BuddyScraper();
+                const scraper = new BuddyScraper({
+                    patchParameter(action, param) {
+                        if (param.name === 'integration' && (!('ref' in param.type) || param.type.ref !== 'Integration')) {
+                            scraper.warnings.push(`Patch parameter "${param.name}" for action "${action}"`);
+                            return {
+                                ...param,
+                                type: { ref: 'Integration' }
+                            };
+                        }
+                        // switch(action.toLowerCase()) {
+                        //     case 'slack notification':
+                        //         if(param.name === 'integration') {
+                        //             scraper.warnings.push(`Patch parameter "${param.name}" for action "${action}"`);
+                        //             return {
+                        //                 ...param,
+                        //                 type: { ref: 'Integration' }
+                        //             }
+                        //         }
+                        // }
+                        return;
+                    }
+                });
                 const stream = scraper.getActionsAsStream().pipe(share());
 
                 stream.pipe(toArray()).subscribe(actions => {

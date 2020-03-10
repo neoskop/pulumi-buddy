@@ -57,11 +57,6 @@ export interface ActionRunDockerContainerState {
     mount_filesystem_disable?: boolean;
 
     /**
-     * The directory in which the pipeline filesystem will be mounted.
-     */
-    mount_filesystem_path?: string;
-
-    /**
      * The password required to connect to the Dockerhub, private registry or GCR.
      */
     password?: string;
@@ -125,6 +120,11 @@ export interface ActionRunDockerContainerState {
      * The list of variables you can use the action.
      */
     variables?: Variable[];
+
+    /**
+     * The path preceding the colon is the filesystem path (the folder from the filesystem to be mounted in the container). The path after the colon is the container path (the path in the container, where this filesystem will be located).
+     */
+    volume_mappings?: string[];
 }
 
 export type ActionRunDockerContainerArgs = AsInputs<ActionRunDockerContainerState>;
@@ -144,7 +144,6 @@ export interface ActionRunDockerContainerProps {
     integration?: IntegrationRef;
     login?: string;
     mount_filesystem_disable?: boolean;
-    mount_filesystem_path?: string;
     password?: string;
     region?: string;
     registry?: string;
@@ -158,6 +157,7 @@ export interface ActionRunDockerContainerProps {
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
+    volume_mappings?: string[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -195,7 +195,6 @@ export class RunDockerContainer extends CustomResource {
     integration!: Output<IntegrationRef | undefined>;
     login!: Output<string | undefined>;
     mount_filesystem_disable!: Output<boolean | undefined>;
-    mount_filesystem_path!: Output<string | undefined>;
     password!: Output<string | undefined>;
     region!: Output<string | undefined>;
     registry!: Output<string | undefined>;
@@ -209,6 +208,7 @@ export class RunDockerContainer extends CustomResource {
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
+    volume_mappings!: Output<string[] | undefined>;
 
     constructor(name: string, argsOrState: ActionRunDockerContainerArgs | ActionRunDockerContainerState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -230,7 +230,6 @@ export class RunDockerContainer extends CustomResource {
             inputs['integration'] = state?.integration;
             inputs['login'] = state?.login;
             inputs['mount_filesystem_disable'] = state?.mount_filesystem_disable;
-            inputs['mount_filesystem_path'] = state?.mount_filesystem_path;
             inputs['password'] = state?.password;
             inputs['region'] = state?.region;
             inputs['registry'] = state?.registry;
@@ -244,6 +243,7 @@ export class RunDockerContainer extends CustomResource {
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
+            inputs['volume_mappings'] = state?.volume_mappings;
         } else {
             const args = argsOrState as ActionRunDockerContainerArgs | undefined;
             if (!args?.project_name) {
@@ -280,7 +280,6 @@ export class RunDockerContainer extends CustomResource {
             inputs['integration'] = args.integration;
             inputs['login'] = args.login;
             inputs['mount_filesystem_disable'] = args.mount_filesystem_disable;
-            inputs['mount_filesystem_path'] = args.mount_filesystem_path;
             inputs['password'] = args.password;
             inputs['region'] = args.region;
             inputs['registry'] = args.registry;
@@ -294,6 +293,7 @@ export class RunDockerContainer extends CustomResource {
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
+            inputs['volume_mappings'] = args.volume_mappings;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

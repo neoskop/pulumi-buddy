@@ -37,11 +37,6 @@ export interface ActionFirebaseState {
     disabled?: boolean;
 
     /**
-     * The directory in which the pipeline filesystem will be mounted. Available when `type` is set to `CUSTOM`.
-     */
-    mount_filesystem_path?: string;
-
-    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -87,6 +82,11 @@ export interface ActionFirebaseState {
     variables?: Variable[];
 
     /**
+     * The path preceding the colon is the filesystem path (the folder from the filesystem to be mounted in the container). The path after the colon is the container path (the path in the container, where this filesystem will be located).
+     */
+    volume_mappings?: string[];
+
+    /**
      * The directory in which the commands are executed. Available when `type` is set to `CUSTOM`.
      */
     working_directory?: string;
@@ -105,7 +105,6 @@ export interface ActionFirebaseProps {
     type: 'FIREBASE';
     after_action_id?: number;
     disabled?: boolean;
-    mount_filesystem_path?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
@@ -115,6 +114,7 @@ export interface ActionFirebaseProps {
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
+    volume_mappings?: string[];
     working_directory?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -149,7 +149,6 @@ export class Firebase extends CustomResource {
     type!: Output<'FIREBASE'>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
-    mount_filesystem_path!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
@@ -159,6 +158,7 @@ export class Firebase extends CustomResource {
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
+    volume_mappings!: Output<string[] | undefined>;
     working_directory!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: ActionFirebaseArgs | ActionFirebaseState, opts?: CustomResourceOptions) {
@@ -177,7 +177,6 @@ export class Firebase extends CustomResource {
             inputs['name'] = state?.name;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
-            inputs['mount_filesystem_path'] = state?.mount_filesystem_path;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -187,6 +186,7 @@ export class Firebase extends CustomResource {
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
+            inputs['volume_mappings'] = state?.volume_mappings;
             inputs['working_directory'] = state?.working_directory;
         } else {
             const args = argsOrState as ActionFirebaseArgs | undefined;
@@ -220,7 +220,6 @@ export class Firebase extends CustomResource {
             inputs['name'] = args.name;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
-            inputs['mount_filesystem_path'] = args.mount_filesystem_path;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
@@ -230,6 +229,7 @@ export class Firebase extends CustomResource {
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
+            inputs['volume_mappings'] = args.volume_mappings;
             inputs['working_directory'] = args.working_directory;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;

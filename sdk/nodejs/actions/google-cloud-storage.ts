@@ -1,7 +1,7 @@
 import { AsInputs } from '../utils';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { IntegrationRef, Variable } from '../common';
 
 export interface ActionGoogleCloudStorageState {
     project_name: string;
@@ -14,7 +14,7 @@ export interface ActionGoogleCloudStorageState {
     /**
      * The integration.
      */
-    integration: string;
+    integration: IntegrationRef;
 
     /**
      * The name of the action.
@@ -119,7 +119,7 @@ export interface ActionGoogleCloudStorageProps {
     html_url: string;
     action_id: number;
     bucket_name: string;
-    integration: string;
+    integration: IntegrationRef;
     name: string;
     type: 'GCS';
     after_action_id?: number;
@@ -167,7 +167,7 @@ export class GoogleCloudStorage extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     bucket_name!: Output<string>;
-    integration!: Output<string>;
+    integration!: Output<IntegrationRef>;
     name!: Output<string>;
     type!: Output<'GCS'>;
     after_action_id!: Output<number | undefined>;

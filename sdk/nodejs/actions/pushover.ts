@@ -1,7 +1,7 @@
 import { AsInputs } from '../utils';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { IntegrationRef, Variable } from '../common';
 
 export interface ActionPushoverState {
     project_name: string;
@@ -14,7 +14,7 @@ export interface ActionPushoverState {
     /**
      * The integration.
      */
-    integration: string;
+    integration: IntegrationRef;
 
     /**
      * The name of the action.
@@ -109,7 +109,7 @@ export interface ActionPushoverProps {
     html_url: string;
     action_id: number;
     content: string;
-    integration: string;
+    integration: IntegrationRef;
     name: string;
     type: 'PUSHOVER';
     after_action_id?: number;
@@ -155,7 +155,7 @@ export class Pushover extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     content!: Output<string>;
-    integration!: Output<string>;
+    integration!: Output<IntegrationRef>;
     name!: Output<string>;
     type!: Output<'PUSHOVER'>;
     after_action_id!: Output<number | undefined>;

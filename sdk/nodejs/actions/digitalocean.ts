@@ -1,7 +1,7 @@
 import { AsInputs } from '../utils';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { IntegrationRef, Variable } from '../common';
 
 export interface ActionDigitalOceanState {
     project_name: string;
@@ -24,7 +24,7 @@ export interface ActionDigitalOceanState {
     /**
      * The integration.
      */
-    integration: string;
+    integration: IntegrationRef;
 
     /**
      * The username required to connect to the server.
@@ -136,7 +136,7 @@ export interface ActionDigitalOceanProps {
     authentication_mode: 'PASS';
     host: string;
     host_name: string;
-    integration: string;
+    integration: IntegrationRef;
     login: string;
     name: string;
     port: string;
@@ -187,7 +187,7 @@ export class DigitalOcean extends CustomResource {
     authentication_mode!: Output<'PASS'>;
     host!: Output<string>;
     host_name!: Output<string>;
-    integration!: Output<string>;
+    integration!: Output<IntegrationRef>;
     login!: Output<string>;
     name!: Output<string>;
     port!: Output<string>;
