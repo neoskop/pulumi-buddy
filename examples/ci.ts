@@ -26,7 +26,6 @@ for (const [name, ref_name] of [
         docker_image_name: 'node',
         docker_image_tag: '13',
         trigger_time: 'ON_EVERY_EXECUTION',
-        execute_commands: ['cd sdk/nodejs && yarn build', 'cd modules/plugin && yarn test'],
-        setup_commands: ['yarn']
+        execute_commands: ['yarn', '(cd sdk/nodejs && yarn build)', '(cd modules/plugin && yarn test)']
     });
 }
