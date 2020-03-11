@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 
 const debug = require('debug')('pulumi-buddy:api:ssh-key');
 
@@ -42,6 +42,7 @@ export class BuddySshKeyApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 throw new SshKeyError(e.response.data.errors[0].message);
             } else {
                 throw new SshKeyError(e.message);
@@ -68,6 +69,7 @@ export class BuddySshKeyApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new SshKeyNotFound(this.sshKeyId);
                 } else {
@@ -96,6 +98,7 @@ export class BuddySshKeyApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new SshKeyNotFound(this.sshKeyId);
                 } else {

@@ -1,4 +1,4 @@
-import Axios, { CancelTokenSource } from 'axios';
+import Axios, { CancelTokenSource, ResponseType, AxiosResponse } from 'axios';
 import { BuddyIntegrationApi } from './integration';
 import { BuddySshKeyApi } from './ssh-key';
 import { BuddyWorkspaceApi } from './workspace';
@@ -48,5 +48,19 @@ export class BuddyApi {
 
     integration(integrationId?: number) {
         return new BuddyIntegrationApi(this, integrationId);
+    }
+}
+
+export class InvalidResponseType extends Error {
+    static checkResponseType(response: AxiosResponse, expected: string): void | never {
+        const given = response.headers['content-type'];
+
+        if (given !== expected) {
+            throw new InvalidResponseType(given, expected);
+        }
+    }
+
+    constructor(givenType: string, expectedType: string) {
+        super(`Expected response type "${expectedType}", got "${givenType}".`);
     }
 }

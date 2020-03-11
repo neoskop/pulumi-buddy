@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 import { BuddyPipelineApi, IBuddyPipeline } from './pipeline';
 import { BuddyProjectApi, ProjectNotFound } from './project';
 import { BuddyWorkspaceApi } from './workspace';
@@ -11,8 +11,8 @@ export interface IBuddyAction {
     url: string;
     html_url: string;
     id: number;
-    name: string
-    type: string
+    name: string;
+    type: string;
     trigger_time: TriggerTime;
     last_execution_status: string;
     variables?: IBuddyActionVariable[];
@@ -20,7 +20,7 @@ export interface IBuddyAction {
     trigger_condition_paths?: string[];
     trigger_variable_key?: string;
     trigger_variable_value?: string;
-    pipeline: IBuddyPipeline
+    pipeline: IBuddyPipeline;
 }
 
 export type TriggerTime = 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -45,11 +45,11 @@ export interface IBuddyActionCreate {
     disabled?: boolean;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    [key: string]: any
+    [key: string]: any;
 }
 
 export interface IBuddyActionUpdate {
-    [key: string]: any
+    [key: string]: any;
 }
 
 export class BuddyActionApi {
@@ -87,6 +87,7 @@ export class BuddyActionApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.project.getProjectName());
                 } else {
@@ -122,6 +123,7 @@ export class BuddyActionApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ActionNotFound(this.actionId);
                 } else {
@@ -158,6 +160,7 @@ export class BuddyActionApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.code === 404) {
                     throw new ActionNotFound(this.actionId);
                 } else {
@@ -191,6 +194,7 @@ export class BuddyActionApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ActionNotFound(this.actionId);
                 } else {

@@ -1,7 +1,7 @@
 import Axios from 'axios';
 
 import { BuddyActionApi } from './action';
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 import { BuddyProjectApi, ProjectNotFound } from './project';
 import { BuddyWorkspaceApi } from './workspace';
 
@@ -102,6 +102,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.project.getProjectName());
                 } else {
@@ -137,6 +138,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new PipelineNotFound(this.pipelineId);
                 } else {
@@ -173,6 +175,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.code === 404) {
                     throw new PipelineNotFound(this.pipelineId);
                 } else {
@@ -206,6 +209,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new PipelineNotFound(this.pipelineId);
                 } else {

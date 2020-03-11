@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 import { BuddyPipelineApi } from './pipeline';
 import { BuddyWorkspaceApi } from './workspace';
 import { IBuddyMember } from './member';
@@ -101,6 +101,7 @@ export class BuddyProjectApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 throw new ProjectError(e.response.data.errors[0].message);
             } else {
                 throw new ProjectError(e.message);
@@ -130,6 +131,7 @@ export class BuddyProjectApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.projectName);
                 } else {
@@ -164,6 +166,7 @@ export class BuddyProjectApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.projectName);
                 } else if (e.response.data.errors[0].message === 'Operation not permitted until all jobs and deployments are completed.') {
@@ -194,6 +197,7 @@ export class BuddyProjectApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.projectName);
                 } else {
@@ -227,6 +231,7 @@ export class BuddyProjectApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.projectName);
                 } else {
@@ -261,6 +266,7 @@ export class BuddyProjectApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.projectName);
                 } else {
@@ -294,6 +300,7 @@ export class BuddyProjectApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.projectName);
                 } else {
