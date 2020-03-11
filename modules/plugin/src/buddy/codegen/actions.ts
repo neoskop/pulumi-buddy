@@ -1,4 +1,4 @@
-import { InterfaceDeclaration, Project, SourceFile, TypeAliasDeclaration } from 'ts-morph';
+import { InterfaceDeclaration, Project, SourceFile, TypeAliasDeclaration, ClassDeclaration } from 'ts-morph';
 import { Action, ParameterType } from '../scraper';
 
 export interface ICodegenOptions {
@@ -31,6 +31,7 @@ export class BuddyCodegenActions {
         const states: InterfaceDeclaration[] = [];
         const args: TypeAliasDeclaration[] = [];
         const props: InterfaceDeclaration[] = [];
+        const actions: ClassDeclaration[] = [];
 
         function getImp(f: SourceFile) {
             let imp = file.getImportDeclaration(d => d.getModuleSpecifierValue() === `./${f.getBaseNameWithoutExtension()}`);
@@ -62,6 +63,12 @@ export class BuddyCodegenActions {
                     getImp(f).addNamedImport(t.getName());
                 }
             }
+            for (const a of f.getClasses()) {
+                if (a.isExported()) {
+                    actions.push(a);
+                    getImp(f).addNamedImport(a.getName()!);
+                }
+            }
         }
 
         file.addTypeAlias({
@@ -80,6 +87,12 @@ export class BuddyCodegenActions {
             name: 'ActionProps',
             isExported: true,
             type: props.map(s => s.getName()).join(' | ')
+        });
+
+        file.addTypeAlias({
+            name: 'Action',
+            isExported: true,
+            type: actions.map(a => a.getName()).join(' | ')
         });
     }
 
@@ -254,9 +267,7 @@ export class BuddyCodegenActions {
             name: `${this.toKeyword(this.sanitize(action.name))}`,
             isExported: true,
             extends: 'CustomResource',
-            docs: [
-                `\nRequired scopes in Buddy API: \`WORKSPACE\`, \`EXECUTION_MANAGE\`, \`EXECUTION_INFO\``
-            ]
+            docs: [`\nRequired scopes in Buddy API: \`WORKSPACE\`, \`EXECUTION_MANAGE\`, \`EXECUTION_INFO\``]
         });
 
         actionClass.addProperty({

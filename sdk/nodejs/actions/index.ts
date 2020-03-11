@@ -1,133 +1,237 @@
-import { ActionAmazonS3State, ActionAmazonS3Props, ActionAmazonS3Args } from './amazon-s3';
-import { ActionAWSCLIState, ActionAWSCLIProps, ActionAWSCLIArgs } from './aws-cli';
-import { ActionAWSECSState, ActionAWSECSProps, ActionAWSECSArgs } from './aws-ecs';
-import { ActionAWSLambdaDeployState, ActionAWSLambdaDeployProps, ActionAWSLambdaDeployArgs } from './aws-lambda-deploy';
-import { ActionAWSLambdaState, ActionAWSLambdaProps, ActionAWSLambdaArgs } from './aws-lambda';
-import { ActionAzureState, ActionAzureProps, ActionAzureArgs } from './azure';
-import { ActionBugsnagState, ActionBugsnagProps, ActionBugsnagArgs } from './bugsnag';
-import { ActionBuildAndroidAppState, ActionBuildAndroidAppProps, ActionBuildAndroidAppArgs } from './build-android-app';
-import { ActionBuildDockerfileState, ActionBuildDockerfileProps, ActionBuildDockerfileArgs } from './build-dockerfile';
-import { ActionBuildFlutterAppState, ActionBuildFlutterAppProps, ActionBuildFlutterAppArgs } from './build-flutter-app';
-import { ActionBuildState, ActionBuildProps, ActionBuildArgs } from './build';
-import { ActionCloudflareState, ActionCloudflareProps, ActionCloudflareArgs } from './cloudflare';
-import { ActionCloudFrontState, ActionCloudFrontProps, ActionCloudFrontArgs } from './cloudfront';
-import { ActionCodeDeployState, ActionCodeDeployProps, ActionCodeDeployArgs } from './codedeploy';
-import { ActionCompressImagesState, ActionCompressImagesProps, ActionCompressImagesArgs } from './compress-images';
+import { ActionAmazonS3State, ActionAmazonS3Props, ActionAmazonS3Args, AmazonS3 } from './amazon-s3';
+import { ActionAWSCLIState, ActionAWSCLIProps, ActionAWSCLIArgs, AWSCLI } from './aws-cli';
+import { ActionAWSECSState, ActionAWSECSProps, ActionAWSECSArgs, AWSECS } from './aws-ecs';
+import { ActionAWSLambdaDeployState, ActionAWSLambdaDeployProps, ActionAWSLambdaDeployArgs, AWSLambdaDeploy } from './aws-lambda-deploy';
+import { ActionAWSLambdaState, ActionAWSLambdaProps, ActionAWSLambdaArgs, AWSLambda } from './aws-lambda';
+import { ActionAzureState, ActionAzureProps, ActionAzureArgs, Azure } from './azure';
+import { ActionBugsnagState, ActionBugsnagProps, ActionBugsnagArgs, Bugsnag } from './bugsnag';
+import { ActionBuildAndroidAppState, ActionBuildAndroidAppProps, ActionBuildAndroidAppArgs, BuildAndroidApp } from './build-android-app';
+import { ActionBuildDockerfileState, ActionBuildDockerfileProps, ActionBuildDockerfileArgs, BuildDockerfile } from './build-dockerfile';
+import { ActionBuildFlutterAppState, ActionBuildFlutterAppProps, ActionBuildFlutterAppArgs, BuildFlutterApp } from './build-flutter-app';
+import { ActionBuildState, ActionBuildProps, ActionBuildArgs, Build } from './build';
+import { ActionCloudflareState, ActionCloudflareProps, ActionCloudflareArgs, Cloudflare } from './cloudflare';
+import { ActionCloudFrontState, ActionCloudFrontProps, ActionCloudFrontArgs, CloudFront } from './cloudfront';
+import { ActionCodeDeployState, ActionCodeDeployProps, ActionCodeDeployArgs, CodeDeploy } from './codedeploy';
+import { ActionCompressImagesState, ActionCompressImagesProps, ActionCompressImagesArgs, CompressImages } from './compress-images';
 import {
     ActionCopyFilesFromAnotherPipelineState,
     ActionCopyFilesFromAnotherPipelineProps,
-    ActionCopyFilesFromAnotherPipelineArgs
+    ActionCopyFilesFromAnotherPipelineArgs,
+    CopyFilesFromAnotherPipeline
 } from './copy-files-from-another-pipeline';
-import { ActionDatadogNotificationState, ActionDatadogNotificationProps, ActionDatadogNotificationArgs } from './datadog-notification';
-import { ActionDatadogServiceCheckState, ActionDatadogServiceCheckProps, ActionDatadogServiceCheckArgs } from './datadog-service-check';
-import { ActionDigitalOceanCDNState, ActionDigitalOceanCDNProps, ActionDigitalOceanCDNArgs } from './digitalocean-cdn';
-import { ActionDigitalOceanSpacesState, ActionDigitalOceanSpacesProps, ActionDigitalOceanSpacesArgs } from './digitalocean-spaces';
-import { ActionDigitalOceanState, ActionDigitalOceanProps, ActionDigitalOceanArgs } from './digitalocean';
-import { ActionDiscordNotificationState, ActionDiscordNotificationProps, ActionDiscordNotificationArgs } from './discord-notification';
-import { ActionDockerfileLinterState, ActionDockerfileLinterProps, ActionDockerfileLinterArgs } from './dockerfile-linter';
-import { ActionDownloadFTPState, ActionDownloadFTPProps, ActionDownloadFTPArgs } from './download-ftp';
-import { ActionDownloadS3State, ActionDownloadS3Props, ActionDownloadS3Args } from './download-s3';
-import { ActionDownloadSFTPState, ActionDownloadSFTPProps, ActionDownloadSFTPArgs } from './download-sftp';
+import {
+    ActionDatadogNotificationState,
+    ActionDatadogNotificationProps,
+    ActionDatadogNotificationArgs,
+    DatadogNotification
+} from './datadog-notification';
+import {
+    ActionDatadogServiceCheckState,
+    ActionDatadogServiceCheckProps,
+    ActionDatadogServiceCheckArgs,
+    DatadogServiceCheck
+} from './datadog-service-check';
+import { ActionDigitalOceanCDNState, ActionDigitalOceanCDNProps, ActionDigitalOceanCDNArgs, DigitalOceanCDN } from './digitalocean-cdn';
+import {
+    ActionDigitalOceanSpacesState,
+    ActionDigitalOceanSpacesProps,
+    ActionDigitalOceanSpacesArgs,
+    DigitalOceanSpaces
+} from './digitalocean-spaces';
+import { ActionDigitalOceanState, ActionDigitalOceanProps, ActionDigitalOceanArgs, DigitalOcean } from './digitalocean';
+import {
+    ActionDiscordNotificationState,
+    ActionDiscordNotificationProps,
+    ActionDiscordNotificationArgs,
+    DiscordNotification
+} from './discord-notification';
+import {
+    ActionDockerfileLinterState,
+    ActionDockerfileLinterProps,
+    ActionDockerfileLinterArgs,
+    DockerfileLinter
+} from './dockerfile-linter';
+import { ActionDownloadFTPState, ActionDownloadFTPProps, ActionDownloadFTPArgs, DownloadFTP } from './download-ftp';
+import { ActionDownloadS3State, ActionDownloadS3Props, ActionDownloadS3Args, DownloadS3 } from './download-s3';
+import { ActionDownloadSFTPState, ActionDownloadSFTPProps, ActionDownloadSFTPArgs, DownloadSFTP } from './download-sftp';
 import {
     ActionElasticBeanstalkMonitorState,
     ActionElasticBeanstalkMonitorProps,
-    ActionElasticBeanstalkMonitorArgs
+    ActionElasticBeanstalkMonitorArgs,
+    ElasticBeanstalkMonitor
 } from './elastic-beanstalk-monitor';
-import { ActionElasticBeanstalkState, ActionElasticBeanstalkProps, ActionElasticBeanstalkArgs } from './elastic-beanstalk';
-import { ActionEmailNotificationState, ActionEmailNotificationProps, ActionEmailNotificationArgs } from './email-notification';
-import { ActionEslintState, ActionEslintProps, ActionEslintArgs } from './eslint';
-import { ActionFirebaseState, ActionFirebaseProps, ActionFirebaseArgs } from './firebase';
-import { ActionFTPState, ActionFTPProps, ActionFTPArgs } from './ftp';
-import { ActionFTPSState, ActionFTPSProps, ActionFTPSArgs } from './ftps';
-import { ActionGCloudCLIState, ActionGCloudCLIProps, ActionGCloudCLIArgs } from './gcloud-cli';
-import { ActionGhostInspectorState, ActionGhostInspectorProps, ActionGhostInspectorArgs } from './ghost-inspector';
-import { ActionGitPushState, ActionGitPushProps, ActionGitPushArgs } from './git-push';
-import { ActionGitcryptLockState, ActionGitcryptLockProps, ActionGitcryptLockArgs } from './gitcrypt-lock';
-import { ActionGitcryptUnlockState, ActionGitcryptUnlockProps, ActionGitcryptUnlockArgs } from './gitcrypt-unlock';
-import { ActionGKEApplyDeploymentState, ActionGKEApplyDeploymentProps, ActionGKEApplyDeploymentArgs } from './gke-apply-deployment';
-import { ActionGKEKubectlState, ActionGKEKubectlProps, ActionGKEKubectlArgs } from './gke-kubectl';
-import { ActionGKERunJobState, ActionGKERunJobProps, ActionGKERunJobArgs } from './gke-run-job';
-import { ActionGKERunPodState, ActionGKERunPodProps, ActionGKERunPodArgs } from './gke-run-pod';
-import { ActionGKESetImageState, ActionGKESetImageProps, ActionGKESetImageArgs } from './gke-set-image';
-import { ActionGoogleAppEngineState, ActionGoogleAppEngineProps, ActionGoogleAppEngineArgs } from './google-app-engine';
-import { ActionGoogleCDNState, ActionGoogleCDNProps, ActionGoogleCDNArgs } from './google-cdn';
-import { ActionGoogleCloudStorageState, ActionGoogleCloudStorageProps, ActionGoogleCloudStorageArgs } from './google-cloud-storage';
-import { ActionGoogleComputeEngineState, ActionGoogleComputeEngineProps, ActionGoogleComputeEngineArgs } from './google-compute-engine';
+import {
+    ActionElasticBeanstalkState,
+    ActionElasticBeanstalkProps,
+    ActionElasticBeanstalkArgs,
+    ElasticBeanstalk
+} from './elastic-beanstalk';
+import {
+    ActionEmailNotificationState,
+    ActionEmailNotificationProps,
+    ActionEmailNotificationArgs,
+    EmailNotification
+} from './email-notification';
+import { ActionEslintState, ActionEslintProps, ActionEslintArgs, Eslint } from './eslint';
+import { ActionFirebaseState, ActionFirebaseProps, ActionFirebaseArgs, Firebase } from './firebase';
+import { ActionFTPState, ActionFTPProps, ActionFTPArgs, FTP } from './ftp';
+import { ActionFTPSState, ActionFTPSProps, ActionFTPSArgs, FTPS } from './ftps';
+import { ActionGCloudCLIState, ActionGCloudCLIProps, ActionGCloudCLIArgs, GCloudCLI } from './gcloud-cli';
+import { ActionGhostInspectorState, ActionGhostInspectorProps, ActionGhostInspectorArgs, GhostInspector } from './ghost-inspector';
+import { ActionGitPushState, ActionGitPushProps, ActionGitPushArgs, GitPush } from './git-push';
+import { ActionGitcryptLockState, ActionGitcryptLockProps, ActionGitcryptLockArgs, GitcryptLock } from './gitcrypt-lock';
+import { ActionGitcryptUnlockState, ActionGitcryptUnlockProps, ActionGitcryptUnlockArgs, GitcryptUnlock } from './gitcrypt-unlock';
+import {
+    ActionGKEApplyDeploymentState,
+    ActionGKEApplyDeploymentProps,
+    ActionGKEApplyDeploymentArgs,
+    GKEApplyDeployment
+} from './gke-apply-deployment';
+import { ActionGKEKubectlState, ActionGKEKubectlProps, ActionGKEKubectlArgs, GKEKubectl } from './gke-kubectl';
+import { ActionGKERunJobState, ActionGKERunJobProps, ActionGKERunJobArgs, GKERunJob } from './gke-run-job';
+import { ActionGKERunPodState, ActionGKERunPodProps, ActionGKERunPodArgs, GKERunPod } from './gke-run-pod';
+import { ActionGKESetImageState, ActionGKESetImageProps, ActionGKESetImageArgs, GKESetImage } from './gke-set-image';
+import { ActionGoogleAppEngineState, ActionGoogleAppEngineProps, ActionGoogleAppEngineArgs, GoogleAppEngine } from './google-app-engine';
+import { ActionGoogleCDNState, ActionGoogleCDNProps, ActionGoogleCDNArgs, GoogleCDN } from './google-cdn';
+import {
+    ActionGoogleCloudStorageState,
+    ActionGoogleCloudStorageProps,
+    ActionGoogleCloudStorageArgs,
+    GoogleCloudStorage
+} from './google-cloud-storage';
+import {
+    ActionGoogleComputeEngineState,
+    ActionGoogleComputeEngineProps,
+    ActionGoogleComputeEngineArgs,
+    GoogleComputeEngine
+} from './google-compute-engine';
 import {
     ActionGoogleFunctionsDeployState,
     ActionGoogleFunctionsDeployProps,
-    ActionGoogleFunctionsDeployArgs
+    ActionGoogleFunctionsDeployArgs,
+    GoogleFunctionsDeploy
 } from './google-functions-deploy';
-import { ActionHerokuCLIState, ActionHerokuCLIProps, ActionHerokuCLIArgs } from './heroku-cli';
-import { ActionHerokuState, ActionHerokuProps, ActionHerokuArgs } from './heroku';
-import { ActionHoneybadgerState, ActionHoneybadgerProps, ActionHoneybadgerArgs } from './honeybadger';
-import { ActionHTTPRequestState, ActionHTTPRequestProps, ActionHTTPRequestArgs } from './http-request';
+import { ActionHerokuCLIState, ActionHerokuCLIProps, ActionHerokuCLIArgs, HerokuCLI } from './heroku-cli';
+import { ActionHerokuState, ActionHerokuProps, ActionHerokuArgs, Heroku } from './heroku';
+import { ActionHoneybadgerState, ActionHoneybadgerProps, ActionHoneybadgerArgs, Honeybadger } from './honeybadger';
+import { ActionHTTPRequestState, ActionHTTPRequestProps, ActionHTTPRequestArgs, HTTPRequest } from './http-request';
 import {
     ActionKubernetesApplyDeploymentConfigurationState,
     ActionKubernetesApplyDeploymentConfigurationProps,
-    ActionKubernetesApplyDeploymentConfigurationArgs
+    ActionKubernetesApplyDeploymentConfigurationArgs,
+    KubernetesApplyDeploymentConfiguration
 } from './kubernetes-apply-deployment-configuration';
-import { ActionKubernetesKubectlState, ActionKubernetesKubectlProps, ActionKubernetesKubectlArgs } from './kubernetes-kubectl';
+import {
+    ActionKubernetesKubectlState,
+    ActionKubernetesKubectlProps,
+    ActionKubernetesKubectlArgs,
+    KubernetesKubectl
+} from './kubernetes-kubectl';
 import {
     ActionKubernetesRunHelmCMDsState,
     ActionKubernetesRunHelmCMDsProps,
-    ActionKubernetesRunHelmCMDsArgs
+    ActionKubernetesRunHelmCMDsArgs,
+    KubernetesRunHelmCMDs
 } from './kubernetes-run-helm-cmds';
-import { ActionKubernetesRunPodState, ActionKubernetesRunPodProps, ActionKubernetesRunPodArgs } from './kubernetes-run-pod';
-import { ActionKubernetesSetImageState, ActionKubernetesSetImageProps, ActionKubernetesSetImageArgs } from './kubernetes-set-image';
-import { ActionLighthouseState, ActionLighthouseProps, ActionLighthouseArgs } from './lighthouse';
-import { ActionLogglyState, ActionLogglyProps, ActionLogglyArgs } from './loggly';
-import { ActionNetlifyState, ActionNetlifyProps, ActionNetlifyArgs } from './netlify';
-import { ActionNewRelicNotificationState, ActionNewRelicNotificationProps, ActionNewRelicNotificationArgs } from './new-relic-notification';
-import { ActionPassArgumentsState, ActionPassArgumentsProps, ActionPassArgumentsArgs } from './pass-arguments';
-import { ActionPingMonitoringState, ActionPingMonitoringProps, ActionPingMonitoringArgs } from './ping-monitoring';
+import {
+    ActionKubernetesRunPodState,
+    ActionKubernetesRunPodProps,
+    ActionKubernetesRunPodArgs,
+    KubernetesRunPod
+} from './kubernetes-run-pod';
+import {
+    ActionKubernetesSetImageState,
+    ActionKubernetesSetImageProps,
+    ActionKubernetesSetImageArgs,
+    KubernetesSetImage
+} from './kubernetes-set-image';
+import { ActionLighthouseState, ActionLighthouseProps, ActionLighthouseArgs, Lighthouse } from './lighthouse';
+import { ActionLogglyState, ActionLogglyProps, ActionLogglyArgs, Loggly } from './loggly';
+import { ActionNetlifyState, ActionNetlifyProps, ActionNetlifyArgs, Netlify } from './netlify';
+import {
+    ActionNewRelicNotificationState,
+    ActionNewRelicNotificationProps,
+    ActionNewRelicNotificationArgs,
+    NewRelicNotification
+} from './new-relic-notification';
+import { ActionPassArgumentsState, ActionPassArgumentsProps, ActionPassArgumentsArgs, PassArguments } from './pass-arguments';
+import { ActionPingMonitoringState, ActionPingMonitoringProps, ActionPingMonitoringArgs, PingMonitoring } from './ping-monitoring';
 import {
     ActionPublishAndroidApplicationState,
     ActionPublishAndroidApplicationProps,
-    ActionPublishAndroidApplicationArgs
+    ActionPublishAndroidApplicationArgs,
+    PublishAndroidApplication
 } from './publish-android-application';
 import {
     ActionPublishBundleToGooglePlayState,
     ActionPublishBundleToGooglePlayProps,
-    ActionPublishBundleToGooglePlayArgs
+    ActionPublishBundleToGooglePlayArgs,
+    PublishBundleToGooglePlay
 } from './publish-bundle-to-google-play';
-import { ActionPushDockerImageState, ActionPushDockerImageProps, ActionPushDockerImageArgs } from './push-docker-image';
-import { ActionPushbulletState, ActionPushbulletProps, ActionPushbulletArgs } from './pushbullet';
-import { ActionPushoverState, ActionPushoverProps, ActionPushoverArgs } from './pushover';
-import { ActionRackspaceState, ActionRackspaceProps, ActionRackspaceArgs } from './rackspace';
-import { ActionRaygunState, ActionRaygunProps, ActionRaygunArgs } from './raygun';
-import { ActionReplaceState, ActionReplaceProps, ActionReplaceArgs } from './replace';
-import { ActionRollbarNotificationState, ActionRollbarNotificationProps, ActionRollbarNotificationArgs } from './rollbar-notification';
-import { ActionRsyncState, ActionRsyncProps, ActionRsyncArgs } from './rsync';
-import { ActionRunDockerContainerState, ActionRunDockerContainerProps, ActionRunDockerContainerArgs } from './run-docker-container';
-import { ActionRunNextPipelineState, ActionRunNextPipelineProps, ActionRunNextPipelineArgs } from './run-next-pipeline';
-import { ActionSentryNotificationState, ActionSentryNotificationProps, ActionSentryNotificationArgs } from './sentry-notification';
-import { ActionSFTPState, ActionSFTPProps, ActionSFTPArgs } from './sftp';
-import { ActionShopifyState, ActionShopifyProps, ActionShopifyArgs } from './shopify';
+import { ActionPushDockerImageState, ActionPushDockerImageProps, ActionPushDockerImageArgs, PushDockerImage } from './push-docker-image';
+import { ActionPushbulletState, ActionPushbulletProps, ActionPushbulletArgs, Pushbullet } from './pushbullet';
+import { ActionPushoverState, ActionPushoverProps, ActionPushoverArgs, Pushover } from './pushover';
+import { ActionRackspaceState, ActionRackspaceProps, ActionRackspaceArgs, Rackspace } from './rackspace';
+import { ActionRaygunState, ActionRaygunProps, ActionRaygunArgs, Raygun } from './raygun';
+import { ActionReplaceState, ActionReplaceProps, ActionReplaceArgs, Replace } from './replace';
+import {
+    ActionRollbarNotificationState,
+    ActionRollbarNotificationProps,
+    ActionRollbarNotificationArgs,
+    RollbarNotification
+} from './rollbar-notification';
+import { ActionRsyncState, ActionRsyncProps, ActionRsyncArgs, Rsync } from './rsync';
+import {
+    ActionRunDockerContainerState,
+    ActionRunDockerContainerProps,
+    ActionRunDockerContainerArgs,
+    RunDockerContainer
+} from './run-docker-container';
+import { ActionRunNextPipelineState, ActionRunNextPipelineProps, ActionRunNextPipelineArgs, RunNextPipeline } from './run-next-pipeline';
+import {
+    ActionSentryNotificationState,
+    ActionSentryNotificationProps,
+    ActionSentryNotificationArgs,
+    SentryNotification
+} from './sentry-notification';
+import { ActionSFTPState, ActionSFTPProps, ActionSFTPArgs, SFTP } from './sftp';
+import { ActionShopifyState, ActionShopifyProps, ActionShopifyArgs, Shopify } from './shopify';
 import {
     ActionSignAndroidApplicationState,
     ActionSignAndroidApplicationProps,
-    ActionSignAndroidApplicationArgs
+    ActionSignAndroidApplicationArgs,
+    SignAndroidApplication
 } from './sign-android-application';
-import { ActionSignBundleState, ActionSignBundleProps, ActionSignBundleArgs } from './sign-bundle';
-import { ActionSlackNotificationState, ActionSlackNotificationProps, ActionSlackNotificationArgs } from './slack-notification';
-import { ActionSleepState, ActionSleepProps, ActionSleepArgs } from './sleep';
-import { ActionSmsNotificationState, ActionSmsNotificationProps, ActionSmsNotificationArgs } from './sms-notification';
-import { ActionSplitTestsState, ActionSplitTestsProps, ActionSplitTestsArgs } from './split-tests';
-import { ActionSSHCommandState, ActionSSHCommandProps, ActionSSHCommandArgs } from './ssh-command';
-import { ActionTCPMonitoringState, ActionTCPMonitoringProps, ActionTCPMonitoringArgs } from './tcp-monitoring';
-import { ActionTelegramNotificationState, ActionTelegramNotificationProps, ActionTelegramNotificationArgs } from './telegram-notification';
+import { ActionSignBundleState, ActionSignBundleProps, ActionSignBundleArgs, SignBundle } from './sign-bundle';
+import {
+    ActionSlackNotificationState,
+    ActionSlackNotificationProps,
+    ActionSlackNotificationArgs,
+    SlackNotification
+} from './slack-notification';
+import { ActionSleepState, ActionSleepProps, ActionSleepArgs, Sleep } from './sleep';
+import { ActionSmsNotificationState, ActionSmsNotificationProps, ActionSmsNotificationArgs, SmsNotification } from './sms-notification';
+import { ActionSplitTestsState, ActionSplitTestsProps, ActionSplitTestsArgs, SplitTests } from './split-tests';
+import { ActionSSHCommandState, ActionSSHCommandProps, ActionSSHCommandArgs, SSHCommand } from './ssh-command';
+import { ActionTCPMonitoringState, ActionTCPMonitoringProps, ActionTCPMonitoringArgs, TCPMonitoring } from './tcp-monitoring';
+import {
+    ActionTelegramNotificationState,
+    ActionTelegramNotificationProps,
+    ActionTelegramNotificationArgs,
+    TelegramNotification
+} from './telegram-notification';
 import {
     ActionTriggerGoogleFunctionsState,
     ActionTriggerGoogleFunctionsProps,
-    ActionTriggerGoogleFunctionsArgs
+    ActionTriggerGoogleFunctionsArgs,
+    TriggerGoogleFunctions
 } from './trigger-google-functions';
-import { ActionUpcloudState, ActionUpcloudProps, ActionUpcloudArgs } from './upcloud';
-import { ActionVultrState, ActionVultrProps, ActionVultrArgs } from './vultr';
-import { ActionWaitForApplyState, ActionWaitForApplyProps, ActionWaitForApplyArgs } from './wait-for-apply';
-import { ActionWebMonitoringState, ActionWebMonitoringProps, ActionWebMonitoringArgs } from './web-monitoring';
-import { ActionWebDAVState, ActionWebDAVProps, ActionWebDAVArgs } from './webdav';
-import { ActionZIPState, ActionZIPProps, ActionZIPArgs } from './zip';
+import { ActionUpcloudState, ActionUpcloudProps, ActionUpcloudArgs, Upcloud } from './upcloud';
+import { ActionVultrState, ActionVultrProps, ActionVultrArgs, Vultr } from './vultr';
+import { ActionWaitForApplyState, ActionWaitForApplyProps, ActionWaitForApplyArgs, WaitForApply } from './wait-for-apply';
+import { ActionWebMonitoringState, ActionWebMonitoringProps, ActionWebMonitoringArgs, WebMonitoring } from './web-monitoring';
+import { ActionWebDAVState, ActionWebDAVProps, ActionWebDAVArgs, WebDAV } from './webdav';
+import { ActionZIPState, ActionZIPProps, ActionZIPArgs, ZIP } from './zip';
 
 export * from './amazon-s3';
 export * from './aws-cli';
@@ -510,3 +614,98 @@ export type ActionProps =
     | ActionWebMonitoringProps
     | ActionWebDAVProps
     | ActionZIPProps;
+export type Action =
+    | AmazonS3
+    | AWSCLI
+    | AWSECS
+    | AWSLambdaDeploy
+    | AWSLambda
+    | Azure
+    | Bugsnag
+    | BuildAndroidApp
+    | BuildDockerfile
+    | BuildFlutterApp
+    | Build
+    | Cloudflare
+    | CloudFront
+    | CodeDeploy
+    | CompressImages
+    | CopyFilesFromAnotherPipeline
+    | DatadogNotification
+    | DatadogServiceCheck
+    | DigitalOceanCDN
+    | DigitalOceanSpaces
+    | DigitalOcean
+    | DiscordNotification
+    | DockerfileLinter
+    | DownloadFTP
+    | DownloadS3
+    | DownloadSFTP
+    | ElasticBeanstalkMonitor
+    | ElasticBeanstalk
+    | EmailNotification
+    | Eslint
+    | Firebase
+    | FTP
+    | FTPS
+    | GCloudCLI
+    | GhostInspector
+    | GitPush
+    | GitcryptLock
+    | GitcryptUnlock
+    | GKEApplyDeployment
+    | GKEKubectl
+    | GKERunJob
+    | GKERunPod
+    | GKESetImage
+    | GoogleAppEngine
+    | GoogleCDN
+    | GoogleCloudStorage
+    | GoogleComputeEngine
+    | GoogleFunctionsDeploy
+    | HerokuCLI
+    | Heroku
+    | Honeybadger
+    | HTTPRequest
+    | KubernetesApplyDeploymentConfiguration
+    | KubernetesKubectl
+    | KubernetesRunHelmCMDs
+    | KubernetesRunPod
+    | KubernetesSetImage
+    | Lighthouse
+    | Loggly
+    | Netlify
+    | NewRelicNotification
+    | PassArguments
+    | PingMonitoring
+    | PublishAndroidApplication
+    | PublishBundleToGooglePlay
+    | PushDockerImage
+    | Pushbullet
+    | Pushover
+    | Rackspace
+    | Raygun
+    | Replace
+    | RollbarNotification
+    | Rsync
+    | RunDockerContainer
+    | RunNextPipeline
+    | SentryNotification
+    | SFTP
+    | Shopify
+    | SignAndroidApplication
+    | SignBundle
+    | SlackNotification
+    | Sleep
+    | SmsNotification
+    | SplitTests
+    | SSHCommand
+    | TCPMonitoring
+    | TelegramNotification
+    | TriggerGoogleFunctions
+    | Upcloud
+    | Vultr
+    | WaitForApply
+    | WebMonitoring
+    | WebDAV
+    | ZIP;
