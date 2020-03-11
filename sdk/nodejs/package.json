@@ -30,6 +30,6 @@
     },
     "pulumi": {
         "resource": true,
-        "server": "https://neoskop.github.io/pulumi-buddy"
+        "server": "https://pulumi.neoskop.cloud"
     }
 }
