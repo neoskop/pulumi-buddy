@@ -15,9 +15,8 @@
         "generate": "npm run generate:grpc-code && npm run generate:buddy-actions",
         "generate:grpc-code": "./bin/generate-grpc-code.sh",
         "generate:buddy-actions": "./bin/generate-buddy-actions.ts",
-        "prebundle": "./bin/build.sh",
-        "bundle": "ts-node bin/bundle.ts",
-        "postbundle": "./bin/publish.sh"
+        "bundle": "bin/bundle.js --no-publish",
+        "bundle-and-publish": "bin/bundle.js"
     },
     "dependencies": {
         "@grpc/proto-loader": "0.5.3",
@@ -34,6 +33,7 @@
         "yargs": "15.1.0"
     },
     "devDependencies": {
+        "@google-cloud/storage": "4.5.0",
         "@pulumi/sources": "git+https://github.com/pulumi/pulumi",
         "@types/chalk": "2.2.0",
         "@types/cheerio": "0.22.16",
@@ -49,6 +49,7 @@
         "chalk": "3.0.0",
         "cheerio": "1.0.0-rc.3",
         "concat-stream": "2.0.0",
+        "execa": "4.0.0",
         "fs-extra": "8.1.0",
         "jest": "25.1.0",
         "jest-circus": "25.1.0",

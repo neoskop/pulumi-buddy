@@ -16,5 +16,5 @@
         "emitDecoratorMetadata": true,
         "declaration": true
     },
-    "files": ["src/main.ts", "src/bin/plugin.ts"]
+    "include": ["src/main.ts", "src/bin/**/*.ts"]
 }
