@@ -23,7 +23,7 @@ $ npm install @neoskop/pulumi-buddy
 $ pulumi config set buddy:workspace myworkspace-name
 $ pulumi config set buddy:token myaccesstoken --secret
 # for Buddy On-Premise
-$ pulumi config set buddy:apiUrl https://my-buddy-server.com
+$ pulumi config set buddy:apiUrl https://my-buddy-server.com/api
 ```
 
 _See [here](https://buddy.works/docs/api/getting-started/oauth2/personal-access-token), how to create an access token._

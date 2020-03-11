@@ -2,7 +2,7 @@ import * as buddy from '@neoskop/pulumi-buddy';
 import * as pulumi from '@pulumi/pulumi';
 
 const provider = new buddy.Provider('buddy.neoskop.cloud', {
-    // apiUrl: 'https//your-buddy-on-premise-domain.tld',
+    // apiUrl: 'https//your-buddy-on-premise-domain.tld/api',
     // token: new pulumi.Config().requireSecret('buddyToken'),
     // workspace: 'your-domain'
 });
