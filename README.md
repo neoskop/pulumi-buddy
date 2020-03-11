@@ -8,20 +8,14 @@
 
 ## Project Structure
 
-This repository is a Yarn workspace and contains two submodules which integrate with each other:
+This repository uses [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/) and contains two submodules which integrate with each other:
 
-- The NodeJS SDK provides your Pulumi-based project with resources for Buddy ([README](./sdk/nodejs))
-- The Plugin provides a provider for Pulumi to provision infrastructure based on the SDK's described resources ([README](./modules/plugin))
+-   The NodeJS SDK provides your Pulumi-based project with resources for Buddy ([README](./sdk/nodejs))
+-   The Plugin provides a provider for Pulumi to provision infrastructure based on the SDK's described resources ([README](./modules/plugin))
 
-## Quickstart
+## Usage
 
-Install the Plugin and all dependencies.
-
-```
-$ yarn
-```
-
-Afterwards follow the [quickstart guide](./sdk/nodejs#quickstart) of the plugin.
+See [NodeJS SDK](./sdk/nodejs) for usage description.
 
 ## License
 
