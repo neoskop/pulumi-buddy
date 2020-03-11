@@ -31,46 +31,32 @@ _See [here](https://buddy.works/docs/api/getting-started/oauth2/personal-access-
 ```typescript
 import * as buddy from '@neoskop/pulumi-buddy';
 
-const provider = new buddy.Provider();
-
-const project1 = new buddy.Project(
-    'project1',
-    {
-        display_name: 'Project #1',
-        external_project_id: 'domain/repo',
-        integration: {
-            hash_id: 'integration_hash'
-        }
-    },
-    { provider }
-);
+const project1 = new buddy.Project('project1', {
+    display_name: 'Project #1',
+    external_project_id: 'domain/repo',
+    integration: {
+        hash_id: 'integration_hash'
+    }
+});
 
 export const project_name = project1.name;
 
-const pipeline = new buddy.Pipeline(
-    'pipeline1',
-    {
-        project_name: project1.name,
-        name: 'Pipeline #1',
-        ref_name: 'master',
-        trigger_mode: 'MANUAL'
-    },
-    { provider }
-);
+const pipeline = new buddy.Pipeline('pipeline1', {
+    project_name: project1.name,
+    name: 'Pipeline #1',
+    ref_name: 'master',
+    trigger_mode: 'MANUAL'
+});
 
-const action = new buddy.ActionRunDockerContainer(
-    'action1',
-    {
-        project_name: project1.name,
-        pipeline_id: pipeline.pipeline_id,
-        docker_image_name: 'ubuntu',
-        docker_image_tag: '19.10',
-        name: 'Action #1',
-        inline_commands: 'echo "Hello from @neoskop/pulumi-buddy"',
-        trigger_time: 'ON_EVERY_EXECUTION'
-    },
-    { provider }
-);
+const action = new buddy.ActionRunDockerContainer('action1', {
+    project_name: project1.name,
+    pipeline_id: pipeline.pipeline_id,
+    docker_image_name: 'ubuntu',
+    docker_image_tag: '19.10',
+    name: 'Action #1',
+    inline_commands: 'echo "Hello from @neoskop/pulumi-buddy"',
+    trigger_time: 'ON_EVERY_EXECUTION'
+});
 ```
 
 [More examples](https://github.com/neoskop/pulumi-buddy/tree/master/examples)

@@ -86,7 +86,7 @@ export class MainProvider implements IResourceProviderServer {
         const vars = request.getVariablesMap();
 
         this.setConfig({
-            apiUrl: vars.get('buddy:config:apiUrl')!,
+            apiUrl: vars.get('buddy:config:apiUrl') ?? 'https://api.buddy.works',
             workspace: vars.get('buddy:config:workspace')!,
             token: vars.get('buddy:config:token')!
         });
