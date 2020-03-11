@@ -14,7 +14,7 @@
         "test": "jest",
         "generate": "npm run generate:grpc-code && npm run generate:buddy-actions",
         "generate:grpc-code": "./bin/generate-grpc-code.sh",
-        "generate:buddy-actions": "./bin/generate-buddy-actions.ts",
+        "generate:buddy-actions": "./bin/generate-buddy-actions.js",
         "bundle": "bin/bundle.js --no-publish",
         "bundle-and-publish": "bin/bundle.js"
     },

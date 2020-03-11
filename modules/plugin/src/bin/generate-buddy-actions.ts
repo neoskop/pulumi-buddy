@@ -5,9 +5,9 @@ import * as Listr from 'listr';
 import * as Prettier from 'prettier';
 import * as chalk from 'chalk';
 
-import { BuddyCodegenActions } from '../src/buddy/codegen/actions';
-import { BuddyScraper, Action } from '../src/buddy/scraper';
-import { sleep } from '../src/utils/sleep';
+import { BuddyCodegenActions } from '../buddy/codegen/actions';
+import { BuddyScraper, Action } from '../buddy/scraper';
+import { sleep } from '../utils/sleep';
 import { share, map, toArray } from 'rxjs/operators';
 
 async function main() {
@@ -23,22 +23,17 @@ async function main() {
                 const scraper = new BuddyScraper({
                     patchParameter(action, param) {
                         if (param.name === 'integration' && (!('ref' in param.type) || param.type.ref !== 'Integration')) {
-                            scraper.warnings.push(`Patch parameter "${param.name}" for action "${action}"`);
                             return {
                                 ...param,
                                 type: { ref: 'Integration' }
                             };
                         }
-                        // switch(action.toLowerCase()) {
-                        //     case 'slack notification':
-                        //         if(param.name === 'integration') {
-                        //             scraper.warnings.push(`Patch parameter "${param.name}" for action "${action}"`);
-                        //             return {
-                        //                 ...param,
-                        //                 type: { ref: 'Integration' }
-                        //             }
-                        //         }
-                        // }
+                        if (param.name === 'trigger_time' && !param.required) {
+                            return {
+                                ...param,
+                                required: true
+                            };
+                        }
                         return;
                     }
                 });
@@ -55,7 +50,7 @@ async function main() {
         {
             title: 'Prepare',
             async task(ctx) {
-                const targetDir = (ctx.targetDir = path.join(__dirname, '../../../sdk/nodejs/actions'));
+                const targetDir = (ctx.targetDir = path.join(__dirname, '../../../../sdk/nodejs/actions'));
 
                 if (await fs.pathExists(targetDir)) {
                     await fs.remove(targetDir);
@@ -91,7 +86,7 @@ async function main() {
                     const p = Math.round((i++ / ctx.actions.length) * 100);
                     task.output = `${p}% ${file.getBaseName()}`;
                     let code = file.getFullText();
-                    code = Prettier.format(code, { ...require('../../../package').prettier, parser: 'typescript' });
+                    code = Prettier.format(code, { ...require('../../../../package').prettier, parser: 'typescript' });
                     await fs.writeFile(path.join(ctx.targetDir, file.getBaseName()), code);
                     await sleep(1);
                 }

@@ -39,6 +39,83 @@ export class BuddyScraper {
         } = {}
     ) {}
 
+    protected patchAction(action: Readonly<Action>): Action {
+        if (this.options.patchAction) {
+            const result = this.options.patchAction(action);
+
+            if (result) {
+                const diff = this.diff(action, result);
+
+                if (diff.length) {
+                    this.warnings.push(`Patch actions "${action.name}" (${diff.join(',')})"`);
+
+                    return result;
+                }
+            }
+        }
+        return action;
+    }
+
+    protected patchParameter(actionName: string, parameter: Readonly<ActionParameter>): ActionParameter {
+        if (this.options.patchParameter) {
+            const result = this.options.patchParameter(actionName, parameter);
+
+            if (result) {
+                const diff = this.diff(parameter, result);
+
+                if (diff.length) {
+                    this.warnings.push(`Patch parameter "${parameter.name}" for action "${actionName}" (${diff.join(',')})"`);
+
+                    return result;
+                }
+            }
+        }
+        return parameter;
+    }
+
+    protected diff<T extends Action | ActionParameter>(olds: T, news: T): string[] {
+        const changes: string[] = [];
+
+        const oldKeys = Object.keys(olds) as (keyof T)[];
+        const newKeys = Object.keys(news) as (keyof T)[];
+
+        for (const key of oldKeys) {
+            if (undefined === news[key]) {
+                changes.push(`-${key}`);
+            }
+            if ('parameters' !== key && JSON.stringify(olds[key]) !== JSON.stringify(news[key])) {
+                changes.push(`~${key}`);
+            }
+        }
+
+        for (const key of newKeys) {
+            if (undefined === olds[key]) {
+                changes.push(`+${key}`);
+            }
+        }
+
+        if ('parameters' in olds) {
+            for (const oldParam of (olds as Action).parameters) {
+                const newParam = (news as Action).parameters.find(p => p.name === oldParam.name);
+
+                if (!newParam) {
+                    changes.push(`-parameters[${oldParam.name}]`);
+                } else if (JSON.stringify(oldParam) !== JSON.stringify(newParam)) {
+                    changes.push(`~parameters[${oldParam.name}]`);
+                }
+            }
+
+            for (const newParam of (news as Action).parameters) {
+                const oldParam = (olds as Action).parameters.find(p => p.name === newParam.name);
+                if (!oldParam) {
+                    changes.push(`+parameters[${newParam.name}]`);
+                }
+            }
+        }
+
+        return changes;
+    }
+
     async getActionDetailUrls(): Promise<string[]> {
         const response = await Axios.get<string>(`${this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL}${BuddyScraper.ROOT_PAGE}`);
         const $ = cheerio.load(response.data);
@@ -146,7 +223,7 @@ export class BuddyScraper {
                 return first;
             })
             .map(action => {
-                return this.options?.patchParameter?.(actionName, action) || action;
+                return this.patchParameter(actionName, action) || action;
             });
     }
 
@@ -160,7 +237,7 @@ export class BuddyScraper {
         const type = (parameters.find(p => p.name === 'type')!.type as ParamaterTypeText).text[0];
         const action = { name, type, parameters: this.mergeParameters(name, await this.getDefaultParameters(), parameters) };
 
-        return this.options?.patchAction?.(action) || action;
+        return this.patchAction(action) || action;
     }
 
     getActions(): Promise<Action[]> {
