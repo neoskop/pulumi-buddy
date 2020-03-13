@@ -48,7 +48,7 @@ const pipeline = new buddy.Pipeline('pipeline1', {
     trigger_mode: 'MANUAL'
 });
 
-const action = new buddy.ActionRunDockerContainer('action1', {
+const action = new buddy.actions.RunDockerContainer('action1', {
     project_name: project1.name,
     pipeline_id: pipeline.pipeline_id,
     docker_image_name: 'ubuntu',
