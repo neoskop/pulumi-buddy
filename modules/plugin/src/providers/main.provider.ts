@@ -105,12 +105,6 @@ export class MainProvider implements IResourceProviderServer {
 
         const failures: CheckFailure[] = [];
 
-        if (!news || !news.apiUrl) {
-            const failure = new CheckFailure();
-            failure.setProperty('apiUrl');
-            failure.setReason('apiUrl arg is missing');
-            failures.push(failure);
-        }
         if (!news || !news.workspace) {
             const failure = new CheckFailure();
             failure.setProperty('workspace');
