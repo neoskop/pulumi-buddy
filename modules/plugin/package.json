@@ -1,7 +1,7 @@
 {
     "name": "@neoskop/pulumi-buddy-plugin",
     "description": "A Pulumi integration for Buddy",
-    "version": "0.1.0-rc.5",
+    "version": "0.1.0-rc.6",
     "repository": "https://github.com/neoskop/pulumi-buddy",
     "author": "Mark Wecke <wecke@neoskop.de>",
     "license": "MIT",
@@ -20,7 +20,7 @@
     },
     "dependencies": {
         "@grpc/proto-loader": "0.5.3",
-        "@neoskop/pulumi-buddy": "0.1.0-rc.5",
+        "@neoskop/pulumi-buddy": "0.1.0-rc.6",
         "@pulumi/pulumi": "^1.0.0",
         "axios": "0.19.2",
         "debug": "4.1.1",
