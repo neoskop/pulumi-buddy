@@ -94,10 +94,6 @@ export class Project extends CustomResource implements AsOutputs<ProjectProps> {
                 if (!args.external_project_id) {
                     throw new Error('Missing required property "external_project_id"');
                 }
-            } else {
-                if (!args.name) {
-                    throw new Error('Missing required property "name"');
-                }
             }
             inputs['name'] = args?.name;
             inputs['display_name'] = args?.display_name;
