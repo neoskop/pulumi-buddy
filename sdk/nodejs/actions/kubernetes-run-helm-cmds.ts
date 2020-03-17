@@ -1,4 +1,4 @@
-import { AsInputs } from '../utils';
+import { AsInputs } from '@neoskop/pulumi-utils-sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
@@ -55,6 +55,11 @@ export interface ActionKubernetesRunHelmCMDsState {
      * The host for the connection.
      */
     server: string;
+
+    /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
 
     /**
      * The ID of the GKE zone.
@@ -152,11 +157,6 @@ export interface ActionKubernetesRunHelmCMDsState {
     trigger_condition_paths?: string[];
 
     /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
      * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
      */
     trigger_variable_key?: string;
@@ -188,6 +188,7 @@ export interface ActionKubernetesRunHelmCMDsProps {
     integration_hash: string;
     name: string;
     server: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'HELM';
     zone_id: string;
     after_action_id?: number;
@@ -208,7 +209,6 @@ export interface ActionKubernetesRunHelmCMDsProps {
     token?: string;
     trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
     trigger_condition_paths?: string[];
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
@@ -248,6 +248,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
     integration_hash!: Output<string>;
     name!: Output<string>;
     server!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'HELM'>;
     zone_id!: Output<string>;
     after_action_id!: Output<number | undefined>;
@@ -268,7 +269,6 @@ export class KubernetesRunHelmCMDs extends CustomResource {
     token!: Output<string | undefined>;
     trigger_condition!: Output<'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS' | undefined>;
     trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
@@ -297,6 +297,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['integration_hash'] = state?.integration_hash;
             inputs['name'] = state?.name;
             inputs['server'] = state?.server;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['zone_id'] = state?.zone_id;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['client_ca'] = state?.client_ca;
@@ -316,7 +317,6 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['token'] = state?.token;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_time'] = state?.trigger_time;
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
@@ -370,12 +370,12 @@ export class KubernetesRunHelmCMDs extends CustomResource {
                 throw new Error('Missing required property "server"');
             }
 
-            if (!args?.zone_id) {
-                throw new Error('Missing required property "zone_id"');
-            }
-
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
+            }
+
+            if (!args?.zone_id) {
+                throw new Error('Missing required property "zone_id"');
             }
 
             inputs['action'] = args.action;
@@ -388,6 +388,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['integration_hash'] = args.integration_hash;
             inputs['name'] = args.name;
             inputs['server'] = args.server;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['zone_id'] = args.zone_id;
             inputs['after_action_id'] = args.after_action_id;
             inputs['client_ca'] = args.client_ca;
@@ -407,7 +408,6 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['token'] = args.token;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_time'] = args.trigger_time;
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;

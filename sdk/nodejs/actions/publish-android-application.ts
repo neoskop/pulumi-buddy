@@ -1,4 +1,4 @@
-import { AsInputs } from '../utils';
+import { AsInputs } from '@neoskop/pulumi-utils-sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { APKs, Variable } from '../common';
@@ -30,6 +30,11 @@ export interface ActionPublishAndroidApplicationState {
      * The track type to read or modify. Can be one of `production`, `alpha`, `beta`, `rollout`, `internal`.
      */
     track: string;
+
+    /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -82,11 +87,6 @@ export interface ActionPublishAndroidApplicationState {
     trigger_condition_paths?: string[];
 
     /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
      * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
      */
     trigger_variable_key?: string;
@@ -118,6 +118,7 @@ export interface ActionPublishAndroidApplicationProps {
     key_path: string;
     name: string;
     track: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'ANDROID_PLAY';
     after_action_id?: number;
     changes_path?: string;
@@ -129,7 +130,6 @@ export interface ActionPublishAndroidApplicationProps {
     timeout?: number;
     trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
     trigger_condition_paths?: string[];
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     user_fraction?: number;
@@ -165,6 +165,7 @@ export class PublishAndroidApplication extends CustomResource {
     key_path!: Output<string>;
     name!: Output<string>;
     track!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'ANDROID_PLAY'>;
     after_action_id!: Output<number | undefined>;
     changes_path!: Output<string | undefined>;
@@ -176,7 +177,6 @@ export class PublishAndroidApplication extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS' | undefined>;
     trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     user_fraction!: Output<number | undefined>;
@@ -201,6 +201,7 @@ export class PublishAndroidApplication extends CustomResource {
             inputs['key_path'] = state?.key_path;
             inputs['name'] = state?.name;
             inputs['track'] = state?.track;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['changes_path'] = state?.changes_path;
             inputs['disabled'] = state?.disabled;
@@ -211,7 +212,6 @@ export class PublishAndroidApplication extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_time'] = state?.trigger_time;
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['user_fraction'] = state?.user_fraction;
@@ -255,6 +255,7 @@ export class PublishAndroidApplication extends CustomResource {
             inputs['key_path'] = args.key_path;
             inputs['name'] = args.name;
             inputs['track'] = args.track;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['changes_path'] = args.changes_path;
             inputs['disabled'] = args.disabled;
@@ -265,7 +266,6 @@ export class PublishAndroidApplication extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_time'] = args.trigger_time;
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['user_fraction'] = args.user_fraction;

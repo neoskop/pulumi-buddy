@@ -1,4 +1,4 @@
-import { AsInputs } from '../utils';
+import { AsInputs } from '@neoskop/pulumi-utils-sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { PipelineRef, Variable } from '../common';
@@ -20,6 +20,11 @@ export interface ActionRunNextPipelineState {
      * Can be one of `HEAD` or `INHERIT`.
      */
     revision: 'HEAD' | 'INHERIT';
+
+    /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -62,11 +67,6 @@ export interface ActionRunNextPipelineState {
     trigger_condition_paths?: string[];
 
     /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
      * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
      */
     trigger_variable_key?: string;
@@ -91,6 +91,7 @@ export interface ActionRunNextPipelineProps {
     name: string;
     next_pipeline: PipelineRef;
     revision: 'HEAD' | 'INHERIT';
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'RUN_NEXT_PIPELINE';
     after_action_id?: number;
     comment?: string;
@@ -100,7 +101,6 @@ export interface ActionRunNextPipelineProps {
     timeout?: number;
     trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
     trigger_condition_paths?: string[];
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
@@ -133,6 +133,7 @@ export class RunNextPipeline extends CustomResource {
     name!: Output<string>;
     next_pipeline!: Output<PipelineRef>;
     revision!: Output<'HEAD' | 'INHERIT'>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'RUN_NEXT_PIPELINE'>;
     after_action_id!: Output<number | undefined>;
     comment!: Output<string | undefined>;
@@ -142,7 +143,6 @@ export class RunNextPipeline extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS' | undefined>;
     trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
@@ -160,6 +160,7 @@ export class RunNextPipeline extends CustomResource {
             inputs['name'] = state?.name;
             inputs['next_pipeline'] = state?.next_pipeline;
             inputs['revision'] = state?.revision;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['comment'] = state?.comment;
             inputs['disabled'] = state?.disabled;
@@ -168,7 +169,6 @@ export class RunNextPipeline extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_time'] = state?.trigger_time;
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
@@ -201,6 +201,7 @@ export class RunNextPipeline extends CustomResource {
             inputs['name'] = args.name;
             inputs['next_pipeline'] = args.next_pipeline;
             inputs['revision'] = args.revision;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['comment'] = args.comment;
             inputs['disabled'] = args.disabled;
@@ -209,7 +210,6 @@ export class RunNextPipeline extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_time'] = args.trigger_time;
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;

@@ -1,4 +1,4 @@
-import { AsInputs } from '../utils';
+import { AsInputs } from '@neoskop/pulumi-utils-sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
@@ -20,6 +20,11 @@ export interface ActionAmazonS3State {
      * The name of the action.
      */
     name: string;
+
+    /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
 
     /**
      * Access control lists (ACLs) enable you to manage access to buckets and objects. It defines which AWS accounts or groups are granted access and the type of access. Can be one of `PRIVATE` , `PUBLIC_READ`, `AWS-EXEC-READ`, `AUTHENTICATED_READ`, `BUCKET_ONWER_READ`, `BUCKET_OWNER_FULL_CONTROL` or `LOG_DELIVERY_WRITE`.
@@ -114,11 +119,6 @@ export interface ActionAmazonS3State {
     trigger_condition_paths?: string[];
 
     /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
      * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
      */
     trigger_variable_key?: string;
@@ -143,6 +143,7 @@ export interface ActionAmazonS3Props {
     bucket_name: string;
     integration: IntegrationRef;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'AMAZON_S3';
     acl?:
         | 'PRIVATE'
@@ -168,7 +169,6 @@ export interface ActionAmazonS3Props {
     timeout?: number;
     trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
     trigger_condition_paths?: string[];
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
@@ -201,6 +201,7 @@ export class AmazonS3 extends CustomResource {
     bucket_name!: Output<string>;
     integration!: Output<IntegrationRef>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'AMAZON_S3'>;
     acl!: Output<
         | 'PRIVATE'
@@ -228,7 +229,6 @@ export class AmazonS3 extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS' | undefined>;
     trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
@@ -246,6 +246,7 @@ export class AmazonS3 extends CustomResource {
             inputs['bucket_name'] = state?.bucket_name;
             inputs['integration'] = state?.integration;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['acl'] = state?.acl;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['cache_control'] = state?.cache_control;
@@ -263,7 +264,6 @@ export class AmazonS3 extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_time'] = state?.trigger_time;
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
@@ -296,6 +296,7 @@ export class AmazonS3 extends CustomResource {
             inputs['bucket_name'] = args.bucket_name;
             inputs['integration'] = args.integration;
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['acl'] = args.acl;
             inputs['after_action_id'] = args.after_action_id;
             inputs['cache_control'] = args.cache_control;
@@ -313,7 +314,6 @@ export class AmazonS3 extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_time'] = args.trigger_time;
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;

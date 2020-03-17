@@ -1,4 +1,4 @@
-import { AsInputs } from '../utils';
+import { AsInputs } from '@neoskop/pulumi-utils-sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
@@ -30,6 +30,11 @@ export interface ActionVultrState {
      * The port for the connection.
      */
     port: string;
+
+    /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -97,11 +102,6 @@ export interface ActionVultrState {
     trigger_condition_paths?: string[];
 
     /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
      * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
      */
     trigger_variable_key?: string;
@@ -128,6 +128,7 @@ export interface ActionVultrProps {
     login: string;
     name: string;
     port: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'VULTR';
     after_action_id?: number;
     deployment_excludes?: string[];
@@ -142,7 +143,6 @@ export interface ActionVultrProps {
     timeout?: number;
     trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
     trigger_condition_paths?: string[];
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
@@ -177,6 +177,7 @@ export class Vultr extends CustomResource {
     login!: Output<string>;
     name!: Output<string>;
     port!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'VULTR'>;
     after_action_id!: Output<number | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
@@ -191,7 +192,6 @@ export class Vultr extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS' | undefined>;
     trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
@@ -211,6 +211,7 @@ export class Vultr extends CustomResource {
             inputs['login'] = state?.login;
             inputs['name'] = state?.name;
             inputs['port'] = state?.port;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
@@ -224,7 +225,6 @@ export class Vultr extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_time'] = state?.trigger_time;
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
@@ -267,6 +267,7 @@ export class Vultr extends CustomResource {
             inputs['login'] = args.login;
             inputs['name'] = args.name;
             inputs['port'] = args.port;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
@@ -280,7 +281,6 @@ export class Vultr extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_time'] = args.trigger_time;
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;

@@ -1,6 +1,6 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
 import { invoke } from '@pulumi/pulumi/runtime';
-import { AsInputs, AsOutputs } from './utils';
+import { AsInputs, AsOutputs } from '@neoskop/pulumi-utils-sdk';
 
 export interface IntegrationState {
     name: string;

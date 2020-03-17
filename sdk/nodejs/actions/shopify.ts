@@ -1,4 +1,4 @@
-import { AsInputs } from '../utils';
+import { AsInputs } from '@neoskop/pulumi-utils-sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
@@ -25,6 +25,11 @@ export interface ActionShopifyState {
      * The name of the Shopify theme.
      */
     theme_name: string;
+
+    /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -77,11 +82,6 @@ export interface ActionShopifyState {
     trigger_condition_paths?: string[];
 
     /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
      * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
      */
     trigger_variable_key?: string;
@@ -107,6 +107,7 @@ export interface ActionShopifyProps {
     name: string;
     theme: number;
     theme_name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SHOPIFY';
     after_action_id?: number;
     deployment_excludes?: string[];
@@ -118,7 +119,6 @@ export interface ActionShopifyProps {
     timeout?: number;
     trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
     trigger_condition_paths?: string[];
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
@@ -152,6 +152,7 @@ export class Shopify extends CustomResource {
     name!: Output<string>;
     theme!: Output<number>;
     theme_name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SHOPIFY'>;
     after_action_id!: Output<number | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
@@ -163,7 +164,6 @@ export class Shopify extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS' | undefined>;
     trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
@@ -182,6 +182,7 @@ export class Shopify extends CustomResource {
             inputs['name'] = state?.name;
             inputs['theme'] = state?.theme;
             inputs['theme_name'] = state?.theme_name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
@@ -192,7 +193,6 @@ export class Shopify extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_time'] = state?.trigger_time;
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
@@ -230,6 +230,7 @@ export class Shopify extends CustomResource {
             inputs['name'] = args.name;
             inputs['theme'] = args.theme;
             inputs['theme_name'] = args.theme_name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
@@ -240,7 +241,6 @@ export class Shopify extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_time'] = args.trigger_time;
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;

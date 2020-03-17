@@ -62,7 +62,7 @@ async function main() {
             title: 'Generate Actions',
             async task(ctx, task) {
                 const codegen = (ctx.codegen = new BuddyCodegenActions({
-                    utilsImport: '../utils',
+                    utilsImport: '@neoskop/pulumi-utils-sdk',
                     pipelineImport: '../pipeline',
                     commonImport: '../common'
                 }));

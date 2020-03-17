@@ -1,5 +1,5 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
-import { AsInputs, AsOutputs } from './utils';
+import { AsInputs, AsOutputs } from '@neoskop/pulumi-utils-sdk';
 
 export type PipelineAccessLevel = 'DENIED' | 'READ_ONLY' | 'RUN_ONLY' | 'READ_WRITE';
 export type RepositoryAccessLevel = 'DENIED' | 'READ_ONLY' | 'READ_WRITE';

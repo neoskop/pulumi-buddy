@@ -1,6 +1,6 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
 import { ProjectProps } from './project';
-import { AsInputs, AsOutputs } from './utils';
+import { AsInputs, AsOutputs } from '@neoskop/pulumi-utils-sdk';
 
 export type WebhookEvent = 'PUSH' | 'EXECUTION_STARTED' | 'EXECUTION_SUCCESSFUL' | 'EXECUTION_FAILED' | 'EXECUTION_FINISHED';
 
