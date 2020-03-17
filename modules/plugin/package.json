@@ -30,7 +30,7 @@
         "protobufjs": "6.8.8",
         "reflect-metadata": "0.1.13",
         "tslib": "1.11.0",
-        "yargs": "15.1.0"
+        "yargs": "15.3.0"
     },
     "devDependencies": {
         "@pulumi/sources": "git+https://github.com/pulumi/pulumi",
