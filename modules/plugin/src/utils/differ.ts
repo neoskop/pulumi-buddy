@@ -1,4 +1,4 @@
-import { DiffResponse, PropertyDiff } from '../grpc/provider_pb';
+import { DiffResponse, PropertyDiff } from '@neoskop/pulumi-utils-grpc';
 
 export class Differ<T, P> {
     protected readonly response = new DiffResponse();
@@ -29,11 +29,11 @@ export class Differ<T, P> {
         propKey?: string | string[] | null,
         triggerReplacement?: boolean
     ): this {
-        if(!Array.isArray(key)) {
-            key = [ key ];
+        if (!Array.isArray(key)) {
+            key = [key];
         }
-        if(propKey != null && !Array.isArray(propKey)) {
-            propKey = [ propKey ];
+        if (propKey != null && !Array.isArray(propKey)) {
+            propKey = [propKey];
         }
 
         const oldValue = JSON.stringify(this.resolveValue(this.olds, key));
@@ -41,7 +41,7 @@ export class Differ<T, P> {
         const propValue = propKey ? JSON.stringify(this.resolveValue(this.props, propKey)) : undefined;
         if (oldValue !== newValue) {
             this.addDiff(oldValue, newValue, key[0], !!triggerReplacement, true);
-        } else if(propKey && propValue != null && newValue != null && newValue !== propValue) {
+        } else if (propKey && propValue != null && newValue != null && newValue !== propValue) {
             this.addDiff(propValue, newValue, key[0], !!triggerReplacement, false);
         }
 
@@ -57,7 +57,13 @@ export class Differ<T, P> {
         }, obj);
     }
 
-    protected addDiff(oldValue: string | undefined, newValue: string | undefined, key: string, triggerReplacement: boolean, inputDiff: boolean) {
+    protected addDiff(
+        oldValue: string | undefined,
+        newValue: string | undefined,
+        key: string,
+        triggerReplacement: boolean,
+        inputDiff: boolean
+    ) {
         this.hasChanged = true;
         const diff = new PropertyDiff();
         if (triggerReplacement) {
@@ -83,6 +89,6 @@ export class Differ<T, P> {
         } else {
             this.response.setChanges(DiffResponse.DiffChanges.DIFF_SOME);
         }
-        return  this.response;
+        return this.response;
     }
 }

@@ -7,20 +7,21 @@
     "license": "MIT",
     "bin": "dist/main.js",
     "scripts": {
-        "install-plugin": "bin/install-plugin.js || true",
+        "install-plugin": "bin/install-plugin.js",
         "build": "tsc",
-        "postbuild": "cp -r src/grpc dist/grpc",
         "watch": "tsc -w",
         "test": "jest",
         "generate": "npm run generate:grpc-code && npm run generate:buddy-actions",
         "generate:grpc-code": "./bin/generate-grpc-code.sh",
         "generate:buddy-actions": "./bin/generate-buddy-actions.js",
         "bundle": "bin/bundle.js --no-publish",
-        "bundle-and-publish": "bin/bundle.js"
+        "bundle-and-publish": "bin/bundle.js",
+        "postinstall": "rm -rf node_modules/injection-js"
     },
     "dependencies": {
         "@grpc/proto-loader": "0.5.3",
         "@neoskop/pulumi-buddy": "0.1.0-rc.6",
+        "@neoskop/pulumi-utils-plugin": "0.1.0-rc.3",
         "@pulumi/pulumi": "^1.0.0",
         "axios": "0.19.2",
         "debug": "4.1.1",
@@ -56,6 +57,7 @@
         "jest-spec-reporter": "1.0.12",
         "listr": "0.14.3",
         "pkg": "4.4.4",
+        "postinstall-postinstall": "2.1.0",
         "prettier": "1.19.1",
         "rxjs": "6.5.4",
         "tar": "6.0.1",

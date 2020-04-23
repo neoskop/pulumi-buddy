@@ -1,12 +1,4 @@
 import { EnvironmentVariableProps, EnvironmentVariableState } from '@neoskop/pulumi-buddy';
-import Axios from 'axios';
-import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
-import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
-import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
-import { Injectable } from 'injection-js';
-import { BuddyApi } from '../buddy/api/api';
-import { EnvironmentVariableNotFound } from '../buddy/api/environment-variable';
-import { ServiceError } from '../errors/service.error';
 import {
     CheckRequest,
     CheckResponse,
@@ -19,207 +11,176 @@ import {
     ReadResponse,
     UpdateRequest,
     UpdateResponse
-} from '../grpc/provider_pb';
-import { deleteUndefined } from '../utils/delete-undefined';
+} from '@neoskop/pulumi-utils-grpc';
+import { Configuration, IProvider, Struct } from '@neoskop/pulumi-utils-plugin';
+import Axios from 'axios';
+import { ServerUnaryCall, status } from 'grpc';
+import { Injectable } from 'injection-js';
+
+import { BuddyApi } from '../buddy/api/api';
+import { EnvironmentVariableNotFound } from '../buddy/api/environment-variable';
+import { ServiceError } from '../errors/service.error';
 import { Differ } from '../utils/differ';
-import { IProviderConfig, Kind, SubProvider } from './main.provider';
+import { Kind } from './kind';
 
 @Injectable()
-export class EnvironmentVariableProvider implements SubProvider {
+export class EnvironmentVariableProvider implements IProvider {
     readonly kind = Kind.EnvironmentVariable;
-
-    config?: IProviderConfig;
 
     protected readonly olds = new Map<string, EnvironmentVariableState>();
 
-    constructor(protected readonly buddyApi: BuddyApi) {}
+    constructor(protected readonly buddyApi: BuddyApi, protected readonly configuration: Configuration) {}
 
-    setConfig(config: IProviderConfig) {
-        this.config = config;
-    }
-
-    check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
+    check({ request }: ServerUnaryCall<CheckRequest>): CheckResponse {
         const olds = (request.getOlds()!.toJavaScript() as unknown) as EnvironmentVariableState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
         const checkResponse = new CheckResponse();
         checkResponse.setInputs(Struct.fromJavaScript(news));
-        callback(null, checkResponse);
+
+        return checkResponse;
     }
 
-    diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
+    diff(req: ServerUnaryCall<DiffRequest>): DiffResponse {
         const props = (req.request.getOlds()!.toJavaScript()! as unknown) as EnvironmentVariableProps;
         const news = (req.request.getNews()!.toJavaScript()! as unknown) as EnvironmentVariableState;
         const olds = this.olds.get(req.request.getUrn())!;
 
-        callback(
-            null,
-            new Differ(olds, news, props)
-                .diff('key', 'key')
-                .diff('value', props?.encrypted ? null : 'value')
-                .diff('description', 'description')
-                .diff('ssh_key', 'ssh_key')
-                .diff('settable', 'settable')
-                .diff('encrypted', 'encrypted')
-                .diff('project_name', null, true)
-                .diff('pipeline_id', null, true)
-                .diff('action_id', null, true)
-                .toResponse()
-        );
+        return new Differ(olds, news, props)
+            .diff('key', 'key')
+            .diff('value', props?.encrypted ? null : 'value')
+            .diff('description', 'description')
+            .diff('ssh_key', 'ssh_key')
+            .diff('settable', 'settable')
+            .diff('encrypted', 'encrypted')
+            .diff('project_name', null, true)
+            .diff('pipeline_id', null, true)
+            .diff('action_id', null, true)
+            .toResponse();
     }
 
-    create(req: ServerUnaryCall<CreateRequest>, callback: sendUnaryData<CreateResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
+    async create(req: ServerUnaryCall<CreateRequest>): Promise<CreateResponse> {
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as EnvironmentVariableState;
 
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .environmentVariable()
-            .create({
-                ...props,
-                project: props.project_name ? { name: props.project_name } : undefined,
-                pipeline: props.pipeline_id ? { id: props.pipeline_id } : undefined,
-                action: props.action_id ? { id: props.action_id } : undefined
-            })
-            .then(
-                outputs => {
-                    const response = new CreateResponse();
-                    response.setId(outputs.id.toString());
-                    response.setProperties(
-                        Struct.fromJavaScript(
-                            deleteUndefined({
-                                ...outputs,
-                                id: undefined!,
-                                variable_id: outputs.id
-                            })
-                        )
-                    );
+        try {
+            const outputs = await this.buddyApi
+                .workspace(this.configuration.require('workspace'))
+                .environmentVariable()
+                .create({
+                    ...props,
+                    project: props.project_name ? { name: props.project_name } : undefined,
+                    pipeline: props.pipeline_id ? { id: props.pipeline_id } : undefined,
+                    action: props.action_id ? { id: props.action_id } : undefined
+                });
 
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
+            const response = new CreateResponse();
+            response.setId(outputs.id.toString());
+            response.setProperties(
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined!,
+                    variable_id: outputs.id
+                } as any)
             );
+
+            return response;
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else {
+                throw new ServiceError(err.message, status.INTERNAL);
+            }
+        }
     }
 
-    read(req: ServerUnaryCall<ReadRequest>, callback: sendUnaryData<ReadResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
+    async read(req: ServerUnaryCall<ReadRequest>): Promise<ReadResponse> {
         const props = (req.request.getInputs()!.toJavaScript() as unknown) as EnvironmentVariableState;
         const id = +req.request.getId();
 
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .environmentVariable(id)
-            .read()
-            .then(
-                outputs => {
-                    const response = new ReadResponse();
-                    response.setId(req.request.getId());
-                    response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
-                    response.setProperties(
-                        Struct.fromJavaScript(
-                            deleteUndefined({
-                                ...outputs,
-                                id: undefined!,
-                                variable_id: outputs.id
-                            })
-                        )
-                    );
-
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof EnvironmentVariableNotFound) {
-                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
+        try {
+            const outputs = await this.buddyApi
+                .workspace(this.configuration.require('workspace'))
+                .environmentVariable(id)
+                .read();
+            const response = new ReadResponse();
+            response.setId(req.request.getId());
+            response.setInputs(Struct.fromJavaScript(props as any));
+            response.setProperties(
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined!,
+                    variable_id: outputs.id
+                } as any)
             );
+
+            return response;
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else if (err instanceof EnvironmentVariableNotFound) {
+                throw new ServiceError(err.message, status.NOT_FOUND);
+            } else {
+                throw new ServiceError(err.message, status.INTERNAL);
+            }
+        }
     }
 
-    update(req: ServerUnaryCall<UpdateRequest>, callback: sendUnaryData<UpdateResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
+    async update(req: ServerUnaryCall<UpdateRequest>): Promise<UpdateResponse> {
         const news = (req.request.getNews()!.toJavaScript() as unknown) as EnvironmentVariableState;
         const id = +req.request.getId();
 
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .environmentVariable(id)
-            .update({
-                ssh_key: false,
-                settable: false,
-                encrypted: false,
-                ...news
-            })
-            .then(
-                outputs => {
-                    const response = new UpdateResponse();
-                    response.setProperties(
-                        Struct.fromJavaScript(
-                            deleteUndefined({
-                                ...outputs,
-                                id: undefined!,
-                                variable_id: outputs.id
-                            })
-                        )
-                    );
+        try {
+            const outputs = await this.buddyApi
+                .workspace(this.configuration.require('workspace'))
+                .environmentVariable(id)
+                .update({
+                    ssh_key: false,
+                    settable: false,
+                    encrypted: false,
+                    ...news
+                });
 
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof EnvironmentVariableNotFound) {
-                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
+            const response = new UpdateResponse();
+            response.setProperties(
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined!,
+                    variable_id: outputs.id
+                } as any)
             );
+
+            return response;
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else if (err instanceof EnvironmentVariableNotFound) {
+                throw new ServiceError(err.message, status.NOT_FOUND);
+            } else {
+                throw new ServiceError(err.message, status.INTERNAL);
+            }
+        }
     }
 
-    delete(req: ServerUnaryCall<DeleteRequest>, callback: sendUnaryData<Empty>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
+    async delete(req: ServerUnaryCall<DeleteRequest>): Promise<void> {
         const id = +req.request.getId();
 
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .environmentVariable(id)
-            .delete()
-            .then(
-                () => {
-                    setTimeout(() => callback(null, new Empty()), 1000);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof EnvironmentVariableNotFound) {
-                        setTimeout(() => callback(null, new Empty()), 1000);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
-            );
+        try {
+            await this.buddyApi
+                .workspace(this.configuration.require('workspace'))
+                .environmentVariable(id)
+                .delete();
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else if (!(err instanceof EnvironmentVariableNotFound)) {
+                throw new ServiceError(err.message, status.INTERNAL);
+            }
+            // handle not found as deleted
+        }
+    }
+
+    cancel() {
+        this.buddyApi.cancel('environment-variable');
     }
 }
