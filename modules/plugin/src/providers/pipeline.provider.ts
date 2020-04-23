@@ -11,8 +11,8 @@ import {
     ReadResponse,
     UpdateRequest,
     UpdateResponse
-} from '@neoskop/pulumi-utils-grpc';
-import { Configuration, IProvider, ServiceError, Struct } from '@neoskop/pulumi-utils-plugin';
+} from '@pulumi-utils/grpc';
+import { Configuration, IProvider, ServiceError, Struct } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
@@ -119,7 +119,7 @@ export class PipelineProvider implements IProvider {
                     id: undefined!,
                     pipeline_id: outputs.id,
                     project_name: props.project_name
-                })
+                } as any)
             );
 
             return response;
@@ -152,7 +152,7 @@ export class PipelineProvider implements IProvider {
                     id: undefined!,
                     pipeline_id: outputs.id,
                     project_name: news.project_name
-                })
+                } as any)
             );
 
             return response;

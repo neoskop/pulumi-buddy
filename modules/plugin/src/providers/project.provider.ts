@@ -17,10 +17,10 @@ import {
     ReadResponse,
     UpdateRequest,
     UpdateResponse
-} from '@neoskop/pulumi-utils-grpc';
+} from '@pulumi-utils/grpc';
 import { Differ } from '../utils/differ';
 import { Kind } from './kind';
-import { IProvider, ServiceError, Struct, Configuration, Urn, sleep, uniqify } from '@neoskop/pulumi-utils-plugin';
+import { IProvider, ServiceError, Struct, Configuration, Urn, sleep, uniqify } from '@pulumi-utils/plugin';
 
 @Injectable()
 export class ProjectProvider implements IProvider {

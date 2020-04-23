@@ -11,8 +11,8 @@ import {
     ReadResponse,
     UpdateRequest,
     UpdateResponse
-} from '@neoskop/pulumi-utils-grpc';
-import { Configuration, IProvider } from '@neoskop/pulumi-utils-plugin';
+} from '@pulumi-utils/grpc';
+import { Configuration, IProvider } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { ServerUnaryCall, status } from 'grpc';
@@ -73,7 +73,7 @@ export class ProjectMemberBindingProvider implements IProvider {
                     ...outputs,
                     id: undefined!,
                     project_member_binding_id: id
-                } as any)
+                })
             );
 
             return response;
@@ -105,7 +105,7 @@ export class ProjectMemberBindingProvider implements IProvider {
                     ...outputs,
                     id: undefined!,
                     project_member_binding_id: req.request.getId()
-                } as any)
+                })
             );
 
             return response;

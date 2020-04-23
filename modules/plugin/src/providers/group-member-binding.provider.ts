@@ -10,8 +10,8 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest
-} from '@neoskop/pulumi-utils-grpc';
-import { Configuration, IProvider, Struct } from '@neoskop/pulumi-utils-plugin';
+} from '@pulumi-utils/grpc';
+import { Configuration, IProvider, Struct } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
@@ -69,7 +69,7 @@ export class GroupMemberBindingProvider implements IProvider {
                     ...outputs,
                     id: undefined!,
                     group_member_binding_id: id
-                } as any)
+                })
             );
 
             return response;
@@ -105,7 +105,7 @@ export class GroupMemberBindingProvider implements IProvider {
                     ...outputs,
                     id: undefined!,
                     group_member_binding_id: req.request.getId()
-                } as any)
+                })
             );
 
             return response;

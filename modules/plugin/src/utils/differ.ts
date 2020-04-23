@@ -1,4 +1,4 @@
-import { DiffResponse, PropertyDiff } from '@neoskop/pulumi-utils-grpc';
+import { DiffResponse, PropertyDiff } from '@pulumi-utils/grpc';
 
 export class Differ<T, P> {
     protected readonly response = new DiffResponse();

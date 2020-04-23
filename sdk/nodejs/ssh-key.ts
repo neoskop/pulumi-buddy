@@ -1,5 +1,5 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
-import { AsInputs, AsOutputs } from '@neoskop/pulumi-utils-sdk';
+import { AsInputs, AsOutputs } from '@pulumi-utils/sdk';
 
 export interface SshKeyState {
     content: string;

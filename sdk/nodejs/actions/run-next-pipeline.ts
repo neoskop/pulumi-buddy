@@ -1,4 +1,4 @@
-import { AsInputs } from '@neoskop/pulumi-utils-sdk';
+import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { PipelineRef, Variable } from '../common';

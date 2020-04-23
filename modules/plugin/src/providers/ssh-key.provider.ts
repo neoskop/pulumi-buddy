@@ -11,8 +11,8 @@ import {
     ReadResponse,
     UpdateRequest,
     UpdateResponse
-} from '@neoskop/pulumi-utils-grpc';
-import { Configuration, IProvider } from '@neoskop/pulumi-utils-plugin';
+} from '@pulumi-utils/grpc';
+import { Configuration, IProvider } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { ServerUnaryCall, status } from 'grpc';
@@ -68,7 +68,7 @@ export class SshKeyProvider implements IProvider {
                     ...outputs,
                     id: undefined!,
                     ssh_key_id: outputs.id
-                } as any)
+                })
             );
 
             return response;
@@ -96,7 +96,7 @@ export class SshKeyProvider implements IProvider {
                     ...outputs,
                     id: undefined!,
                     ssh_key_id: outputs.id
-                } as any)
+                })
             );
 
             return response;

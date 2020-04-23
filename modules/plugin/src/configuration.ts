@@ -1,5 +1,5 @@
-import { ConfigurationImpl, NAME, ACCEPT_SECRETS, CONFIGURATION_VALIDATOR, ConfigurationValidator } from '@neoskop/pulumi-utils-plugin';
-import { CheckRequest, CheckResponse, CheckFailure, ConfigureRequest, ConfigureResponse } from '@neoskop/pulumi-utils-grpc';
+import { ConfigurationImpl, NAME, ACCEPT_SECRETS, CONFIGURATION_VALIDATOR, ConfigurationValidator } from '@pulumi-utils/plugin';
+import { CheckRequest, CheckResponse, CheckFailure, ConfigureRequest, ConfigureResponse } from '@pulumi-utils/grpc';
 import { ServerUnaryCall } from 'grpc';
 import { Inject, Optional } from 'injection-js';
 import { BuddyApi } from './buddy/api/api';

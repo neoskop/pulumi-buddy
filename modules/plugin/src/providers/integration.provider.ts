@@ -11,8 +11,8 @@ import {
     ReadRequest,
     ReadResponse,
     UpdateRequest
-} from '@neoskop/pulumi-utils-grpc';
-import { IProvider, Struct } from '@neoskop/pulumi-utils-plugin';
+} from '@pulumi-utils/grpc';
+import { IProvider, Struct } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
@@ -42,7 +42,7 @@ export class IntegrationProvider implements IProvider {
                     response.setReturn(
                         Struct.fromJavaScript({
                             integrations
-                        })
+                        } as any)
                     );
                     return response;
                 }
@@ -80,7 +80,7 @@ export class IntegrationProvider implements IProvider {
         const id = req.request.getId();
 
         try {
-            const outputs = await this.buddyApi.integration(id as any).read();
+            const outputs = await this.buddyApi.integration(+id).read();
             const response = new ReadResponse();
             response.setId(req.request.getId());
             response.setProperties(
@@ -88,7 +88,7 @@ export class IntegrationProvider implements IProvider {
                     ...outputs,
                     id: undefined!,
                     integration_id: outputs.id
-                } as any)
+                })
             );
 
             return response;
