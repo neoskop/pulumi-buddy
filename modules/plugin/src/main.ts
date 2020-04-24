@@ -18,7 +18,7 @@ import { ProjectProvider } from './providers/project.provider';
 import { SshKeyProvider } from './providers/ssh-key.provider';
 import { WebhookProvider } from './providers/webhook.provider';
 
-export function main(args: string[]) {
+export function main(args: string[], { stdout }: { stdout?: false } = {}) {
     return serve(
         args,
         makeServer(
@@ -42,7 +42,8 @@ export function main(args: string[]) {
                 Configuration: BuddyConfiguration,
                 providers: [{ provide: BuddyApi, useValue: new BuddyApi() }]
             }
-        )
+        ),
+        { stdout }
     );
 }
 

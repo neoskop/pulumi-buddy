@@ -1,14 +1,14 @@
+import { ResourceProviderClient } from '@pulumi-utils/grpc';
+import { credentials, ServiceError } from 'grpc';
+
 import { main } from '../src/main';
-import { Server, credentials, ServiceError } from 'grpc';
-import { ResourceProviderClient } from '../src/grpc/provider_grpc_pb';
 
 export async function createServerAndClient() {
-    const injector = await main(['0.0.0.0:0'], { noPortEmit: true });
+    const { server, port } = await main(['0.0.0.0:0'], { stdout: false });
 
-    const server = injector.get(Server);
-    const client = new ResourceProviderClient(`127.0.0.1:${injector.get('PORT')}`, credentials.createInsecure());
+    const client = new ResourceProviderClient(`127.0.0.1:${port}`, credentials.createInsecure());
 
-    return { injector, server, client };
+    return { server, client };
 }
 
 export function makeCallback<T>() {

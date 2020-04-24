@@ -1,8 +1,8 @@
-import { Server } from 'grpc';
-import { createServerAndClient, makeCallback, sleep } from './utils';
-import { ResourceProviderClient } from '../src/grpc/provider_grpc_pb';
-import { CheckRequest, CheckResponse, DiffResponse, DiffRequest } from '../src/grpc/provider_pb';
+import { CheckRequest, CheckResponse, DiffRequest, DiffResponse, ResourceProviderClient } from '@pulumi-utils/grpc';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
+import { Server } from 'grpc';
+
+import { createServerAndClient, makeCallback } from './utils';
 
 describe('EnvironmentVariable', () => {
     let server!: Server;
