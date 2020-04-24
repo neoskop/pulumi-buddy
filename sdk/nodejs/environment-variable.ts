@@ -76,12 +76,6 @@ export class EnvironmentVariable extends CustomResource implements AsOutputs<Env
             if (!args || !args.value) {
                 throw new Error('Missing required property "value"');
             }
-            if (args.pipeline_id && !args.project_name) {
-                throw new Error('Missing required property "project_name"');
-            }
-            if (args.action_id && !args.pipeline_id) {
-                throw new Error('Missing required property "pipeline_id"');
-            }
             inputs['key'] = args.key;
             inputs['value'] = args.value;
             inputs['description'] = args.description;
