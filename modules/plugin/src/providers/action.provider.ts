@@ -72,7 +72,7 @@ export class ActionProvider implements IProvider {
             .pipeline(props.pipeline_id);
 
         try {
-            const outputs = await pipeline.action().create(props);
+            const outputs = await pipeline.action().create(props as any);
 
             const response = new CreateResponse();
             response.setId(outputs.id.toString());
