@@ -1,4 +1,4 @@
-import { PipelineProps, PipelineState } from '@neoskop/pulumi-buddy';
+import { PipelineProps, PipelineState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,

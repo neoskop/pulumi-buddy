@@ -1,4 +1,4 @@
-import { CustomProjectState, IntegrationProjectState, ProjectProps, ProjectState } from '@neoskop/pulumi-buddy';
+import { CustomProjectState, IntegrationProjectState, ProjectProps, ProjectState } from 'pulumi-buddy';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { sendUnaryData, ServerUnaryCall, status } from 'grpc';

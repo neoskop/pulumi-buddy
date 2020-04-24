@@ -1,4 +1,4 @@
-import { ActionProps, ActionState } from '@neoskop/pulumi-buddy/actions';
+import { ActionProps, ActionState } from 'pulumi-buddy/actions';
 import {
     CheckRequest,
     CheckResponse,

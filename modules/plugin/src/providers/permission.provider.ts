@@ -1,4 +1,4 @@
-import { PermissionProps, PermissionState } from '@neoskop/pulumi-buddy';
+import { PermissionProps, PermissionState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,

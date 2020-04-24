@@ -1,4 +1,4 @@
-import { IntegrationState } from '@neoskop/pulumi-buddy';
+import { IntegrationState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,

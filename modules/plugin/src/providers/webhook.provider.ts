@@ -1,4 +1,4 @@
-import { WebhookProps, WebhookState } from '@neoskop/pulumi-buddy';
+import { WebhookProps, WebhookState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,

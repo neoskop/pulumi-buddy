@@ -1,4 +1,4 @@
-import { GroupMemberBindingProps, GroupMemberBindingState } from '@neoskop/pulumi-buddy';
+import { GroupMemberBindingProps, GroupMemberBindingState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,

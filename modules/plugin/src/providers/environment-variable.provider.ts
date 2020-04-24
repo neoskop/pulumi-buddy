@@ -1,4 +1,4 @@
-import { EnvironmentVariableProps, EnvironmentVariableState } from '@neoskop/pulumi-buddy';
+import { EnvironmentVariableProps, EnvironmentVariableState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,

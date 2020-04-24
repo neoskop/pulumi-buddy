@@ -1,4 +1,4 @@
-import { ProjectMemberBindingProps, ProjectMemberBindingState } from '@neoskop/pulumi-buddy';
+import { ProjectMemberBindingProps, ProjectMemberBindingState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,

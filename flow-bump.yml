@@ -2,5 +2,5 @@ options:
     commitMessage: 'chore(release): bump to version %VERSION%'
 scripts:
     bump:
-        - 'jq ".version |= \"$FB_VERSION\" | .dependencies[\"@neoskop/pulumi-buddy\"] |= \"$FB_VERSION\" | ." modules/plugin/package.json > tmp.json && mv tmp.json modules/plugin/package.json && git add modules/plugin/package.json'
+        - 'jq ".version |= \"$FB_VERSION\" | .dependencies[\"pulumi-buddy\"] |= \"$FB_VERSION\" | ." modules/plugin/package.json > tmp.json && mv tmp.json modules/plugin/package.json && git add modules/plugin/package.json'
         - 'jq ".version |= \"$FB_VERSION\" | ." sdk/nodejs/package.json > tmp.json && mv tmp.json sdk/nodejs/package.json && git add sdk/nodejs/package.json'

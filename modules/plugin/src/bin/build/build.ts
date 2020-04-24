@@ -32,7 +32,7 @@ export async function build(targetDir: string) {
 
     info('Copy', 'package.json');
     const pkg = require('../../../package.json');
-    delete pkg.dependencies['@neoskop/pulumi-buddy'];
+    delete pkg.dependencies['pulumi-buddy'];
     await fs.writeFile(path.resolve(targetDir, 'package.json'), JSON.stringify(pkg, null, 2));
 
     info('Copy', 'yarn.lock');
@@ -46,8 +46,7 @@ export async function build(targetDir: string) {
     await yarnProdInstall;
 
     step('Copy SDK');
-    await fs.mkdirp(path.resolve(targetDir, 'node_modules/@neoskop'));
-    await execa('cp', ['-r', '../../sdk/nodejs/dist', path.resolve(targetDir, 'node_modules/@neoskop/pulumi-buddy')], {
+    await execa('cp', ['-r', '../../sdk/nodejs/dist', path.resolve(targetDir, 'node_modules/pulumi-buddy')], {
         cwd: path.resolve(__dirname, '../../../')
     });
 }

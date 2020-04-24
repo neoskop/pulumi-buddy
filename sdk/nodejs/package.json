@@ -1,5 +1,5 @@
 {
-    "name": "@neoskop/pulumi-buddy",
+    "name": "pulumi-buddy",
     "description": "A Pulumi integration for Buddy",
     "version": "0.1.0-rc.6",
     "repository": "https://github.com/neoskop/pulumi-buddy",

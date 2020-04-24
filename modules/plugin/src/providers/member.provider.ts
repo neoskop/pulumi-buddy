@@ -1,4 +1,4 @@
-import { MemberProps, MemberState } from '@neoskop/pulumi-buddy';
+import { MemberProps, MemberState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,

@@ -1,4 +1,4 @@
-import { SshKeyProps, SshKeyState } from '@neoskop/pulumi-buddy';
+import { SshKeyProps, SshKeyState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,

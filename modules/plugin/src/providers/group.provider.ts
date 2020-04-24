@@ -1,4 +1,4 @@
-import { GroupProps, GroupState } from '@neoskop/pulumi-buddy';
+import { GroupProps, GroupState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,
