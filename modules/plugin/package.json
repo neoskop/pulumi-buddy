@@ -1,7 +1,7 @@
 {
     "name": "pulumi-buddy-plugin",
     "description": "A Pulumi integration for Buddy",
-    "version": "0.1.0-rc.12",
+    "version": "0.1.0-rc.13",
     "repository": "https://github.com/neoskop/pulumi-buddy",
     "author": "Mark Wecke <wecke@neoskop.de>",
     "license": "MIT",
@@ -30,7 +30,7 @@
         "reflect-metadata": "0.1.13",
         "tslib": "1.11.1",
         "yargs": "15.3.1",
-        "pulumi-buddy": "0.1.0-rc.12"
+        "pulumi-buddy": "0.1.0-rc.13"
     },
     "devDependencies": {
         "@google-cloud/storage": "4.7.0",
