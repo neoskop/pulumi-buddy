@@ -12,7 +12,7 @@ import {
     UpdateRequest,
     UpdateResponse
 } from '@pulumi-utils/grpc';
-import { Configuration, IProvider } from '@pulumi-utils/plugin';
+import { Configuration, IProvider, sleep } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
@@ -24,7 +24,6 @@ import { PermissionNotFound } from '../buddy/api/permission';
 import { ServiceError } from '../errors/service.error';
 import { Differ } from '../utils/differ';
 import { Kind } from './kind';
-import { sleep } from '../utils/sleep';
 
 @Injectable()
 export class PermissionProvider implements IProvider {

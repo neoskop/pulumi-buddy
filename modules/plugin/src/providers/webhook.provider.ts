@@ -12,7 +12,7 @@ import {
     UpdateRequest,
     UpdateResponse
 } from '@pulumi-utils/grpc';
-import { Configuration, IProvider } from '@pulumi-utils/plugin';
+import { Configuration, IProvider, sleep } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { ServerUnaryCall, status } from 'grpc';
@@ -21,9 +21,7 @@ import { Injectable } from 'injection-js';
 import { BuddyApi } from '../buddy/api/api';
 import { WebhookNotFound } from '../buddy/api/webhook';
 import { ServiceError } from '../errors/service.error';
-import { deleteUndefined } from '../utils/delete-undefined';
 import { Differ } from '../utils/differ';
-import { sleep } from '../utils/sleep';
 import { Kind } from './kind';
 
 @Injectable()
@@ -72,13 +70,11 @@ export class WebhookProvider implements IProvider {
             const response = new CreateResponse();
             response.setId(outputs.id.toString());
             response.setProperties(
-                Struct.fromJavaScript(
-                    deleteUndefined({
-                        ...outputs,
-                        id: undefined!,
-                        webhook_id: outputs.id
-                    })
-                )
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined!,
+                    webhook_id: outputs.id
+                } as any)
             );
 
             return response;
@@ -103,15 +99,13 @@ export class WebhookProvider implements IProvider {
 
             const response = new ReadResponse();
             response.setId(req.request.getId());
-            response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
+            response.setInputs(Struct.fromJavaScript(props as any));
             response.setProperties(
-                Struct.fromJavaScript(
-                    deleteUndefined({
-                        ...outputs,
-                        id: undefined!,
-                        webhook_id: outputs.id
-                    })
-                )
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined!,
+                    webhook_id: outputs.id
+                })
             );
 
             return response;
@@ -141,13 +135,11 @@ export class WebhookProvider implements IProvider {
 
             const response = new UpdateResponse();
             response.setProperties(
-                Struct.fromJavaScript(
-                    deleteUndefined({
-                        ...outputs,
-                        id: undefined!,
-                        webhook_id: outputs.id
-                    })
-                )
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined!,
+                    webhook_id: outputs.id
+                })
             );
 
             return response;

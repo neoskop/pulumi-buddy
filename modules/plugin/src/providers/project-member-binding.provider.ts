@@ -12,7 +12,7 @@ import {
     UpdateRequest,
     UpdateResponse
 } from '@pulumi-utils/grpc';
-import { Configuration, IProvider } from '@pulumi-utils/plugin';
+import { Configuration, IProvider, sleep } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { ServerUnaryCall, status } from 'grpc';
@@ -22,7 +22,6 @@ import { BuddyApi } from '../buddy/api/api';
 import { ProjectNotFound } from '../buddy/api/project';
 import { ServiceError } from '../errors/service.error';
 import { Differ } from '../utils/differ';
-import { sleep } from '../utils/sleep';
 import { Kind } from './kind';
 
 @Injectable()

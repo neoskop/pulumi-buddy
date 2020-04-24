@@ -20,7 +20,6 @@ import { Injectable } from 'injection-js';
 import { BuddyApi } from '../buddy/api/api';
 import { PipelineNotFound } from '../buddy/api/pipeline';
 import { ProjectNotFound } from '../buddy/api/project';
-import { deleteUndefined } from '../utils/delete-undefined';
 import { Differ } from '../utils/differ';
 import { Kind } from './kind';
 
@@ -77,14 +76,12 @@ export class PipelineProvider implements IProvider {
             const response = new CreateResponse();
             response.setId(outputs.id.toString());
             response.setProperties(
-                Struct.fromJavaScript(
-                    deleteUndefined({
-                        ...outputs,
-                        id: undefined,
-                        pipeline_id: outputs.id,
-                        project_name: props.project_name
-                    })
-                )
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined,
+                    pipeline_id: outputs.id,
+                    project_name: props.project_name
+                } as any)
             );
 
             return response;
@@ -112,7 +109,7 @@ export class PipelineProvider implements IProvider {
 
             const response = new ReadResponse();
             response.setId(req.request.getId());
-            response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
+            response.setInputs(Struct.fromJavaScript(props as any));
             response.setProperties(
                 Struct.fromJavaScript({
                     ...outputs,

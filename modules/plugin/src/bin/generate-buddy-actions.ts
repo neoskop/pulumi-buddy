@@ -1,14 +1,14 @@
 #!./node_modules/.bin/ts-node
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as Listr from 'listr';
-import * as Prettier from 'prettier';
+import { sleep } from '@pulumi-utils/plugin';
 import * as chalk from 'chalk';
+import * as fs from 'fs-extra';
+import * as Listr from 'listr';
+import * as path from 'path';
+import * as Prettier from 'prettier';
+import { map, share, toArray } from 'rxjs/operators';
 
 import { BuddyCodegenActions } from '../buddy/codegen/actions';
-import { BuddyScraper, Action } from '../buddy/scraper';
-import { sleep } from '../utils/sleep';
-import { share, map, toArray } from 'rxjs/operators';
+import { Action, BuddyScraper } from '../buddy/scraper';
 
 async function main() {
     const tasks = new Listr<{

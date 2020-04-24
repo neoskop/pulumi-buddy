@@ -12,7 +12,7 @@ import {
     ReadResponse,
     UpdateRequest
 } from '@pulumi-utils/grpc';
-import { IProvider, Struct } from '@pulumi-utils/plugin';
+import { IProvider, Struct, Tok } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
@@ -20,7 +20,6 @@ import { Injectable } from 'injection-js';
 import { BuddyApi } from '../buddy/api/api';
 import { IntegrationNotFound } from '../buddy/api/integration';
 import { ServiceError } from '../errors/service.error';
-import { Tok } from '../utils/tok';
 import { Kind } from './kind';
 
 @Injectable()
@@ -35,7 +34,7 @@ export class IntegrationProvider implements IProvider {
         const tok = Tok.parse(request.getTok());
 
         try {
-            switch (tok.method) {
+            switch (tok.name) {
                 case 'list': {
                     const integrations = await this.buddyApi.integration().list();
                     const response = new InvokeResponse();
