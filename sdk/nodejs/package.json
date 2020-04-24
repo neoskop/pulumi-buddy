@@ -22,12 +22,12 @@
     },
     "dependencies": {
         "@pulumi-utils/sdk": "0.1.0-rc.6",
-        "@pulumi/pulumi": "^1.0.0"
+        "@pulumi/pulumi": "^2.0.0"
     },
     "devDependencies": {
-        "@types/node": "^8.0.0",
+        "@types/node": "^13.13.2",
         "rimraf": "3.0.2",
-        "typescript": "3.8.2"
+        "typescript": "3.8.3"
     },
     "pulumi": {
         "resource": true,
