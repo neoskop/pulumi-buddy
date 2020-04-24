@@ -46,7 +46,7 @@ export class BuddyApi {
         return new BuddySshKeyApi(this, sshKeyId);
     }
 
-    integration(integrationId?: number) {
+    integration(integrationId?: number | string) {
         return new BuddyIntegrationApi(this, integrationId);
     }
 }

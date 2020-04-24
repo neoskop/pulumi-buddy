@@ -79,7 +79,7 @@ export class IntegrationProvider implements IProvider {
         const id = req.request.getId();
 
         try {
-            const outputs = await this.buddyApi.integration(+id).read();
+            const outputs = await this.buddyApi.integration(id).read();
             const response = new ReadResponse();
             response.setId(req.request.getId());
             response.setProperties(

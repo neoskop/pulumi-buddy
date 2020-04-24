@@ -49,9 +49,9 @@ export interface IBuddyIntegration {
 }
 
 export class BuddyIntegrationApi {
-    constructor(protected readonly api: BuddyApi, protected readonly integrationId?: number) {}
+    constructor(protected readonly api: BuddyApi, protected readonly integrationId?: number | string) {}
 
-    getIntegrationId(): number {
+    getIntegrationId(): number | string {
         if (!this.integrationId) {
             throw new IntegrationIdRequired();
         }
@@ -121,7 +121,7 @@ export class IntegrationIdRequired extends IntegrationError {
 }
 
 export class IntegrationNotFound extends IntegrationError {
-    constructor(integrationId: number) {
+    constructor(integrationId: number | string) {
         super(`Integration '${integrationId}' not found.`);
     }
 }
