@@ -51,6 +51,8 @@ export class BuddyConfiguration extends ConfigurationImpl {
         this.buddyApi.setToken(this.require('token'));
         this.buddyApi.setApiUrl(this.require('apiUrl'));
 
+        response.setAcceptsecrets(false);
+
         return response;
     }
 }
