@@ -21,7 +21,7 @@ export namespace Mapping {
         };
 
         export const V8: Mapping<TargetNodeVersion> = {
-            '12.16': 'v79'
+            '12.16': 'v72'
         };
     }
 
