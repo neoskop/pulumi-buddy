@@ -37,6 +37,23 @@ async function main() {
                             };
                         }
                         return;
+                    },
+                    patchAction(action) {
+                        if (action.name === 'Build Dockerfile' && !action.parameters.some(p => p.name === 'registry')) {
+                            return {
+                                ...action,
+                                parameters: [
+                                    ...action.parameters,
+                                    {
+                                        name: 'registry',
+                                        description: 'Docker Registry URL',
+                                        type: { scalar: 'String' },
+                                        required: false
+                                    }
+                                ]
+                            };
+                        }
+                        return;
                     }
                 });
                 const stream = scraper.getActionsAsStream().pipe(share());
