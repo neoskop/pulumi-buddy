@@ -1,5 +1,4 @@
-import * as buddy from '@neoskop/pulumi-buddy';
-import * as pulumi from '@pulumi/pulumi';
+import * as buddy from 'pulumi-buddy';
 
 const provider = new buddy.Provider('buddy.neoskop.cloud', {
     // apiUrl: 'https//your-buddy-on-premise-domain.tld/api',

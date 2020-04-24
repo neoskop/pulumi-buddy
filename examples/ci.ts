@@ -1,9 +1,9 @@
-import * as buddy from '@neoskop/pulumi-buddy';
+import * as buddy from 'pulumi-buddy';
 
 const github = buddy.Integration.findByType('github', 'GIT_HUB');
 
 const project = new buddy.Project('pulumi-buddy', {
-    display_name: '@neoskop/pulumi-buddy',
+    display_name: 'pulumi-buddy',
     external_project_id: 'neoskop/pulumi-buddy',
     integration: { hash_id: github.hash_id }
 });

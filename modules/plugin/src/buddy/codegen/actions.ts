@@ -1,4 +1,5 @@
-import { InterfaceDeclaration, Project, SourceFile, TypeAliasDeclaration, ClassDeclaration } from 'ts-morph';
+import { ClassDeclaration, InterfaceDeclaration, Project, SourceFile, TypeAliasDeclaration } from 'ts-morph';
+
 import { Action, ParameterType } from '../scraper';
 
 export interface ICodegenOptions {
@@ -10,16 +11,7 @@ export interface ICodegenOptions {
 export class BuddyCodegenActions {
     protected readonly project = new Project();
 
-    protected readonly options: ICodegenOptions;
-
-    constructor(options: Partial<ICodegenOptions> = {}) {
-        this.options = {
-            utilsImport: '@neoskop/pulumi-buddy',
-            commonImport: '@neoskop/pulumi-buddy',
-            pipelineImport: '@neoskop/pulumi-buddy',
-            ...options
-        };
-    }
+    constructor(protected readonly options: ICodegenOptions) {}
 
     getFiles() {
         return this.project.getSourceFiles();

@@ -1,11 +1,12 @@
 import * as pulumi from '@pulumi/pulumi';
-import * as buddy from '@neoskop/pulumi-buddy';
+import * as buddy from 'pulumi-buddy';
+import { AsInputs } from '@pulumi-utils/sdk';
 
 export interface BuildPipelineArgs {
     project_name: pulumi.Input<string>;
     pipeline: Omit<buddy.PipelineArgs, 'project_name'>;
     integrations: {
-        slack: buddy.AsInputs<buddy.IntegrationRef>;
+        slack: AsInputs<buddy.IntegrationRef>;
     };
 }
 
@@ -68,7 +69,7 @@ const github = buddy.Integration.findByType('github', 'GIT_HUB');
 const slack = buddy.Integration.findByType('slack', 'SLACK');
 
 const project = new buddy.Project('pulumi-buddy', {
-    display_name: '@neoskop/pulumi-buddy',
+    display_name: 'pulumi-buddy',
     external_project_id: 'neoskop/pulumi-buddy',
     integration: { hash_id: github.hash_id }
 });

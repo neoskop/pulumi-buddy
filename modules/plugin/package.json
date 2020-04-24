@@ -11,8 +11,6 @@
         "build": "tsc",
         "watch": "tsc -w",
         "test": "jest",
-        "generate": "npm run generate:grpc-code && npm run generate:buddy-actions",
-        "generate:grpc-code": "./bin/generate-grpc-code.sh",
         "generate:buddy-actions": "./bin/generate-buddy-actions.js",
         "bundle": "bin/bundle.js --no-publish",
         "bundle-and-publish": "bin/bundle.js",
@@ -20,7 +18,6 @@
     },
     "dependencies": {
         "@grpc/proto-loader": "0.5.4",
-        "@neoskop/pulumi-buddy": "0.1.0-rc.6",
         "@pulumi-utils/plugin": "0.1.0-rc.7",
         "@pulumi/pulumi": "^2.0.0",
         "axios": "0.19.2",

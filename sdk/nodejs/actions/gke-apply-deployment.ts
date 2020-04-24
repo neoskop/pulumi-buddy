@@ -77,6 +77,11 @@ export interface ActionGKEApplyDeploymentState {
     grace_period_arg?: number;
 
     /**
+     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     */
+    ignore_errors?: boolean;
+
+    /**
      * Automatically resolve conflicts between the modified and live configuration by using values from the modified configuration.
      */
     overwrite_arg?: boolean;
@@ -122,14 +127,43 @@ export interface ActionGKEApplyDeploymentState {
     timeout?: number;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Can't be used in deployment actions.
+     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
      */
-    trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
+    trigger_condition?:
+        | 'ALWAYS'
+        | 'ON_CHANGE'
+        | 'ON_CHANGE_AT_PATH'
+        | 'VAR_IS'
+        | 'VAR_IS_NOT'
+        | 'VAR_CONTAINS'
+        | 'VAR_NOT_CONTAINS'
+        | 'DATETIME'
+        | 'SUCCESS_PIPELINE';
 
     /**
      * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
      */
     trigger_condition_paths?: string[];
+
+    /**
+     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
+     */
+    trigger_days?: number[];
+
+    /**
+     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
+     */
+    trigger_hours?: number[];
+
+    /**
+     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
+     */
+    trigger_pipeline_name?: string;
+
+    /**
+     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
+     */
+    trigger_project_name?: string;
 
     /**
      * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
@@ -168,6 +202,7 @@ export interface ActionGKEApplyDeploymentProps {
     disabled?: boolean;
     force_arg?: boolean;
     grace_period_arg?: number;
+    ignore_errors?: boolean;
     overwrite_arg?: boolean;
     prune_arg?: boolean;
     prune_whitelist_arg?: string;
@@ -177,8 +212,21 @@ export interface ActionGKEApplyDeploymentProps {
     save_config_arg?: boolean;
     server_key?: string;
     timeout?: number;
-    trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
+    trigger_condition?:
+        | 'ALWAYS'
+        | 'ON_CHANGE'
+        | 'ON_CHANGE_AT_PATH'
+        | 'VAR_IS'
+        | 'VAR_IS_NOT'
+        | 'VAR_CONTAINS'
+        | 'VAR_NOT_CONTAINS'
+        | 'DATETIME'
+        | 'SUCCESS_PIPELINE';
     trigger_condition_paths?: string[];
+    trigger_days?: number[];
+    trigger_hours?: number[];
+    trigger_pipeline_name?: string;
+    trigger_project_name?: string;
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
@@ -223,6 +271,7 @@ export class GKEApplyDeployment extends CustomResource {
     disabled!: Output<boolean | undefined>;
     force_arg!: Output<boolean | undefined>;
     grace_period_arg!: Output<number | undefined>;
+    ignore_errors!: Output<boolean | undefined>;
     overwrite_arg!: Output<boolean | undefined>;
     prune_arg!: Output<boolean | undefined>;
     prune_whitelist_arg!: Output<string | undefined>;
@@ -232,8 +281,23 @@ export class GKEApplyDeployment extends CustomResource {
     save_config_arg!: Output<boolean | undefined>;
     server_key!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
-    trigger_condition!: Output<'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS' | undefined>;
+    trigger_condition!: Output<
+        | 'ALWAYS'
+        | 'ON_CHANGE'
+        | 'ON_CHANGE_AT_PATH'
+        | 'VAR_IS'
+        | 'VAR_IS_NOT'
+        | 'VAR_CONTAINS'
+        | 'VAR_NOT_CONTAINS'
+        | 'DATETIME'
+        | 'SUCCESS_PIPELINE'
+        | undefined
+    >;
     trigger_condition_paths!: Output<string[] | undefined>;
+    trigger_days!: Output<number[] | undefined>;
+    trigger_hours!: Output<number[] | undefined>;
+    trigger_pipeline_name!: Output<string | undefined>;
+    trigger_project_name!: Output<string | undefined>;
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
@@ -262,6 +326,7 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['disabled'] = state?.disabled;
             inputs['force_arg'] = state?.force_arg;
             inputs['grace_period_arg'] = state?.grace_period_arg;
+            inputs['ignore_errors'] = state?.ignore_errors;
             inputs['overwrite_arg'] = state?.overwrite_arg;
             inputs['prune_arg'] = state?.prune_arg;
             inputs['prune_whitelist_arg'] = state?.prune_whitelist_arg;
@@ -273,6 +338,10 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
+            inputs['trigger_days'] = state?.trigger_days;
+            inputs['trigger_hours'] = state?.trigger_hours;
+            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
+            inputs['trigger_project_name'] = state?.trigger_project_name;
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
@@ -332,6 +401,7 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['force_arg'] = args.force_arg;
             inputs['grace_period_arg'] = args.grace_period_arg;
+            inputs['ignore_errors'] = args.ignore_errors;
             inputs['overwrite_arg'] = args.overwrite_arg;
             inputs['prune_arg'] = args.prune_arg;
             inputs['prune_whitelist_arg'] = args.prune_whitelist_arg;
@@ -343,6 +413,10 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
+            inputs['trigger_days'] = args.trigger_days;
+            inputs['trigger_hours'] = args.trigger_hours;
+            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
+            inputs['trigger_project_name'] = args.trigger_project_name;
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;

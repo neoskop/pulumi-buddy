@@ -1,4 +1,6 @@
 #!./node_modules/.bin/ts-node
+import 'reflect-metadata';
+
 import { sleep } from '@pulumi-utils/plugin';
 import * as chalk from 'chalk';
 import * as fs from 'fs-extra';
