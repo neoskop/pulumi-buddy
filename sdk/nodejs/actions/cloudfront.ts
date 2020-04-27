@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionCloudFrontState {
+export interface CloudFrontState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionCloudFrontState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -146,14 +147,14 @@ export interface ActionCloudFrontState {
     zone_id?: string;
 }
 
-export type ActionCloudFrontArgs = AsInputs<ActionCloudFrontState>;
+export type CloudFrontArgs = AsInputs<CloudFrontState>;
 
-export interface ActionCloudFrontProps {
+export interface CloudFrontProps {
     url: string;
     html_url: string;
     action_id: number;
     distribution_id: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'CLOUD_FRONT';
@@ -199,7 +200,7 @@ export interface ActionCloudFrontProps {
 export class CloudFront extends CustomResource {
     static __pulumiType = 'buddy:action:CloudFront';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionCloudFrontState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<CloudFrontState>, opts?: CustomResourceOptions) {
         return new CloudFront(name, state as any, { ...opts, id });
     }
 
@@ -215,7 +216,7 @@ export class CloudFront extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     distribution_id!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'CLOUD_FRONT'>;
@@ -253,18 +254,18 @@ export class CloudFront extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionCloudFrontArgs | ActionCloudFrontState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: CloudFrontArgs | CloudFrontState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionCloudFrontState | undefined;
+            const state = argsOrState as CloudFrontState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['distribution_id'] = state?.distribution_id;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
@@ -290,7 +291,7 @@ export class CloudFront extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionCloudFrontArgs | undefined;
+            const args = argsOrState as CloudFrontArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -316,7 +317,9 @@ export class CloudFront extends CustomResource {
             }
 
             inputs['distribution_id'] = args.distribution_id;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;

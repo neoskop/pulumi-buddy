@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { APKs, Variable } from '../common';
 
-export interface ActionPublishBundleToGooglePlayState {
+export interface PublishBundleToGooglePlayState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -141,9 +141,9 @@ export interface ActionPublishBundleToGooglePlayState {
     zone_id?: string;
 }
 
-export type ActionPublishBundleToGooglePlayArgs = AsInputs<ActionPublishBundleToGooglePlayState>;
+export type PublishBundleToGooglePlayArgs = AsInputs<PublishBundleToGooglePlayState>;
 
-export interface ActionPublishBundleToGooglePlayProps {
+export interface PublishBundleToGooglePlayProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -193,7 +193,7 @@ export interface ActionPublishBundleToGooglePlayProps {
 export class PublishBundleToGooglePlay extends CustomResource {
     static __pulumiType = 'buddy:action:PublishBundleToGooglePlay';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionPublishBundleToGooglePlayState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<PublishBundleToGooglePlayState>, opts?: CustomResourceOptions) {
         return new PublishBundleToGooglePlay(name, state as any, { ...opts, id });
     }
 
@@ -246,18 +246,14 @@ export class PublishBundleToGooglePlay extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(
-        name: string,
-        argsOrState: ActionPublishBundleToGooglePlayArgs | ActionPublishBundleToGooglePlayState,
-        opts?: CustomResourceOptions
-    ) {
+    constructor(name: string, argsOrState: PublishBundleToGooglePlayArgs | PublishBundleToGooglePlayState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionPublishBundleToGooglePlayState | undefined;
+            const state = argsOrState as PublishBundleToGooglePlayState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['apk_files'] = state?.apk_files;
@@ -286,7 +282,7 @@ export class PublishBundleToGooglePlay extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionPublishBundleToGooglePlayArgs | undefined;
+            const args = argsOrState as PublishBundleToGooglePlayArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

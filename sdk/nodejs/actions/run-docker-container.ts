@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionRunDockerContainerState {
+export interface RunDockerContainerState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -54,7 +55,7 @@ export interface ActionRunDockerContainerState {
     /**
      * The integration. Required for using the image from the Amazon ECR.
      */
-    integration?: IntegrationRef;
+    integration?: IntegrationRef | Integration;
 
     /**
      * The username required to connect to the Dockerhub, private registry or GCR.
@@ -166,9 +167,9 @@ export interface ActionRunDockerContainerState {
     zone_id?: string;
 }
 
-export type ActionRunDockerContainerArgs = AsInputs<ActionRunDockerContainerState>;
+export type RunDockerContainerArgs = AsInputs<RunDockerContainerState>;
 
-export interface ActionRunDockerContainerProps {
+export interface RunDockerContainerProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -182,7 +183,7 @@ export interface ActionRunDockerContainerProps {
     disabled?: boolean;
     export_container_path?: string;
     ignore_errors?: boolean;
-    integration?: IntegrationRef;
+    integration?: IntegrationRef | Integration;
     login?: string;
     mount_filesystem_disable?: boolean;
     password?: string;
@@ -223,7 +224,7 @@ export interface ActionRunDockerContainerProps {
 export class RunDockerContainer extends CustomResource {
     static __pulumiType = 'buddy:action:RunDockerContainer';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionRunDockerContainerState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<RunDockerContainerState>, opts?: CustomResourceOptions) {
         return new RunDockerContainer(name, state as any, { ...opts, id });
     }
 
@@ -248,7 +249,7 @@ export class RunDockerContainer extends CustomResource {
     disabled!: Output<boolean | undefined>;
     export_container_path!: Output<string | undefined>;
     ignore_errors!: Output<boolean | undefined>;
-    integration!: Output<IntegrationRef | undefined>;
+    integration!: Output<IntegrationRef | Integration | undefined>;
     login!: Output<string | undefined>;
     mount_filesystem_disable!: Output<boolean | undefined>;
     password!: Output<string | undefined>;
@@ -281,14 +282,14 @@ export class RunDockerContainer extends CustomResource {
     volume_mappings!: Output<string[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionRunDockerContainerArgs | ActionRunDockerContainerState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: RunDockerContainerArgs | RunDockerContainerState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionRunDockerContainerState | undefined;
+            const state = argsOrState as RunDockerContainerState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['docker_image_name'] = state?.docker_image_name;
@@ -300,7 +301,7 @@ export class RunDockerContainer extends CustomResource {
             inputs['disabled'] = state?.disabled;
             inputs['export_container_path'] = state?.export_container_path;
             inputs['ignore_errors'] = state?.ignore_errors;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['login'] = state?.login;
             inputs['mount_filesystem_disable'] = state?.mount_filesystem_disable;
             inputs['password'] = state?.password;
@@ -322,7 +323,7 @@ export class RunDockerContainer extends CustomResource {
             inputs['volume_mappings'] = state?.volume_mappings;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionRunDockerContainerArgs | undefined;
+            const args = argsOrState as RunDockerContainerArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -360,7 +361,9 @@ export class RunDockerContainer extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['export_container_path'] = args.export_container_path;
             inputs['ignore_errors'] = args.ignore_errors;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['login'] = args.login;
             inputs['mount_filesystem_disable'] = args.mount_filesystem_disable;
             inputs['password'] = args.password;

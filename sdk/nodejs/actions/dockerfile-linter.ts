@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionDockerfileLinterState {
+export interface DockerfileLinterState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -121,9 +121,9 @@ export interface ActionDockerfileLinterState {
     zone_id?: string;
 }
 
-export type ActionDockerfileLinterArgs = AsInputs<ActionDockerfileLinterState>;
+export type DockerfileLinterArgs = AsInputs<DockerfileLinterState>;
 
-export interface ActionDockerfileLinterProps {
+export interface DockerfileLinterProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -169,7 +169,7 @@ export interface ActionDockerfileLinterProps {
 export class DockerfileLinter extends CustomResource {
     static __pulumiType = 'buddy:action:DockerfileLinter';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionDockerfileLinterState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<DockerfileLinterState>, opts?: CustomResourceOptions) {
         return new DockerfileLinter(name, state as any, { ...opts, id });
     }
 
@@ -218,14 +218,14 @@ export class DockerfileLinter extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionDockerfileLinterArgs | ActionDockerfileLinterState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: DockerfileLinterArgs | DockerfileLinterState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionDockerfileLinterState | undefined;
+            const state = argsOrState as DockerfileLinterState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -250,7 +250,7 @@ export class DockerfileLinter extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionDockerfileLinterArgs | undefined;
+            const args = argsOrState as DockerfileLinterArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

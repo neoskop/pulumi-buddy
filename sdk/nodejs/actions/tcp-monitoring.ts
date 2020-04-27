@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionTCPMonitoringState {
+export interface TCPMonitoringState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -126,9 +126,9 @@ export interface ActionTCPMonitoringState {
     zone_id?: string;
 }
 
-export type ActionTCPMonitoringArgs = AsInputs<ActionTCPMonitoringState>;
+export type TCPMonitoringArgs = AsInputs<TCPMonitoringState>;
 
-export interface ActionTCPMonitoringProps {
+export interface TCPMonitoringProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -175,7 +175,7 @@ export interface ActionTCPMonitoringProps {
 export class TCPMonitoring extends CustomResource {
     static __pulumiType = 'buddy:action:TCPMonitoring';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionTCPMonitoringState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<TCPMonitoringState>, opts?: CustomResourceOptions) {
         return new TCPMonitoring(name, state as any, { ...opts, id });
     }
 
@@ -225,14 +225,14 @@ export class TCPMonitoring extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionTCPMonitoringArgs | ActionTCPMonitoringState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: TCPMonitoringArgs | TCPMonitoringState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionTCPMonitoringState | undefined;
+            const state = argsOrState as TCPMonitoringState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['destination'] = state?.destination;
@@ -258,7 +258,7 @@ export class TCPMonitoring extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionTCPMonitoringArgs | undefined;
+            const args = argsOrState as TCPMonitoringArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

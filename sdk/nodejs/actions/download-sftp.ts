@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionDownloadSFTPState {
+export interface DownloadSFTPState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -156,9 +156,9 @@ export interface ActionDownloadSFTPState {
     zone_id?: string;
 }
 
-export type ActionDownloadSFTPArgs = AsInputs<ActionDownloadSFTPState>;
+export type DownloadSFTPArgs = AsInputs<DownloadSFTPState>;
 
-export interface ActionDownloadSFTPProps {
+export interface DownloadSFTPProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -211,7 +211,7 @@ export interface ActionDownloadSFTPProps {
 export class DownloadSFTP extends CustomResource {
     static __pulumiType = 'buddy:action:DownloadSFTP';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionDownloadSFTPState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<DownloadSFTPState>, opts?: CustomResourceOptions) {
         return new DownloadSFTP(name, state as any, { ...opts, id });
     }
 
@@ -267,14 +267,14 @@ export class DownloadSFTP extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionDownloadSFTPArgs | ActionDownloadSFTPState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: DownloadSFTPArgs | DownloadSFTPState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionDownloadSFTPState | undefined;
+            const state = argsOrState as DownloadSFTPState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['authentication_mode'] = state?.authentication_mode;
@@ -306,7 +306,7 @@ export class DownloadSFTP extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionDownloadSFTPArgs | undefined;
+            const args = argsOrState as DownloadSFTPArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

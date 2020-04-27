@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionSFTPState {
+export interface SFTPState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -156,9 +156,9 @@ export interface ActionSFTPState {
     zone_id?: string;
 }
 
-export type ActionSFTPArgs = AsInputs<ActionSFTPState>;
+export type SFTPArgs = AsInputs<SFTPState>;
 
-export interface ActionSFTPProps {
+export interface SFTPProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -211,7 +211,7 @@ export interface ActionSFTPProps {
 export class SFTP extends CustomResource {
     static __pulumiType = 'buddy:action:SFTP';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionSFTPState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<SFTPState>, opts?: CustomResourceOptions) {
         return new SFTP(name, state as any, { ...opts, id });
     }
 
@@ -267,14 +267,14 @@ export class SFTP extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionSFTPArgs | ActionSFTPState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: SFTPArgs | SFTPState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionSFTPState | undefined;
+            const state = argsOrState as SFTPState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['authentication_mode'] = state?.authentication_mode;
@@ -306,7 +306,7 @@ export class SFTP extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionSFTPArgs | undefined;
+            const args = argsOrState as SFTPArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionWebDAVState {
+export interface WebDAVState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -146,9 +146,9 @@ export interface ActionWebDAVState {
     zone_id?: string;
 }
 
-export type ActionWebDAVArgs = AsInputs<ActionWebDAVState>;
+export type WebDAVArgs = AsInputs<WebDAVState>;
 
-export interface ActionWebDAVProps {
+export interface WebDAVProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -199,7 +199,7 @@ export interface ActionWebDAVProps {
 export class WebDAV extends CustomResource {
     static __pulumiType = 'buddy:action:WebDAV';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionWebDAVState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<WebDAVState>, opts?: CustomResourceOptions) {
         return new WebDAV(name, state as any, { ...opts, id });
     }
 
@@ -253,14 +253,14 @@ export class WebDAV extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionWebDAVArgs | ActionWebDAVState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: WebDAVArgs | WebDAVState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionWebDAVState | undefined;
+            const state = argsOrState as WebDAVState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['login'] = state?.login;
@@ -290,7 +290,7 @@ export class WebDAV extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionWebDAVArgs | undefined;
+            const args = argsOrState as WebDAVArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionDatadogServiceCheckState {
+export interface DatadogServiceCheckState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -131,9 +131,9 @@ export interface ActionDatadogServiceCheckState {
     zone_id?: string;
 }
 
-export type ActionDatadogServiceCheckArgs = AsInputs<ActionDatadogServiceCheckState>;
+export type DatadogServiceCheckArgs = AsInputs<DatadogServiceCheckState>;
 
-export interface ActionDatadogServiceCheckProps {
+export interface DatadogServiceCheckProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -181,7 +181,7 @@ export interface ActionDatadogServiceCheckProps {
 export class DatadogServiceCheck extends CustomResource {
     static __pulumiType = 'buddy:action:DatadogServiceCheck';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionDatadogServiceCheckState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<DatadogServiceCheckState>, opts?: CustomResourceOptions) {
         return new DatadogServiceCheck(name, state as any, { ...opts, id });
     }
 
@@ -232,14 +232,14 @@ export class DatadogServiceCheck extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionDatadogServiceCheckArgs | ActionDatadogServiceCheckState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: DatadogServiceCheckArgs | DatadogServiceCheckState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionDatadogServiceCheckState | undefined;
+            const state = argsOrState as DatadogServiceCheckState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -266,7 +266,7 @@ export class DatadogServiceCheck extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionDatadogServiceCheckArgs | undefined;
+            const args = argsOrState as DatadogServiceCheckArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

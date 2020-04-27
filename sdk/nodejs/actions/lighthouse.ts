@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionLighthouseState {
+export interface LighthouseState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -136,9 +136,9 @@ export interface ActionLighthouseState {
     zone_id?: string;
 }
 
-export type ActionLighthouseArgs = AsInputs<ActionLighthouseState>;
+export type LighthouseArgs = AsInputs<LighthouseState>;
 
-export interface ActionLighthouseProps {
+export interface LighthouseProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -187,7 +187,7 @@ export interface ActionLighthouseProps {
 export class Lighthouse extends CustomResource {
     static __pulumiType = 'buddy:action:Lighthouse';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionLighthouseState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<LighthouseState>, opts?: CustomResourceOptions) {
         return new Lighthouse(name, state as any, { ...opts, id });
     }
 
@@ -239,14 +239,14 @@ export class Lighthouse extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionLighthouseArgs | ActionLighthouseState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: LighthouseArgs | LighthouseState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionLighthouseState | undefined;
+            const state = argsOrState as LighthouseState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['accessibility'] = state?.accessibility;
@@ -274,7 +274,7 @@ export class Lighthouse extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionLighthouseArgs | undefined;
+            const args = argsOrState as LighthouseArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

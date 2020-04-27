@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionDatadogNotificationState {
+export interface DatadogNotificationState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -19,7 +20,7 @@ export interface ActionDatadogNotificationState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -146,15 +147,15 @@ export interface ActionDatadogNotificationState {
     zone_id?: string;
 }
 
-export type ActionDatadogNotificationArgs = AsInputs<ActionDatadogNotificationState>;
+export type DatadogNotificationArgs = AsInputs<DatadogNotificationState>;
 
-export interface ActionDatadogNotificationProps {
+export interface DatadogNotificationProps {
     url: string;
     html_url: string;
     action_id: number;
     alert_type: 'SUCCESS' | 'WARNING' | 'ERROR';
     content: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     title: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -199,7 +200,7 @@ export interface ActionDatadogNotificationProps {
 export class DatadogNotification extends CustomResource {
     static __pulumiType = 'buddy:action:DatadogNotification';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionDatadogNotificationState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<DatadogNotificationState>, opts?: CustomResourceOptions) {
         return new DatadogNotification(name, state as any, { ...opts, id });
     }
 
@@ -216,7 +217,7 @@ export class DatadogNotification extends CustomResource {
     action_id!: Output<number>;
     alert_type!: Output<'SUCCESS' | 'WARNING' | 'ERROR'>;
     content!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     title!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -253,19 +254,19 @@ export class DatadogNotification extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionDatadogNotificationArgs | ActionDatadogNotificationState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: DatadogNotificationArgs | DatadogNotificationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionDatadogNotificationState | undefined;
+            const state = argsOrState as DatadogNotificationState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['alert_type'] = state?.alert_type;
             inputs['content'] = state?.content;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['title'] = state?.title;
             inputs['trigger_time'] = state?.trigger_time;
@@ -290,7 +291,7 @@ export class DatadogNotification extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionDatadogNotificationArgs | undefined;
+            const args = argsOrState as DatadogNotificationArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -325,7 +326,9 @@ export class DatadogNotification extends CustomResource {
 
             inputs['alert_type'] = args.alert_type;
             inputs['content'] = args.content;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['title'] = args.title;
             inputs['trigger_time'] = args.trigger_time;

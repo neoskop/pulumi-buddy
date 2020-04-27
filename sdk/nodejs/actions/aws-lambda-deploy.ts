@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionAWSLambdaDeployState {
+export interface AWSLambdaDeployState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionAWSLambdaDeployState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -136,14 +137,14 @@ export interface ActionAWSLambdaDeployState {
     zone_id?: string;
 }
 
-export type ActionAWSLambdaDeployArgs = AsInputs<ActionAWSLambdaDeployState>;
+export type AWSLambdaDeployArgs = AsInputs<AWSLambdaDeployState>;
 
-export interface ActionAWSLambdaDeployProps {
+export interface AWSLambdaDeployProps {
     url: string;
     html_url: string;
     action_id: number;
     function_name: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     region: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -187,7 +188,7 @@ export interface ActionAWSLambdaDeployProps {
 export class AWSLambdaDeploy extends CustomResource {
     static __pulumiType = 'buddy:action:AWSLambdaDeploy';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionAWSLambdaDeployState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<AWSLambdaDeployState>, opts?: CustomResourceOptions) {
         return new AWSLambdaDeploy(name, state as any, { ...opts, id });
     }
 
@@ -203,7 +204,7 @@ export class AWSLambdaDeploy extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     function_name!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     region!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -239,18 +240,18 @@ export class AWSLambdaDeploy extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionAWSLambdaDeployArgs | ActionAWSLambdaDeployState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: AWSLambdaDeployArgs | AWSLambdaDeployState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionAWSLambdaDeployState | undefined;
+            const state = argsOrState as AWSLambdaDeployState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['function_name'] = state?.function_name;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['region'] = state?.region;
             inputs['trigger_time'] = state?.trigger_time;
@@ -274,7 +275,7 @@ export class AWSLambdaDeploy extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionAWSLambdaDeployArgs | undefined;
+            const args = argsOrState as AWSLambdaDeployArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -304,7 +305,9 @@ export class AWSLambdaDeploy extends CustomResource {
             }
 
             inputs['function_name'] = args.function_name;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['region'] = args.region;
             inputs['trigger_time'] = args.trigger_time;

@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionFTPSState {
+export interface FTPSState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -151,9 +151,9 @@ export interface ActionFTPSState {
     zone_id?: string;
 }
 
-export type ActionFTPSArgs = AsInputs<ActionFTPSState>;
+export type FTPSArgs = AsInputs<FTPSState>;
 
-export interface ActionFTPSProps {
+export interface FTPSProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -205,7 +205,7 @@ export interface ActionFTPSProps {
 export class FTPS extends CustomResource {
     static __pulumiType = 'buddy:action:FTPS';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionFTPSState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<FTPSState>, opts?: CustomResourceOptions) {
         return new FTPS(name, state as any, { ...opts, id });
     }
 
@@ -260,14 +260,14 @@ export class FTPS extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionFTPSArgs | ActionFTPSState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: FTPSArgs | FTPSState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionFTPSState | undefined;
+            const state = argsOrState as FTPSState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['host'] = state?.host;
@@ -298,7 +298,7 @@ export class FTPS extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionFTPSArgs | undefined;
+            const args = argsOrState as FTPSArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

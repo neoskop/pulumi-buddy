@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionGKESetImageState {
+export interface GKESetImageState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -44,7 +45,7 @@ export interface ActionGKESetImageState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -161,9 +162,9 @@ export interface ActionGKESetImageState {
     variables?: Variable[];
 }
 
-export type ActionGKESetImageArgs = AsInputs<ActionGKESetImageState>;
+export type GKESetImageArgs = AsInputs<GKESetImageState>;
 
-export interface ActionGKESetImageProps {
+export interface GKESetImageProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -174,7 +175,7 @@ export interface ActionGKESetImageProps {
     gke_auth_type: 'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS';
     image_name: string;
     image_tag: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     namespace: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -217,7 +218,7 @@ export interface ActionGKESetImageProps {
 export class GKESetImage extends CustomResource {
     static __pulumiType = 'buddy:action:GKESetImage';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionGKESetImageState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<GKESetImageState>, opts?: CustomResourceOptions) {
         return new GKESetImage(name, state as any, { ...opts, id });
     }
 
@@ -239,7 +240,7 @@ export class GKESetImage extends CustomResource {
     gke_auth_type!: Output<'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS'>;
     image_name!: Output<string>;
     image_tag!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     namespace!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -274,14 +275,14 @@ export class GKESetImage extends CustomResource {
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
 
-    constructor(name: string, argsOrState: ActionGKESetImageArgs | ActionGKESetImageState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GKESetImageArgs | GKESetImageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionGKESetImageState | undefined;
+            const state = argsOrState as GKESetImageState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_id'] = state?.application_id;
@@ -291,7 +292,7 @@ export class GKESetImage extends CustomResource {
             inputs['gke_auth_type'] = state?.gke_auth_type;
             inputs['image_name'] = state?.image_name;
             inputs['image_tag'] = state?.image_tag;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['namespace'] = state?.namespace;
             inputs['trigger_time'] = state?.trigger_time;
@@ -314,7 +315,7 @@ export class GKESetImage extends CustomResource {
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
         } else {
-            const args = argsOrState as ActionGKESetImageArgs | undefined;
+            const args = argsOrState as GKESetImageArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -378,7 +379,9 @@ export class GKESetImage extends CustomResource {
             inputs['gke_auth_type'] = args.gke_auth_type;
             inputs['image_name'] = args.image_name;
             inputs['image_tag'] = args.image_tag;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['namespace'] = args.namespace;
             inputs['trigger_time'] = args.trigger_time;

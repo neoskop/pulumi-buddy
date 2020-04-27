@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionSmsNotificationState {
+export interface SmsNotificationState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -116,9 +116,9 @@ export interface ActionSmsNotificationState {
     zone_id?: string;
 }
 
-export type ActionSmsNotificationArgs = AsInputs<ActionSmsNotificationState>;
+export type SmsNotificationArgs = AsInputs<SmsNotificationState>;
 
-export interface ActionSmsNotificationProps {
+export interface SmsNotificationProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -163,7 +163,7 @@ export interface ActionSmsNotificationProps {
 export class SmsNotification extends CustomResource {
     static __pulumiType = 'buddy:action:SmsNotification';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionSmsNotificationState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<SmsNotificationState>, opts?: CustomResourceOptions) {
         return new SmsNotification(name, state as any, { ...opts, id });
     }
 
@@ -211,14 +211,14 @@ export class SmsNotification extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionSmsNotificationArgs | ActionSmsNotificationState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: SmsNotificationArgs | SmsNotificationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionSmsNotificationState | undefined;
+            const state = argsOrState as SmsNotificationState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -242,7 +242,7 @@ export class SmsNotification extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionSmsNotificationArgs | undefined;
+            const args = argsOrState as SmsNotificationArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

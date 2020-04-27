@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionSleepState {
+export interface SleepState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -111,9 +111,9 @@ export interface ActionSleepState {
     zone_id?: string;
 }
 
-export type ActionSleepArgs = AsInputs<ActionSleepState>;
+export type SleepArgs = AsInputs<SleepState>;
 
-export interface ActionSleepProps {
+export interface SleepProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -157,7 +157,7 @@ export interface ActionSleepProps {
 export class Sleep extends CustomResource {
     static __pulumiType = 'buddy:action:Sleep';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionSleepState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<SleepState>, opts?: CustomResourceOptions) {
         return new Sleep(name, state as any, { ...opts, id });
     }
 
@@ -204,14 +204,14 @@ export class Sleep extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionSleepArgs | ActionSleepState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: SleepArgs | SleepState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionSleepState | undefined;
+            const state = argsOrState as SleepState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -234,7 +234,7 @@ export class Sleep extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionSleepArgs | undefined;
+            const args = argsOrState as SleepArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

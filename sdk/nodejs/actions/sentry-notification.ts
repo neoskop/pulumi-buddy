@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionSentryNotificationState {
+export interface SentryNotificationState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionSentryNotificationState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -151,14 +152,14 @@ export interface ActionSentryNotificationState {
     zone_id?: string;
 }
 
-export type ActionSentryNotificationArgs = AsInputs<ActionSentryNotificationState>;
+export type SentryNotificationArgs = AsInputs<SentryNotificationState>;
 
-export interface ActionSentryNotificationProps {
+export interface SentryNotificationProps {
     url: string;
     html_url: string;
     action_id: number;
     environment: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     organization_slug: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -205,7 +206,7 @@ export interface ActionSentryNotificationProps {
 export class SentryNotification extends CustomResource {
     static __pulumiType = 'buddy:action:SentryNotification';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionSentryNotificationState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<SentryNotificationState>, opts?: CustomResourceOptions) {
         return new SentryNotification(name, state as any, { ...opts, id });
     }
 
@@ -221,7 +222,7 @@ export class SentryNotification extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     environment!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     organization_slug!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -260,18 +261,18 @@ export class SentryNotification extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionSentryNotificationArgs | ActionSentryNotificationState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: SentryNotificationArgs | SentryNotificationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionSentryNotificationState | undefined;
+            const state = argsOrState as SentryNotificationState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['environment'] = state?.environment;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['organization_slug'] = state?.organization_slug;
             inputs['trigger_time'] = state?.trigger_time;
@@ -298,7 +299,7 @@ export class SentryNotification extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionSentryNotificationArgs | undefined;
+            const args = argsOrState as SentryNotificationArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -332,7 +333,9 @@ export class SentryNotification extends CustomResource {
             }
 
             inputs['environment'] = args.environment;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['organization_slug'] = args.organization_slug;
             inputs['trigger_time'] = args.trigger_time;

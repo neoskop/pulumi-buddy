@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionGitPushState {
+export interface GitPushState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -156,9 +156,9 @@ export interface ActionGitPushState {
     zone_id?: string;
 }
 
-export type ActionGitPushArgs = AsInputs<ActionGitPushState>;
+export type GitPushArgs = AsInputs<GitPushState>;
 
-export interface ActionGitPushProps {
+export interface GitPushProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -211,7 +211,7 @@ export interface ActionGitPushProps {
 export class GitPush extends CustomResource {
     static __pulumiType = 'buddy:action:GitPush';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionGitPushState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<GitPushState>, opts?: CustomResourceOptions) {
         return new GitPush(name, state as any, { ...opts, id });
     }
 
@@ -267,14 +267,14 @@ export class GitPush extends CustomResource {
     without_force!: Output<boolean | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionGitPushArgs | ActionGitPushState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GitPushArgs | GitPushState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionGitPushState | undefined;
+            const state = argsOrState as GitPushState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -306,7 +306,7 @@ export class GitPush extends CustomResource {
             inputs['without_force'] = state?.without_force;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionGitPushArgs | undefined;
+            const args = argsOrState as GitPushArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

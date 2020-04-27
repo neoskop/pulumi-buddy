@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionKubernetesRunPodState {
+export interface KubernetesRunPodState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -171,9 +171,9 @@ export interface ActionKubernetesRunPodState {
     zone_id?: string;
 }
 
-export type ActionKubernetesRunPodArgs = AsInputs<ActionKubernetesRunPodState>;
+export type KubernetesRunPodArgs = AsInputs<KubernetesRunPodState>;
 
-export interface ActionKubernetesRunPodProps {
+export interface KubernetesRunPodProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -229,7 +229,7 @@ export interface ActionKubernetesRunPodProps {
 export class KubernetesRunPod extends CustomResource {
     static __pulumiType = 'buddy:action:KubernetesRunPod';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionKubernetesRunPodState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<KubernetesRunPodState>, opts?: CustomResourceOptions) {
         return new KubernetesRunPod(name, state as any, { ...opts, id });
     }
 
@@ -288,14 +288,14 @@ export class KubernetesRunPod extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionKubernetesRunPodArgs | ActionKubernetesRunPodState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: KubernetesRunPodArgs | KubernetesRunPodState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionKubernetesRunPodState | undefined;
+            const state = argsOrState as KubernetesRunPodState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['auth_type'] = state?.auth_type;
@@ -330,7 +330,7 @@ export class KubernetesRunPod extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionKubernetesRunPodArgs | undefined;
+            const args = argsOrState as KubernetesRunPodArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

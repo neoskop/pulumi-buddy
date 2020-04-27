@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionUpcloudState {
+export interface UpcloudState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -24,7 +25,7 @@ export interface ActionUpcloudState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The username required to connect to the server.
@@ -166,16 +167,16 @@ export interface ActionUpcloudState {
     zone_id?: string;
 }
 
-export type ActionUpcloudArgs = AsInputs<ActionUpcloudState>;
+export type UpcloudArgs = AsInputs<UpcloudState>;
 
-export interface ActionUpcloudProps {
+export interface UpcloudProps {
     url: string;
     html_url: string;
     action_id: number;
     authentication_mode: 'PASS';
     host: string;
     host_name: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     login: string;
     name: string;
     port: string;
@@ -223,7 +224,7 @@ export interface ActionUpcloudProps {
 export class Upcloud extends CustomResource {
     static __pulumiType = 'buddy:action:Upcloud';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionUpcloudState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<UpcloudState>, opts?: CustomResourceOptions) {
         return new Upcloud(name, state as any, { ...opts, id });
     }
 
@@ -241,7 +242,7 @@ export class Upcloud extends CustomResource {
     authentication_mode!: Output<'PASS'>;
     host!: Output<string>;
     host_name!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     login!: Output<string>;
     name!: Output<string>;
     port!: Output<string>;
@@ -281,20 +282,20 @@ export class Upcloud extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionUpcloudArgs | ActionUpcloudState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: UpcloudArgs | UpcloudState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionUpcloudState | undefined;
+            const state = argsOrState as UpcloudState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['authentication_mode'] = state?.authentication_mode;
             inputs['host'] = state?.host;
             inputs['host_name'] = state?.host_name;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['login'] = state?.login;
             inputs['name'] = state?.name;
             inputs['port'] = state?.port;
@@ -322,7 +323,7 @@ export class Upcloud extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionUpcloudArgs | undefined;
+            const args = argsOrState as UpcloudArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -366,7 +367,9 @@ export class Upcloud extends CustomResource {
             inputs['authentication_mode'] = args.authentication_mode;
             inputs['host'] = args.host;
             inputs['host_name'] = args.host_name;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['login'] = args.login;
             inputs['name'] = args.name;
             inputs['port'] = args.port;

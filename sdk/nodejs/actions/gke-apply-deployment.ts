@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionGKEApplyDeploymentState {
+export interface GKEApplyDeploymentState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -29,7 +30,7 @@ export interface ActionGKEApplyDeploymentState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -181,9 +182,9 @@ export interface ActionGKEApplyDeploymentState {
     variables?: Variable[];
 }
 
-export type ActionGKEApplyDeploymentArgs = AsInputs<ActionGKEApplyDeploymentState>;
+export type GKEApplyDeploymentArgs = AsInputs<GKEApplyDeploymentState>;
 
-export interface ActionGKEApplyDeploymentProps {
+export interface GKEApplyDeploymentProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -191,7 +192,7 @@ export interface ActionGKEApplyDeploymentProps {
     cluster: string;
     config_path: string;
     gke_auth_type: 'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS';
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'KUBERNETES_APPLY';
@@ -241,7 +242,7 @@ export interface ActionGKEApplyDeploymentProps {
 export class GKEApplyDeployment extends CustomResource {
     static __pulumiType = 'buddy:action:GKEApplyDeployment';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionGKEApplyDeploymentState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<GKEApplyDeploymentState>, opts?: CustomResourceOptions) {
         return new GKEApplyDeployment(name, state as any, { ...opts, id });
     }
 
@@ -260,7 +261,7 @@ export class GKEApplyDeployment extends CustomResource {
     cluster!: Output<string>;
     config_path!: Output<string>;
     gke_auth_type!: Output<'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS'>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'KUBERNETES_APPLY'>;
@@ -302,21 +303,21 @@ export class GKEApplyDeployment extends CustomResource {
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
 
-    constructor(name: string, argsOrState: ActionGKEApplyDeploymentArgs | ActionGKEApplyDeploymentState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GKEApplyDeploymentArgs | GKEApplyDeploymentState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionGKEApplyDeploymentState | undefined;
+            const state = argsOrState as GKEApplyDeploymentState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_id'] = state?.application_id;
             inputs['cluster'] = state?.cluster;
             inputs['config_path'] = state?.config_path;
             inputs['gke_auth_type'] = state?.gke_auth_type;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['zone_id'] = state?.zone_id;
@@ -346,7 +347,7 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
         } else {
-            const args = argsOrState as ActionGKEApplyDeploymentArgs | undefined;
+            const args = argsOrState as GKEApplyDeploymentArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -391,7 +392,9 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['cluster'] = args.cluster;
             inputs['config_path'] = args.config_path;
             inputs['gke_auth_type'] = args.gke_auth_type;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['zone_id'] = args.zone_id;

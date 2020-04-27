@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Header, Variable } from '../common';
 
-export interface ActionHTTPRequestState {
+export interface HTTPRequestState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -141,9 +141,9 @@ export interface ActionHTTPRequestState {
     zone_id?: string;
 }
 
-export type ActionHTTPRequestArgs = AsInputs<ActionHTTPRequestState>;
+export type HTTPRequestArgs = AsInputs<HTTPRequestState>;
 
-export interface ActionHTTPRequestProps {
+export interface HTTPRequestProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -193,7 +193,7 @@ export interface ActionHTTPRequestProps {
 export class HTTPRequest extends CustomResource {
     static __pulumiType = 'buddy:action:HTTPRequest';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionHTTPRequestState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<HTTPRequestState>, opts?: CustomResourceOptions) {
         return new HTTPRequest(name, state as any, { ...opts, id });
     }
 
@@ -246,14 +246,14 @@ export class HTTPRequest extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionHTTPRequestArgs | ActionHTTPRequestState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: HTTPRequestArgs | HTTPRequestState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionHTTPRequestState | undefined;
+            const state = argsOrState as HTTPRequestState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['method'] = state?.method;
@@ -282,7 +282,7 @@ export class HTTPRequest extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionHTTPRequestArgs | undefined;
+            const args = argsOrState as HTTPRequestArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

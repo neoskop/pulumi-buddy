@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionGitcryptUnlockState {
+export interface GitcryptUnlockState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -111,9 +111,9 @@ export interface ActionGitcryptUnlockState {
     zone_id?: string;
 }
 
-export type ActionGitcryptUnlockArgs = AsInputs<ActionGitcryptUnlockState>;
+export type GitcryptUnlockArgs = AsInputs<GitcryptUnlockState>;
 
-export interface ActionGitcryptUnlockProps {
+export interface GitcryptUnlockProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -157,7 +157,7 @@ export interface ActionGitcryptUnlockProps {
 export class GitcryptUnlock extends CustomResource {
     static __pulumiType = 'buddy:action:GitcryptUnlock';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionGitcryptUnlockState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<GitcryptUnlockState>, opts?: CustomResourceOptions) {
         return new GitcryptUnlock(name, state as any, { ...opts, id });
     }
 
@@ -204,14 +204,14 @@ export class GitcryptUnlock extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionGitcryptUnlockArgs | ActionGitcryptUnlockState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GitcryptUnlockArgs | GitcryptUnlockState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionGitcryptUnlockState | undefined;
+            const state = argsOrState as GitcryptUnlockState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['keys'] = state?.keys;
@@ -234,7 +234,7 @@ export class GitcryptUnlock extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionGitcryptUnlockArgs | undefined;
+            const args = argsOrState as GitcryptUnlockArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

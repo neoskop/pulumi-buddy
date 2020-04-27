@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionPushDockerImageState {
+export interface PushDockerImageState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -44,7 +45,7 @@ export interface ActionPushDockerImageState {
     /**
      * The integration. Required for delivering the Dockerfile to the Amazon ECR.
      */
-    integration?: IntegrationRef;
+    integration?: IntegrationRef | Integration;
 
     /**
      * The username required to connect to the server. Required for delivering the Dockerfile to the Docker Hub or a private registry.
@@ -141,9 +142,9 @@ export interface ActionPushDockerImageState {
     zone_id?: string;
 }
 
-export type ActionPushDockerImageArgs = AsInputs<ActionPushDockerImageState>;
+export type PushDockerImageArgs = AsInputs<PushDockerImageState>;
 
-export interface ActionPushDockerImageProps {
+export interface PushDockerImageProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -155,7 +156,7 @@ export interface ActionPushDockerImageProps {
     docker_build_action_id?: number;
     docker_image_tag?: string;
     ignore_errors?: boolean;
-    integration?: IntegrationRef;
+    integration?: IntegrationRef | Integration;
     login?: string;
     password?: string;
     region?: string;
@@ -193,7 +194,7 @@ export interface ActionPushDockerImageProps {
 export class PushDockerImage extends CustomResource {
     static __pulumiType = 'buddy:action:PushDockerImage';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionPushDockerImageState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<PushDockerImageState>, opts?: CustomResourceOptions) {
         return new PushDockerImage(name, state as any, { ...opts, id });
     }
 
@@ -216,7 +217,7 @@ export class PushDockerImage extends CustomResource {
     docker_build_action_id!: Output<number | undefined>;
     docker_image_tag!: Output<string | undefined>;
     ignore_errors!: Output<boolean | undefined>;
-    integration!: Output<IntegrationRef | undefined>;
+    integration!: Output<IntegrationRef | Integration | undefined>;
     login!: Output<string | undefined>;
     password!: Output<string | undefined>;
     region!: Output<string | undefined>;
@@ -246,14 +247,14 @@ export class PushDockerImage extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionPushDockerImageArgs | ActionPushDockerImageState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: PushDockerImageArgs | PushDockerImageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionPushDockerImageState | undefined;
+            const state = argsOrState as PushDockerImageState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -263,7 +264,7 @@ export class PushDockerImage extends CustomResource {
             inputs['docker_build_action_id'] = state?.docker_build_action_id;
             inputs['docker_image_tag'] = state?.docker_image_tag;
             inputs['ignore_errors'] = state?.ignore_errors;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['login'] = state?.login;
             inputs['password'] = state?.password;
             inputs['region'] = state?.region;
@@ -282,7 +283,7 @@ export class PushDockerImage extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionPushDockerImageArgs | undefined;
+            const args = argsOrState as PushDockerImageArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -306,7 +307,9 @@ export class PushDockerImage extends CustomResource {
             inputs['docker_build_action_id'] = args.docker_build_action_id;
             inputs['docker_image_tag'] = args.docker_image_tag;
             inputs['ignore_errors'] = args.ignore_errors;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['login'] = args.login;
             inputs['password'] = args.password;
             inputs['region'] = args.region;

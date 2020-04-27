@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionCompressImagesState {
+export interface CompressImagesState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -126,9 +126,9 @@ export interface ActionCompressImagesState {
     zone_id?: string;
 }
 
-export type ActionCompressImagesArgs = AsInputs<ActionCompressImagesState>;
+export type CompressImagesArgs = AsInputs<CompressImagesState>;
 
-export interface ActionCompressImagesProps {
+export interface CompressImagesProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -175,7 +175,7 @@ export interface ActionCompressImagesProps {
 export class CompressImages extends CustomResource {
     static __pulumiType = 'buddy:action:CompressImages';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionCompressImagesState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<CompressImagesState>, opts?: CustomResourceOptions) {
         return new CompressImages(name, state as any, { ...opts, id });
     }
 
@@ -225,14 +225,14 @@ export class CompressImages extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionCompressImagesArgs | ActionCompressImagesState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: CompressImagesArgs | CompressImagesState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionCompressImagesState | undefined;
+            const state = argsOrState as CompressImagesState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['destination'] = state?.destination;
@@ -258,7 +258,7 @@ export class CompressImages extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionCompressImagesArgs | undefined;
+            const args = argsOrState as CompressImagesArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

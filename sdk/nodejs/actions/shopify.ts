@@ -1,15 +1,16 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionShopifyState {
+export interface ShopifyState {
     project_name: string;
     pipeline_id: number;
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -136,13 +137,13 @@ export interface ActionShopifyState {
     zone_id?: string;
 }
 
-export type ActionShopifyArgs = AsInputs<ActionShopifyState>;
+export type ShopifyArgs = AsInputs<ShopifyState>;
 
-export interface ActionShopifyProps {
+export interface ShopifyProps {
     url: string;
     html_url: string;
     action_id: number;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     theme: number;
     theme_name: string;
@@ -187,7 +188,7 @@ export interface ActionShopifyProps {
 export class Shopify extends CustomResource {
     static __pulumiType = 'buddy:action:Shopify';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionShopifyState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<ShopifyState>, opts?: CustomResourceOptions) {
         return new Shopify(name, state as any, { ...opts, id });
     }
 
@@ -202,7 +203,7 @@ export class Shopify extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     theme!: Output<number>;
     theme_name!: Output<string>;
@@ -239,17 +240,17 @@ export class Shopify extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionShopifyArgs | ActionShopifyState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: ShopifyArgs | ShopifyState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionShopifyState | undefined;
+            const state = argsOrState as ShopifyState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['theme'] = state?.theme;
             inputs['theme_name'] = state?.theme_name;
@@ -274,7 +275,7 @@ export class Shopify extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionShopifyArgs | undefined;
+            const args = argsOrState as ShopifyArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -303,7 +304,9 @@ export class Shopify extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['theme'] = args.theme;
             inputs['theme_name'] = args.theme_name;

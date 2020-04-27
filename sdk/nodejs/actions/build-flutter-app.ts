@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Service, Variable } from '../common';
 
-export interface ActionBuildFlutterAppState {
+export interface BuildFlutterAppState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -146,9 +146,9 @@ export interface ActionBuildFlutterAppState {
     zone_id?: string;
 }
 
-export type ActionBuildFlutterAppArgs = AsInputs<ActionBuildFlutterAppState>;
+export type BuildFlutterAppArgs = AsInputs<BuildFlutterAppState>;
 
-export interface ActionBuildFlutterAppProps {
+export interface BuildFlutterAppProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -199,7 +199,7 @@ export interface ActionBuildFlutterAppProps {
 export class BuildFlutterApp extends CustomResource {
     static __pulumiType = 'buddy:action:BuildFlutterApp';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionBuildFlutterAppState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<BuildFlutterAppState>, opts?: CustomResourceOptions) {
         return new BuildFlutterApp(name, state as any, { ...opts, id });
     }
 
@@ -253,14 +253,14 @@ export class BuildFlutterApp extends CustomResource {
     working_directory!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionBuildFlutterAppArgs | ActionBuildFlutterAppState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: BuildFlutterAppArgs | BuildFlutterAppState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionBuildFlutterAppState | undefined;
+            const state = argsOrState as BuildFlutterAppState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['docker_image_name'] = state?.docker_image_name;
@@ -290,7 +290,7 @@ export class BuildFlutterApp extends CustomResource {
             inputs['working_directory'] = state?.working_directory;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionBuildFlutterAppArgs | undefined;
+            const args = argsOrState as BuildFlutterAppArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

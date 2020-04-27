@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionAmazonS3State {
+export interface AmazonS3State {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionAmazonS3State {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -173,14 +174,14 @@ export interface ActionAmazonS3State {
     zone_id?: string;
 }
 
-export type ActionAmazonS3Args = AsInputs<ActionAmazonS3State>;
+export type AmazonS3Args = AsInputs<AmazonS3State>;
 
-export interface ActionAmazonS3Props {
+export interface AmazonS3Props {
     url: string;
     html_url: string;
     action_id: number;
     bucket_name: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'AMAZON_S3';
@@ -237,7 +238,7 @@ export interface ActionAmazonS3Props {
 export class AmazonS3 extends CustomResource {
     static __pulumiType = 'buddy:action:AmazonS3';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionAmazonS3State>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<AmazonS3State>, opts?: CustomResourceOptions) {
         return new AmazonS3(name, state as any, { ...opts, id });
     }
 
@@ -253,7 +254,7 @@ export class AmazonS3 extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     bucket_name!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'AMAZON_S3'>;
@@ -304,18 +305,18 @@ export class AmazonS3 extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionAmazonS3Args | ActionAmazonS3State, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: AmazonS3Args | AmazonS3State, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionAmazonS3State | undefined;
+            const state = argsOrState as AmazonS3State | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['bucket_name'] = state?.bucket_name;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['acl'] = state?.acl;
@@ -345,7 +346,7 @@ export class AmazonS3 extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionAmazonS3Args | undefined;
+            const args = argsOrState as AmazonS3Args | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -371,7 +372,9 @@ export class AmazonS3 extends CustomResource {
             }
 
             inputs['bucket_name'] = args.bucket_name;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['acl'] = args.acl;

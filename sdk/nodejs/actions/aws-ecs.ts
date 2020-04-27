@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionAWSECSState {
+export interface AWSECSState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionAWSECSState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The path to the JSON file with task definition.
@@ -131,14 +132,14 @@ export interface ActionAWSECSState {
     zone_id?: string;
 }
 
-export type ActionAWSECSArgs = AsInputs<ActionAWSECSState>;
+export type AWSECSArgs = AsInputs<AWSECSState>;
 
-export interface ActionAWSECSProps {
+export interface AWSECSProps {
     url: string;
     html_url: string;
     action_id: number;
     cluster: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     local_path: string;
     name: string;
     region: string;
@@ -181,7 +182,7 @@ export interface ActionAWSECSProps {
 export class AWSECS extends CustomResource {
     static __pulumiType = 'buddy:action:AWSECS';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionAWSECSState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<AWSECSState>, opts?: CustomResourceOptions) {
         return new AWSECS(name, state as any, { ...opts, id });
     }
 
@@ -197,7 +198,7 @@ export class AWSECS extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     cluster!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     local_path!: Output<string>;
     name!: Output<string>;
     region!: Output<string>;
@@ -232,18 +233,18 @@ export class AWSECS extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionAWSECSArgs | ActionAWSECSState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: AWSECSArgs | AWSECSState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionAWSECSState | undefined;
+            const state = argsOrState as AWSECSState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['cluster'] = state?.cluster;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['local_path'] = state?.local_path;
             inputs['name'] = state?.name;
             inputs['region'] = state?.region;
@@ -266,7 +267,7 @@ export class AWSECS extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionAWSECSArgs | undefined;
+            const args = argsOrState as AWSECSArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -304,7 +305,9 @@ export class AWSECS extends CustomResource {
             }
 
             inputs['cluster'] = args.cluster;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['local_path'] = args.local_path;
             inputs['name'] = args.name;
             inputs['region'] = args.region;

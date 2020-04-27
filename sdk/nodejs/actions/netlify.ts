@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionNetlifyState {
+export interface NetlifyState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -19,7 +20,7 @@ export interface ActionNetlifyState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The ID of the action.
@@ -126,15 +127,15 @@ export interface ActionNetlifyState {
     zone_id?: string;
 }
 
-export type ActionNetlifyArgs = AsInputs<ActionNetlifyState>;
+export type NetlifyArgs = AsInputs<NetlifyState>;
 
-export interface ActionNetlifyProps {
+export interface NetlifyProps {
     url: string;
     html_url: string;
     action_id: number;
     application_name: string;
     execute_commands: string[];
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     site_id: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -175,7 +176,7 @@ export interface ActionNetlifyProps {
 export class Netlify extends CustomResource {
     static __pulumiType = 'buddy:action:Netlify';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionNetlifyState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<NetlifyState>, opts?: CustomResourceOptions) {
         return new Netlify(name, state as any, { ...opts, id });
     }
 
@@ -192,7 +193,7 @@ export class Netlify extends CustomResource {
     action_id!: Output<number>;
     application_name!: Output<string>;
     execute_commands!: Output<string[]>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     site_id!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -225,19 +226,19 @@ export class Netlify extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionNetlifyArgs | ActionNetlifyState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: NetlifyArgs | NetlifyState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionNetlifyState | undefined;
+            const state = argsOrState as NetlifyState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_name'] = state?.application_name;
             inputs['execute_commands'] = state?.execute_commands;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['site_id'] = state?.site_id;
             inputs['trigger_time'] = state?.trigger_time;
@@ -258,7 +259,7 @@ export class Netlify extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionNetlifyArgs | undefined;
+            const args = argsOrState as NetlifyArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -293,7 +294,9 @@ export class Netlify extends CustomResource {
 
             inputs['application_name'] = args.application_name;
             inputs['execute_commands'] = args.execute_commands;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['site_id'] = args.site_id;
             inputs['trigger_time'] = args.trigger_time;

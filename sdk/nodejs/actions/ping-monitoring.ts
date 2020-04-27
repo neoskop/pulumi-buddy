@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionPingMonitoringState {
+export interface PingMonitoringState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -111,9 +111,9 @@ export interface ActionPingMonitoringState {
     zone_id?: string;
 }
 
-export type ActionPingMonitoringArgs = AsInputs<ActionPingMonitoringState>;
+export type PingMonitoringArgs = AsInputs<PingMonitoringState>;
 
-export interface ActionPingMonitoringProps {
+export interface PingMonitoringProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -157,7 +157,7 @@ export interface ActionPingMonitoringProps {
 export class PingMonitoring extends CustomResource {
     static __pulumiType = 'buddy:action:PingMonitoring';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionPingMonitoringState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<PingMonitoringState>, opts?: CustomResourceOptions) {
         return new PingMonitoring(name, state as any, { ...opts, id });
     }
 
@@ -204,14 +204,14 @@ export class PingMonitoring extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionPingMonitoringArgs | ActionPingMonitoringState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: PingMonitoringArgs | PingMonitoringState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionPingMonitoringState | undefined;
+            const state = argsOrState as PingMonitoringState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['destination'] = state?.destination;
@@ -234,7 +234,7 @@ export class PingMonitoring extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionPingMonitoringArgs | undefined;
+            const args = argsOrState as PingMonitoringArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionFirebaseState {
+export interface FirebaseState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -19,7 +20,7 @@ export interface ActionFirebaseState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -131,15 +132,15 @@ export interface ActionFirebaseState {
     zone_id?: string;
 }
 
-export type ActionFirebaseArgs = AsInputs<ActionFirebaseState>;
+export type FirebaseArgs = AsInputs<FirebaseState>;
 
-export interface ActionFirebaseProps {
+export interface FirebaseProps {
     url: string;
     html_url: string;
     action_id: number;
     application_id: string;
     execute_commands: string[];
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'FIREBASE';
@@ -181,7 +182,7 @@ export interface ActionFirebaseProps {
 export class Firebase extends CustomResource {
     static __pulumiType = 'buddy:action:Firebase';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionFirebaseState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<FirebaseState>, opts?: CustomResourceOptions) {
         return new Firebase(name, state as any, { ...opts, id });
     }
 
@@ -198,7 +199,7 @@ export class Firebase extends CustomResource {
     action_id!: Output<number>;
     application_id!: Output<string>;
     execute_commands!: Output<string[]>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'FIREBASE'>;
@@ -232,19 +233,19 @@ export class Firebase extends CustomResource {
     working_directory!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionFirebaseArgs | ActionFirebaseState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: FirebaseArgs | FirebaseState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionFirebaseState | undefined;
+            const state = argsOrState as FirebaseState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_id'] = state?.application_id;
             inputs['execute_commands'] = state?.execute_commands;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
@@ -266,7 +267,7 @@ export class Firebase extends CustomResource {
             inputs['working_directory'] = state?.working_directory;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionFirebaseArgs | undefined;
+            const args = argsOrState as FirebaseArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -297,7 +298,9 @@ export class Firebase extends CustomResource {
 
             inputs['application_id'] = args.application_id;
             inputs['execute_commands'] = args.execute_commands;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;

@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { PipelineRef, Variable } from '../common';
 
-export interface ActionRunNextPipelineState {
+export interface RunNextPipelineState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -121,9 +121,9 @@ export interface ActionRunNextPipelineState {
     zone_id?: string;
 }
 
-export type ActionRunNextPipelineArgs = AsInputs<ActionRunNextPipelineState>;
+export type RunNextPipelineArgs = AsInputs<RunNextPipelineState>;
 
-export interface ActionRunNextPipelineProps {
+export interface RunNextPipelineProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -169,7 +169,7 @@ export interface ActionRunNextPipelineProps {
 export class RunNextPipeline extends CustomResource {
     static __pulumiType = 'buddy:action:RunNextPipeline';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionRunNextPipelineState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<RunNextPipelineState>, opts?: CustomResourceOptions) {
         return new RunNextPipeline(name, state as any, { ...opts, id });
     }
 
@@ -218,14 +218,14 @@ export class RunNextPipeline extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionRunNextPipelineArgs | ActionRunNextPipelineState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: RunNextPipelineArgs | RunNextPipelineState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionRunNextPipelineState | undefined;
+            const state = argsOrState as RunNextPipelineState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -250,7 +250,7 @@ export class RunNextPipeline extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionRunNextPipelineArgs | undefined;
+            const args = argsOrState as RunNextPipelineArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

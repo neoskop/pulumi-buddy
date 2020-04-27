@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionKubernetesSetImageState {
+export interface KubernetesSetImageState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -181,9 +181,9 @@ export interface ActionKubernetesSetImageState {
     zone_id?: string;
 }
 
-export type ActionKubernetesSetImageArgs = AsInputs<ActionKubernetesSetImageState>;
+export type KubernetesSetImageArgs = AsInputs<KubernetesSetImageState>;
 
-export interface ActionKubernetesSetImageProps {
+export interface KubernetesSetImageProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -241,7 +241,7 @@ export interface ActionKubernetesSetImageProps {
 export class KubernetesSetImage extends CustomResource {
     static __pulumiType = 'buddy:action:KubernetesSetImage';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionKubernetesSetImageState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<KubernetesSetImageState>, opts?: CustomResourceOptions) {
         return new KubernetesSetImage(name, state as any, { ...opts, id });
     }
 
@@ -302,14 +302,14 @@ export class KubernetesSetImage extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionKubernetesSetImageArgs | ActionKubernetesSetImageState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: KubernetesSetImageArgs | KubernetesSetImageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionKubernetesSetImageState | undefined;
+            const state = argsOrState as KubernetesSetImageState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['auth_type'] = state?.auth_type;
@@ -346,7 +346,7 @@ export class KubernetesSetImage extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionKubernetesSetImageArgs | undefined;
+            const args = argsOrState as KubernetesSetImageArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

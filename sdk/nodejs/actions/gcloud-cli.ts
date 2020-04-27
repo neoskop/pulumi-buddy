@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionGCloudCLIState {
+export interface GCloudCLIState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionGCloudCLIState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -131,14 +132,14 @@ export interface ActionGCloudCLIState {
     zone_id?: string;
 }
 
-export type ActionGCloudCLIArgs = AsInputs<ActionGCloudCLIState>;
+export type GCloudCLIArgs = AsInputs<GCloudCLIState>;
 
-export interface ActionGCloudCLIProps {
+export interface GCloudCLIProps {
     url: string;
     html_url: string;
     action_id: number;
     execute_commands: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'GCLOUD_CLI';
@@ -181,7 +182,7 @@ export interface ActionGCloudCLIProps {
 export class GCloudCLI extends CustomResource {
     static __pulumiType = 'buddy:action:GCloudCLI';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionGCloudCLIState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<GCloudCLIState>, opts?: CustomResourceOptions) {
         return new GCloudCLI(name, state as any, { ...opts, id });
     }
 
@@ -197,7 +198,7 @@ export class GCloudCLI extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     execute_commands!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'GCLOUD_CLI'>;
@@ -232,18 +233,18 @@ export class GCloudCLI extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionGCloudCLIArgs | ActionGCloudCLIState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GCloudCLIArgs | GCloudCLIState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionGCloudCLIState | undefined;
+            const state = argsOrState as GCloudCLIState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['execute_commands'] = state?.execute_commands;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
@@ -266,7 +267,7 @@ export class GCloudCLI extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionGCloudCLIArgs | undefined;
+            const args = argsOrState as GCloudCLIArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -292,7 +293,9 @@ export class GCloudCLI extends CustomResource {
             }
 
             inputs['execute_commands'] = args.execute_commands;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;

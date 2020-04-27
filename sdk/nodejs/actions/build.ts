@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Service, Variable } from '../common';
 
-export interface ActionBuildState {
+export interface BuildState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -166,9 +166,9 @@ export interface ActionBuildState {
     zone_id?: string;
 }
 
-export type ActionBuildArgs = AsInputs<ActionBuildState>;
+export type BuildArgs = AsInputs<BuildState>;
 
-export interface ActionBuildProps {
+export interface BuildProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -223,7 +223,7 @@ export interface ActionBuildProps {
 export class Build extends CustomResource {
     static __pulumiType = 'buddy:action:Build';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionBuildState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<BuildState>, opts?: CustomResourceOptions) {
         return new Build(name, state as any, { ...opts, id });
     }
 
@@ -281,14 +281,14 @@ export class Build extends CustomResource {
     working_directory!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionBuildArgs | ActionBuildState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: BuildArgs | BuildState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionBuildState | undefined;
+            const state = argsOrState as BuildState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['docker_image_name'] = state?.docker_image_name;
@@ -322,7 +322,7 @@ export class Build extends CustomResource {
             inputs['working_directory'] = state?.working_directory;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionBuildArgs | undefined;
+            const args = argsOrState as BuildArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

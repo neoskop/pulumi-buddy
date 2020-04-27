@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { PipelineRef, Variable } from '../common';
 
-export interface ActionCopyFilesFromAnotherPipelineState {
+export interface CopyFilesFromAnotherPipelineState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -136,9 +136,9 @@ export interface ActionCopyFilesFromAnotherPipelineState {
     zone_id?: string;
 }
 
-export type ActionCopyFilesFromAnotherPipelineArgs = AsInputs<ActionCopyFilesFromAnotherPipelineState>;
+export type CopyFilesFromAnotherPipelineArgs = AsInputs<CopyFilesFromAnotherPipelineState>;
 
-export interface ActionCopyFilesFromAnotherPipelineProps {
+export interface CopyFilesFromAnotherPipelineProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -187,7 +187,7 @@ export interface ActionCopyFilesFromAnotherPipelineProps {
 export class CopyFilesFromAnotherPipeline extends CustomResource {
     static __pulumiType = 'buddy:action:CopyFilesFromAnotherPipeline';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionCopyFilesFromAnotherPipelineState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<CopyFilesFromAnotherPipelineState>, opts?: CustomResourceOptions) {
         return new CopyFilesFromAnotherPipeline(name, state as any, { ...opts, id });
     }
 
@@ -241,7 +241,7 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
 
     constructor(
         name: string,
-        argsOrState: ActionCopyFilesFromAnotherPipelineArgs | ActionCopyFilesFromAnotherPipelineState,
+        argsOrState: CopyFilesFromAnotherPipelineArgs | CopyFilesFromAnotherPipelineState,
         opts?: CustomResourceOptions
     ) {
         const inputs: Inputs = {};
@@ -250,7 +250,7 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionCopyFilesFromAnotherPipelineState | undefined;
+            const state = argsOrState as CopyFilesFromAnotherPipelineState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -278,7 +278,7 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionCopyFilesFromAnotherPipelineArgs | undefined;
+            const args = argsOrState as CopyFilesFromAnotherPipelineArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

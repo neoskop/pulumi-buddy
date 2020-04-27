@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionVultrState {
+export interface VultrState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -156,9 +156,9 @@ export interface ActionVultrState {
     zone_id?: string;
 }
 
-export type ActionVultrArgs = AsInputs<ActionVultrState>;
+export type VultrArgs = AsInputs<VultrState>;
 
-export interface ActionVultrProps {
+export interface VultrProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -211,7 +211,7 @@ export interface ActionVultrProps {
 export class Vultr extends CustomResource {
     static __pulumiType = 'buddy:action:Vultr';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionVultrState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<VultrState>, opts?: CustomResourceOptions) {
         return new Vultr(name, state as any, { ...opts, id });
     }
 
@@ -267,14 +267,14 @@ export class Vultr extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionVultrArgs | ActionVultrState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: VultrArgs | VultrState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionVultrState | undefined;
+            const state = argsOrState as VultrState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['authentication_mode'] = state?.authentication_mode;
@@ -306,7 +306,7 @@ export class Vultr extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionVultrArgs | undefined;
+            const args = argsOrState as VultrArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

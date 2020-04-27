@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionKubernetesApplyDeploymentConfigurationState {
+export interface KubernetesApplyDeploymentConfigurationState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -201,9 +201,9 @@ export interface ActionKubernetesApplyDeploymentConfigurationState {
     zone_id?: string;
 }
 
-export type ActionKubernetesApplyDeploymentConfigurationArgs = AsInputs<ActionKubernetesApplyDeploymentConfigurationState>;
+export type KubernetesApplyDeploymentConfigurationArgs = AsInputs<KubernetesApplyDeploymentConfigurationState>;
 
-export interface ActionKubernetesApplyDeploymentConfigurationProps {
+export interface KubernetesApplyDeploymentConfigurationProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -265,12 +265,7 @@ export interface ActionKubernetesApplyDeploymentConfigurationProps {
 export class KubernetesApplyDeploymentConfiguration extends CustomResource {
     static __pulumiType = 'buddy:action:KubernetesApplyDeploymentConfiguration';
 
-    static get(
-        name: string,
-        id: Input<ID>,
-        state?: Partial<ActionKubernetesApplyDeploymentConfigurationState>,
-        opts?: CustomResourceOptions
-    ) {
+    static get(name: string, id: Input<ID>, state?: Partial<KubernetesApplyDeploymentConfigurationState>, opts?: CustomResourceOptions) {
         return new KubernetesApplyDeploymentConfiguration(name, state as any, { ...opts, id });
     }
 
@@ -337,7 +332,7 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
 
     constructor(
         name: string,
-        argsOrState: ActionKubernetesApplyDeploymentConfigurationArgs | ActionKubernetesApplyDeploymentConfigurationState,
+        argsOrState: KubernetesApplyDeploymentConfigurationArgs | KubernetesApplyDeploymentConfigurationState,
         opts?: CustomResourceOptions
     ) {
         const inputs: Inputs = {};
@@ -346,7 +341,7 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionKubernetesApplyDeploymentConfigurationState | undefined;
+            const state = argsOrState as KubernetesApplyDeploymentConfigurationState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['auth_type'] = state?.auth_type;
@@ -387,7 +382,7 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionKubernetesApplyDeploymentConfigurationArgs | undefined;
+            const args = argsOrState as KubernetesApplyDeploymentConfigurationArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

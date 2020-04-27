@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Header, Variable } from '../common';
 
-export interface ActionWebMonitoringState {
+export interface WebMonitoringState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -146,9 +146,9 @@ export interface ActionWebMonitoringState {
     zone_id?: string;
 }
 
-export type ActionWebMonitoringArgs = AsInputs<ActionWebMonitoringState>;
+export type WebMonitoringArgs = AsInputs<WebMonitoringState>;
 
-export interface ActionWebMonitoringProps {
+export interface WebMonitoringProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -199,7 +199,7 @@ export interface ActionWebMonitoringProps {
 export class WebMonitoring extends CustomResource {
     static __pulumiType = 'buddy:action:WebMonitoring';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionWebMonitoringState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<WebMonitoringState>, opts?: CustomResourceOptions) {
         return new WebMonitoring(name, state as any, { ...opts, id });
     }
 
@@ -253,14 +253,14 @@ export class WebMonitoring extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionWebMonitoringArgs | ActionWebMonitoringState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: WebMonitoringArgs | WebMonitoringState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionWebMonitoringState | undefined;
+            const state = argsOrState as WebMonitoringState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['destination'] = state?.destination;
@@ -290,7 +290,7 @@ export class WebMonitoring extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionWebMonitoringArgs | undefined;
+            const args = argsOrState as WebMonitoringArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

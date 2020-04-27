@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { APKs, Variable } from '../common';
 
-export interface ActionPublishAndroidApplicationState {
+export interface PublishAndroidApplicationState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -146,9 +146,9 @@ export interface ActionPublishAndroidApplicationState {
     zone_id?: string;
 }
 
-export type ActionPublishAndroidApplicationArgs = AsInputs<ActionPublishAndroidApplicationState>;
+export type PublishAndroidApplicationArgs = AsInputs<PublishAndroidApplicationState>;
 
-export interface ActionPublishAndroidApplicationProps {
+export interface PublishAndroidApplicationProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -199,7 +199,7 @@ export interface ActionPublishAndroidApplicationProps {
 export class PublishAndroidApplication extends CustomResource {
     static __pulumiType = 'buddy:action:PublishAndroidApplication';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionPublishAndroidApplicationState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<PublishAndroidApplicationState>, opts?: CustomResourceOptions) {
         return new PublishAndroidApplication(name, state as any, { ...opts, id });
     }
 
@@ -253,18 +253,14 @@ export class PublishAndroidApplication extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(
-        name: string,
-        argsOrState: ActionPublishAndroidApplicationArgs | ActionPublishAndroidApplicationState,
-        opts?: CustomResourceOptions
-    ) {
+    constructor(name: string, argsOrState: PublishAndroidApplicationArgs | PublishAndroidApplicationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionPublishAndroidApplicationState | undefined;
+            const state = argsOrState as PublishAndroidApplicationState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['apk_files'] = state?.apk_files;
@@ -294,7 +290,7 @@ export class PublishAndroidApplication extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionPublishAndroidApplicationArgs | undefined;
+            const args = argsOrState as PublishAndroidApplicationArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionSplitTestsState {
+export interface SplitTestsState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -121,9 +121,9 @@ export interface ActionSplitTestsState {
     zone_id?: string;
 }
 
-export type ActionSplitTestsArgs = AsInputs<ActionSplitTestsState>;
+export type SplitTestsArgs = AsInputs<SplitTestsState>;
 
-export interface ActionSplitTestsProps {
+export interface SplitTestsProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -169,7 +169,7 @@ export interface ActionSplitTestsProps {
 export class SplitTests extends CustomResource {
     static __pulumiType = 'buddy:action:SplitTests';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionSplitTestsState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<SplitTestsState>, opts?: CustomResourceOptions) {
         return new SplitTests(name, state as any, { ...opts, id });
     }
 
@@ -218,14 +218,14 @@ export class SplitTests extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionSplitTestsArgs | ActionSplitTestsState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: SplitTestsArgs | SplitTestsState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionSplitTestsState | undefined;
+            const state = argsOrState as SplitTestsState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['groups_count'] = state?.groups_count;
@@ -250,7 +250,7 @@ export class SplitTests extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionSplitTestsArgs | undefined;
+            const args = argsOrState as SplitTestsArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

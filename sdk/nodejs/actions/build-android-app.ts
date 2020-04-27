@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Service, Variable } from '../common';
 
-export interface ActionBuildAndroidAppState {
+export interface BuildAndroidAppState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -146,9 +146,9 @@ export interface ActionBuildAndroidAppState {
     zone_id?: string;
 }
 
-export type ActionBuildAndroidAppArgs = AsInputs<ActionBuildAndroidAppState>;
+export type BuildAndroidAppArgs = AsInputs<BuildAndroidAppState>;
 
-export interface ActionBuildAndroidAppProps {
+export interface BuildAndroidAppProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -199,7 +199,7 @@ export interface ActionBuildAndroidAppProps {
 export class BuildAndroidApp extends CustomResource {
     static __pulumiType = 'buddy:action:BuildAndroidApp';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionBuildAndroidAppState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<BuildAndroidAppState>, opts?: CustomResourceOptions) {
         return new BuildAndroidApp(name, state as any, { ...opts, id });
     }
 
@@ -253,14 +253,14 @@ export class BuildAndroidApp extends CustomResource {
     working_directory!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionBuildAndroidAppArgs | ActionBuildAndroidAppState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: BuildAndroidAppArgs | BuildAndroidAppState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionBuildAndroidAppState | undefined;
+            const state = argsOrState as BuildAndroidAppState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['docker_image_name'] = state?.docker_image_name;
@@ -290,7 +290,7 @@ export class BuildAndroidApp extends CustomResource {
             inputs['working_directory'] = state?.working_directory;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionBuildAndroidAppArgs | undefined;
+            const args = argsOrState as BuildAndroidAppArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

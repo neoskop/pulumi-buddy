@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionBuildDockerfileState {
+export interface BuildDockerfileState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -69,7 +70,7 @@ export interface ActionBuildDockerfileState {
     /**
      * The integration. Required for delivering the Dockerfile to the Amazon  ECR.
      */
-    integration?: IntegrationRef;
+    integration?: IntegrationRef | Integration;
 
     /**
      * The username required to connect to the server. Required for delivering  the Dockerfile to the Docker Hub or a private registry.
@@ -171,9 +172,9 @@ export interface ActionBuildDockerfileState {
     registry?: string;
 }
 
-export type ActionBuildDockerfileArgs = AsInputs<ActionBuildDockerfileState>;
+export type BuildDockerfileArgs = AsInputs<BuildDockerfileState>;
 
-export interface ActionBuildDockerfileProps {
+export interface BuildDockerfileProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -190,7 +191,7 @@ export interface ActionBuildDockerfileProps {
     docker_image_tag?: string;
     ignore_errors?: boolean;
     insecure_registry?: boolean;
-    integration?: IntegrationRef;
+    integration?: IntegrationRef | Integration;
     login?: string;
     password?: string;
     region?: string;
@@ -229,7 +230,7 @@ export interface ActionBuildDockerfileProps {
 export class BuildDockerfile extends CustomResource {
     static __pulumiType = 'buddy:action:BuildDockerfile';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionBuildDockerfileState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<BuildDockerfileState>, opts?: CustomResourceOptions) {
         return new BuildDockerfile(name, state as any, { ...opts, id });
     }
 
@@ -257,7 +258,7 @@ export class BuildDockerfile extends CustomResource {
     docker_image_tag!: Output<string | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     insecure_registry!: Output<boolean | undefined>;
-    integration!: Output<IntegrationRef | undefined>;
+    integration!: Output<IntegrationRef | Integration | undefined>;
     login!: Output<string | undefined>;
     password!: Output<string | undefined>;
     region!: Output<string | undefined>;
@@ -288,14 +289,14 @@ export class BuildDockerfile extends CustomResource {
     zone_id!: Output<string | undefined>;
     registry!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionBuildDockerfileArgs | ActionBuildDockerfileState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: BuildDockerfileArgs | BuildDockerfileState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionBuildDockerfileState | undefined;
+            const state = argsOrState as BuildDockerfileState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['dockerfile_path'] = state?.dockerfile_path;
@@ -310,7 +311,7 @@ export class BuildDockerfile extends CustomResource {
             inputs['docker_image_tag'] = state?.docker_image_tag;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['insecure_registry'] = state?.insecure_registry;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['login'] = state?.login;
             inputs['password'] = state?.password;
             inputs['region'] = state?.region;
@@ -330,7 +331,7 @@ export class BuildDockerfile extends CustomResource {
             inputs['zone_id'] = state?.zone_id;
             inputs['registry'] = state?.registry;
         } else {
-            const args = argsOrState as ActionBuildDockerfileArgs | undefined;
+            const args = argsOrState as BuildDockerfileArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -363,7 +364,9 @@ export class BuildDockerfile extends CustomResource {
             inputs['docker_image_tag'] = args.docker_image_tag;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['insecure_registry'] = args.insecure_registry;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['login'] = args.login;
             inputs['password'] = args.password;
             inputs['region'] = args.region;

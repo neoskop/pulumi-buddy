@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionSignAndroidApplicationState {
+export interface SignAndroidApplicationState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -146,9 +146,9 @@ export interface ActionSignAndroidApplicationState {
     zone_id?: string;
 }
 
-export type ActionSignAndroidApplicationArgs = AsInputs<ActionSignAndroidApplicationState>;
+export type SignAndroidApplicationArgs = AsInputs<SignAndroidApplicationState>;
 
-export interface ActionSignAndroidApplicationProps {
+export interface SignAndroidApplicationProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -199,7 +199,7 @@ export interface ActionSignAndroidApplicationProps {
 export class SignAndroidApplication extends CustomResource {
     static __pulumiType = 'buddy:action:SignAndroidApplication';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionSignAndroidApplicationState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<SignAndroidApplicationState>, opts?: CustomResourceOptions) {
         return new SignAndroidApplication(name, state as any, { ...opts, id });
     }
 
@@ -253,18 +253,14 @@ export class SignAndroidApplication extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(
-        name: string,
-        argsOrState: ActionSignAndroidApplicationArgs | ActionSignAndroidApplicationState,
-        opts?: CustomResourceOptions
-    ) {
+    constructor(name: string, argsOrState: SignAndroidApplicationArgs | SignAndroidApplicationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionSignAndroidApplicationState | undefined;
+            const state = argsOrState as SignAndroidApplicationState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_name'] = state?.application_name;
@@ -294,7 +290,7 @@ export class SignAndroidApplication extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionSignAndroidApplicationArgs | undefined;
+            const args = argsOrState as SignAndroidApplicationArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

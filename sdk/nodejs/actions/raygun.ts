@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionRaygunState {
+export interface RaygunState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -136,9 +136,9 @@ export interface ActionRaygunState {
     zone_id?: string;
 }
 
-export type ActionRaygunArgs = AsInputs<ActionRaygunState>;
+export type RaygunArgs = AsInputs<RaygunState>;
 
-export interface ActionRaygunProps {
+export interface RaygunProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -187,7 +187,7 @@ export interface ActionRaygunProps {
 export class Raygun extends CustomResource {
     static __pulumiType = 'buddy:action:Raygun';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionRaygunState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<RaygunState>, opts?: CustomResourceOptions) {
         return new Raygun(name, state as any, { ...opts, id });
     }
 
@@ -239,14 +239,14 @@ export class Raygun extends CustomResource {
     version!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionRaygunArgs | ActionRaygunState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: RaygunArgs | RaygunState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionRaygunState | undefined;
+            const state = argsOrState as RaygunState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['device'] = state?.device;
@@ -274,7 +274,7 @@ export class Raygun extends CustomResource {
             inputs['version'] = state?.version;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionRaygunArgs | undefined;
+            const args = argsOrState as RaygunArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

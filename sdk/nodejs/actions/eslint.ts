@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionEslintState {
+export interface EslintState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -131,9 +131,9 @@ export interface ActionEslintState {
     zone_id?: string;
 }
 
-export type ActionEslintArgs = AsInputs<ActionEslintState>;
+export type EslintArgs = AsInputs<EslintState>;
 
-export interface ActionEslintProps {
+export interface EslintProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -181,7 +181,7 @@ export interface ActionEslintProps {
 export class Eslint extends CustomResource {
     static __pulumiType = 'buddy:action:Eslint';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionEslintState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<EslintState>, opts?: CustomResourceOptions) {
         return new Eslint(name, state as any, { ...opts, id });
     }
 
@@ -232,14 +232,14 @@ export class Eslint extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionEslintArgs | ActionEslintState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: EslintArgs | EslintState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionEslintState | undefined;
+            const state = argsOrState as EslintState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -266,7 +266,7 @@ export class Eslint extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionEslintArgs | undefined;
+            const args = argsOrState as EslintArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

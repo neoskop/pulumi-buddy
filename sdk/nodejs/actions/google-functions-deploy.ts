@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionGoogleFunctionsDeployState {
+export interface GoogleFunctionsDeployState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -19,7 +20,7 @@ export interface ActionGoogleFunctionsDeployState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -141,15 +142,15 @@ export interface ActionGoogleFunctionsDeployState {
     zone_id?: string;
 }
 
-export type ActionGoogleFunctionsDeployArgs = AsInputs<ActionGoogleFunctionsDeployState>;
+export type GoogleFunctionsDeployArgs = AsInputs<GoogleFunctionsDeployState>;
 
-export interface ActionGoogleFunctionsDeployProps {
+export interface GoogleFunctionsDeployProps {
     url: string;
     html_url: string;
     action_id: number;
     application_id: string;
     function_name: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     server_key: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -193,7 +194,7 @@ export interface ActionGoogleFunctionsDeployProps {
 export class GoogleFunctionsDeploy extends CustomResource {
     static __pulumiType = 'buddy:action:GoogleFunctionsDeploy';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionGoogleFunctionsDeployState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<GoogleFunctionsDeployState>, opts?: CustomResourceOptions) {
         return new GoogleFunctionsDeploy(name, state as any, { ...opts, id });
     }
 
@@ -210,7 +211,7 @@ export class GoogleFunctionsDeploy extends CustomResource {
     action_id!: Output<number>;
     application_id!: Output<string>;
     function_name!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     server_key!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -246,23 +247,19 @@ export class GoogleFunctionsDeploy extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(
-        name: string,
-        argsOrState: ActionGoogleFunctionsDeployArgs | ActionGoogleFunctionsDeployState,
-        opts?: CustomResourceOptions
-    ) {
+    constructor(name: string, argsOrState: GoogleFunctionsDeployArgs | GoogleFunctionsDeployState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionGoogleFunctionsDeployState | undefined;
+            const state = argsOrState as GoogleFunctionsDeployState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_id'] = state?.application_id;
             inputs['function_name'] = state?.function_name;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['server_key'] = state?.server_key;
             inputs['trigger_time'] = state?.trigger_time;
@@ -286,7 +283,7 @@ export class GoogleFunctionsDeploy extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionGoogleFunctionsDeployArgs | undefined;
+            const args = argsOrState as GoogleFunctionsDeployArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -321,7 +318,9 @@ export class GoogleFunctionsDeploy extends CustomResource {
 
             inputs['application_id'] = args.application_id;
             inputs['function_name'] = args.function_name;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['server_key'] = args.server_key;
             inputs['trigger_time'] = args.trigger_time;

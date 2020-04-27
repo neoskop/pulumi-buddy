@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionDownloadS3State {
+export interface DownloadS3State {
     project_name: string;
     pipeline_id: number;
     /**
@@ -19,7 +20,7 @@ export interface ActionDownloadS3State {
     /**
      * The ID of the integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -136,15 +137,15 @@ export interface ActionDownloadS3State {
     zone_id?: string;
 }
 
-export type ActionDownloadS3Args = AsInputs<ActionDownloadS3State>;
+export type DownloadS3Args = AsInputs<DownloadS3State>;
 
-export interface ActionDownloadS3Props {
+export interface DownloadS3Props {
     url: string;
     html_url: string;
     action_id: number;
     bucket_name: string;
     destination_path: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     source_path: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -187,7 +188,7 @@ export interface ActionDownloadS3Props {
 export class DownloadS3 extends CustomResource {
     static __pulumiType = 'buddy:action:DownloadS3';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionDownloadS3State>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<DownloadS3State>, opts?: CustomResourceOptions) {
         return new DownloadS3(name, state as any, { ...opts, id });
     }
 
@@ -204,7 +205,7 @@ export class DownloadS3 extends CustomResource {
     action_id!: Output<number>;
     bucket_name!: Output<string>;
     destination_path!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     source_path!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -239,19 +240,19 @@ export class DownloadS3 extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionDownloadS3Args | ActionDownloadS3State, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: DownloadS3Args | DownloadS3State, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionDownloadS3State | undefined;
+            const state = argsOrState as DownloadS3State | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['bucket_name'] = state?.bucket_name;
             inputs['destination_path'] = state?.destination_path;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['source_path'] = state?.source_path;
             inputs['trigger_time'] = state?.trigger_time;
@@ -274,7 +275,7 @@ export class DownloadS3 extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionDownloadS3Args | undefined;
+            const args = argsOrState as DownloadS3Args | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -309,7 +310,9 @@ export class DownloadS3 extends CustomResource {
 
             inputs['bucket_name'] = args.bucket_name;
             inputs['destination_path'] = args.destination_path;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['source_path'] = args.source_path;
             inputs['trigger_time'] = args.trigger_time;

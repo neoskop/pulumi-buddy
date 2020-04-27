@@ -1,15 +1,16 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionCloudflareState {
+export interface CloudflareState {
     project_name: string;
     pipeline_id: number;
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -141,13 +142,13 @@ export interface ActionCloudflareState {
     variables?: Variable[];
 }
 
-export type ActionCloudflareArgs = AsInputs<ActionCloudflareState>;
+export type CloudflareArgs = AsInputs<CloudflareState>;
 
-export interface ActionCloudflareProps {
+export interface CloudflareProps {
     url: string;
     html_url: string;
     action_id: number;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'CLOUDFLARE';
@@ -193,7 +194,7 @@ export interface ActionCloudflareProps {
 export class Cloudflare extends CustomResource {
     static __pulumiType = 'buddy:action:Cloudflare';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionCloudflareState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<CloudflareState>, opts?: CustomResourceOptions) {
         return new Cloudflare(name, state as any, { ...opts, id });
     }
 
@@ -208,7 +209,7 @@ export class Cloudflare extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'CLOUDFLARE'>;
@@ -246,17 +247,17 @@ export class Cloudflare extends CustomResource {
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
 
-    constructor(name: string, argsOrState: ActionCloudflareArgs | ActionCloudflareState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: CloudflareArgs | CloudflareState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionCloudflareState | undefined;
+            const state = argsOrState as CloudflareState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['zone_id'] = state?.zone_id;
@@ -282,7 +283,7 @@ export class Cloudflare extends CustomResource {
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
         } else {
-            const args = argsOrState as ActionCloudflareArgs | undefined;
+            const args = argsOrState as CloudflareArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -307,7 +308,9 @@ export class Cloudflare extends CustomResource {
                 throw new Error('Missing required property "zone_id"');
             }
 
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['zone_id'] = args.zone_id;

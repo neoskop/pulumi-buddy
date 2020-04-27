@@ -6,6 +6,7 @@ export interface ICodegenOptions {
     utilsImport: string;
     commonImport: string;
     pipelineImport: string;
+    integrationImport: string;
 }
 
 export class BuddyCodegenActions {
@@ -121,7 +122,20 @@ export class BuddyCodegenActions {
                 imp.addNamedImport(ref);
             }
 
-            return type.isArray ? `${ref}[]` : ref;
+            if (ref === 'IntegrationRef') {
+                let imp = file.getImportDeclaration(d => d.getModuleSpecifierValue() === this.options.integrationImport);
+                if (!imp) {
+                    imp = file.addImportDeclaration({
+                        moduleSpecifier: this.options.integrationImport
+                    });
+                }
+                if (!imp.getNamedImports().some(i => i.getName() === 'Integration')) {
+                    imp.addNamedImport('Integration');
+                }
+                return type.isArray ? `(${ref}|Integration)[]` : `${ref}|Integration`;
+            } else {
+                return type.isArray ? `${ref}[]` : ref;
+            }
         }
         if ('scalar' in type) {
             return type.isArray ? `${type.scalar.toLowerCase()}[]` : type.scalar.toLowerCase();
@@ -158,7 +172,7 @@ export class BuddyCodegenActions {
 
     protected addActionState(action: Action, file: SourceFile) {
         const state = file.addInterface({
-            name: `Action${this.toKeyword(this.sanitize(action.name))}State`,
+            name: `${this.toKeyword(this.sanitize(action.name))}State`,
             isExported: true,
             properties: [
                 {
@@ -195,7 +209,7 @@ export class BuddyCodegenActions {
 
     protected addActionArgs(action: Action, state: InterfaceDeclaration) {
         return state.getSourceFile().addTypeAlias({
-            name: `Action${this.toKeyword(this.sanitize(action.name))}Args`,
+            name: `${this.toKeyword(this.sanitize(action.name))}Args`,
             isExported: true,
             type: `AsInputs<${state.getName()}>`
         });
@@ -203,7 +217,7 @@ export class BuddyCodegenActions {
 
     protected addActionProps(action: Action, file: SourceFile) {
         const props = file.addInterface({
-            name: `Action${this.toKeyword(this.sanitize(action.name))}Props`,
+            name: `${this.toKeyword(this.sanitize(action.name))}Props`,
             isExported: true
         });
 
@@ -339,11 +353,24 @@ export class BuddyCodegenActions {
 
         for (const param of action.parameters) {
             if (param.name === 'type') continue;
-            stateAdaption.push(`inputs['${param.name}'] = state?.${param.name};`);
+            if ('ref' in param.type && param.type.ref === 'Integration') {
+                let imp = file.getImportDeclaration(d => d.getModuleSpecifierValue() === '@pulumi/pulumi')!;
+                if (!imp.getNamedImports().some(i => i.getName() === 'output')) {
+                    imp.addNamedImport('output');
+                }
+                stateAdaption.push(
+                    `inputs['${param.name}'] = state?.${param.name} instanceof Integration ? { hash_id: state.${param.name}.hash_id } : state?.${param.name};`
+                );
+                argsAdaption.push(
+                    `inputs['${param.name}'] = output(args.${param.name}).apply(${param.name} => ${param.name} instanceof Integration ? { hash_id: ${param.name}.hash_id } : ${param.name});`
+                );
+            } else {
+                stateAdaption.push(`inputs['${param.name}'] = state?.${param.name};`);
+                argsAdaption.push(`inputs['${param.name}'] = args.${param.name};`);
+            }
             if (param.required) {
                 argsChecks.push(`if (!args?.${param.name}) {`, `  throw new Error('Missing required property "${param.name}"')`, `}`);
             }
-            argsAdaption.push(`inputs['${param.name}'] = args.${param.name};`);
         }
 
         actionClass.addConstructor({

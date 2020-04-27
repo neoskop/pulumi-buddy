@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionAzureState {
+export interface AzureState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -156,9 +156,9 @@ export interface ActionAzureState {
     zone_id?: string;
 }
 
-export type ActionAzureArgs = AsInputs<ActionAzureState>;
+export type AzureArgs = AsInputs<AzureState>;
 
-export interface ActionAzureProps {
+export interface AzureProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -211,7 +211,7 @@ export interface ActionAzureProps {
 export class Azure extends CustomResource {
     static __pulumiType = 'buddy:action:Azure';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionAzureState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<AzureState>, opts?: CustomResourceOptions) {
         return new Azure(name, state as any, { ...opts, id });
     }
 
@@ -267,14 +267,14 @@ export class Azure extends CustomResource {
     without_force!: Output<boolean | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionAzureArgs | ActionAzureState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: AzureArgs | AzureState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionAzureState | undefined;
+            const state = argsOrState as AzureState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['git_auth_mode'] = state?.git_auth_mode;
@@ -306,7 +306,7 @@ export class Azure extends CustomResource {
             inputs['without_force'] = state?.without_force;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionAzureArgs | undefined;
+            const args = argsOrState as AzureArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

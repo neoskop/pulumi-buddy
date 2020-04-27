@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionEmailNotificationState {
+export interface EmailNotificationState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -136,9 +136,9 @@ export interface ActionEmailNotificationState {
     zone_id?: string;
 }
 
-export type ActionEmailNotificationArgs = AsInputs<ActionEmailNotificationState>;
+export type EmailNotificationArgs = AsInputs<EmailNotificationState>;
 
-export interface ActionEmailNotificationProps {
+export interface EmailNotificationProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -187,7 +187,7 @@ export interface ActionEmailNotificationProps {
 export class EmailNotification extends CustomResource {
     static __pulumiType = 'buddy:action:EmailNotification';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionEmailNotificationState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<EmailNotificationState>, opts?: CustomResourceOptions) {
         return new EmailNotification(name, state as any, { ...opts, id });
     }
 
@@ -239,14 +239,14 @@ export class EmailNotification extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionEmailNotificationArgs | ActionEmailNotificationState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: EmailNotificationArgs | EmailNotificationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionEmailNotificationState | undefined;
+            const state = argsOrState as EmailNotificationState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -274,7 +274,7 @@ export class EmailNotification extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionEmailNotificationArgs | undefined;
+            const args = argsOrState as EmailNotificationArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

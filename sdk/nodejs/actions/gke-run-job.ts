@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionGKERunJobState {
+export interface GKERunJobState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -24,7 +25,7 @@ export interface ActionGKERunJobState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -156,16 +157,16 @@ export interface ActionGKERunJobState {
     variables?: Variable[];
 }
 
-export type ActionGKERunJobArgs = AsInputs<ActionGKERunJobState>;
+export type GKERunJobArgs = AsInputs<GKERunJobState>;
 
-export interface ActionGKERunJobProps {
+export interface GKERunJobProps {
     url: string;
     html_url: string;
     action_id: number;
     application_id: string;
     cluster: string;
     gke_auth_type: 'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS';
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'KUBERNETES_RUN_JOB';
@@ -211,7 +212,7 @@ export interface ActionGKERunJobProps {
 export class GKERunJob extends CustomResource {
     static __pulumiType = 'buddy:action:GKERunJob';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionGKERunJobState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<GKERunJobState>, opts?: CustomResourceOptions) {
         return new GKERunJob(name, state as any, { ...opts, id });
     }
 
@@ -229,7 +230,7 @@ export class GKERunJob extends CustomResource {
     application_id!: Output<string>;
     cluster!: Output<string>;
     gke_auth_type!: Output<'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS'>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'KUBERNETES_RUN_JOB'>;
@@ -267,20 +268,20 @@ export class GKERunJob extends CustomResource {
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
 
-    constructor(name: string, argsOrState: ActionGKERunJobArgs | ActionGKERunJobState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GKERunJobArgs | GKERunJobState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionGKERunJobState | undefined;
+            const state = argsOrState as GKERunJobState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_id'] = state?.application_id;
             inputs['cluster'] = state?.cluster;
             inputs['gke_auth_type'] = state?.gke_auth_type;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['zone_id'] = state?.zone_id;
@@ -306,7 +307,7 @@ export class GKERunJob extends CustomResource {
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
         } else {
-            const args = argsOrState as ActionGKERunJobArgs | undefined;
+            const args = argsOrState as GKERunJobArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -346,7 +347,9 @@ export class GKERunJob extends CustomResource {
             inputs['application_id'] = args.application_id;
             inputs['cluster'] = args.cluster;
             inputs['gke_auth_type'] = args.gke_auth_type;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['zone_id'] = args.zone_id;

@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionSignBundleState {
+export interface SignBundleState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -141,9 +141,9 @@ export interface ActionSignBundleState {
     zone_id?: string;
 }
 
-export type ActionSignBundleArgs = AsInputs<ActionSignBundleState>;
+export type SignBundleArgs = AsInputs<SignBundleState>;
 
-export interface ActionSignBundleProps {
+export interface SignBundleProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -193,7 +193,7 @@ export interface ActionSignBundleProps {
 export class SignBundle extends CustomResource {
     static __pulumiType = 'buddy:action:SignBundle';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionSignBundleState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<SignBundleState>, opts?: CustomResourceOptions) {
         return new SignBundle(name, state as any, { ...opts, id });
     }
 
@@ -246,14 +246,14 @@ export class SignBundle extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionSignBundleArgs | ActionSignBundleState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: SignBundleArgs | SignBundleState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionSignBundleState | undefined;
+            const state = argsOrState as SignBundleState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_name'] = state?.application_name;
@@ -282,7 +282,7 @@ export class SignBundle extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionSignBundleArgs | undefined;
+            const args = argsOrState as SignBundleArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

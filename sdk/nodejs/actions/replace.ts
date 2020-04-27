@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Replacement, Variable } from '../common';
 
-export interface ActionReplaceState {
+export interface ReplaceState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -116,9 +116,9 @@ export interface ActionReplaceState {
     zone_id?: string;
 }
 
-export type ActionReplaceArgs = AsInputs<ActionReplaceState>;
+export type ReplaceArgs = AsInputs<ReplaceState>;
 
-export interface ActionReplaceProps {
+export interface ReplaceProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -163,7 +163,7 @@ export interface ActionReplaceProps {
 export class Replace extends CustomResource {
     static __pulumiType = 'buddy:action:Replace';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionReplaceState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<ReplaceState>, opts?: CustomResourceOptions) {
         return new Replace(name, state as any, { ...opts, id });
     }
 
@@ -211,14 +211,14 @@ export class Replace extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionReplaceArgs | ActionReplaceState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: ReplaceArgs | ReplaceState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionReplaceState | undefined;
+            const state = argsOrState as ReplaceState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['local_path'] = state?.local_path;
@@ -242,7 +242,7 @@ export class Replace extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionReplaceArgs | undefined;
+            const args = argsOrState as ReplaceArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

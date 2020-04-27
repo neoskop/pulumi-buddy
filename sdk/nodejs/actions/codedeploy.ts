@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionCodeDeployState {
+export interface CodeDeployState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionCodeDeployState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -171,14 +172,14 @@ export interface ActionCodeDeployState {
     zone_id?: string;
 }
 
-export type ActionCodeDeployArgs = AsInputs<ActionCodeDeployState>;
+export type CodeDeployArgs = AsInputs<CodeDeployState>;
 
-export interface ActionCodeDeployProps {
+export interface CodeDeployProps {
     url: string;
     html_url: string;
     action_id: number;
     application_name: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     region: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -229,7 +230,7 @@ export interface ActionCodeDeployProps {
 export class CodeDeploy extends CustomResource {
     static __pulumiType = 'buddy:action:CodeDeploy';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionCodeDeployState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<CodeDeployState>, opts?: CustomResourceOptions) {
         return new CodeDeploy(name, state as any, { ...opts, id });
     }
 
@@ -245,7 +246,7 @@ export class CodeDeploy extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     application_name!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     region!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -288,18 +289,18 @@ export class CodeDeploy extends CustomResource {
     wait_for_finish_deployment!: Output<boolean | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionCodeDeployArgs | ActionCodeDeployState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: CodeDeployArgs | CodeDeployState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionCodeDeployState | undefined;
+            const state = argsOrState as CodeDeployState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_name'] = state?.application_name;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['region'] = state?.region;
             inputs['trigger_time'] = state?.trigger_time;
@@ -330,7 +331,7 @@ export class CodeDeploy extends CustomResource {
             inputs['wait_for_finish_deployment'] = state?.wait_for_finish_deployment;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionCodeDeployArgs | undefined;
+            const args = argsOrState as CodeDeployArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -360,7 +361,9 @@ export class CodeDeploy extends CustomResource {
             }
 
             inputs['application_name'] = args.application_name;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['region'] = args.region;
             inputs['trigger_time'] = args.trigger_time;

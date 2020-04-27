@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionDownloadFTPState {
+export interface DownloadFTPState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -146,9 +146,9 @@ export interface ActionDownloadFTPState {
     zone_id?: string;
 }
 
-export type ActionDownloadFTPArgs = AsInputs<ActionDownloadFTPState>;
+export type DownloadFTPArgs = AsInputs<DownloadFTPState>;
 
-export interface ActionDownloadFTPProps {
+export interface DownloadFTPProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -199,7 +199,7 @@ export interface ActionDownloadFTPProps {
 export class DownloadFTP extends CustomResource {
     static __pulumiType = 'buddy:action:DownloadFTP';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionDownloadFTPState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<DownloadFTPState>, opts?: CustomResourceOptions) {
         return new DownloadFTP(name, state as any, { ...opts, id });
     }
 
@@ -253,14 +253,14 @@ export class DownloadFTP extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionDownloadFTPArgs | ActionDownloadFTPState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: DownloadFTPArgs | DownloadFTPState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionDownloadFTPState | undefined;
+            const state = argsOrState as DownloadFTPState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['destination_path'] = state?.destination_path;
@@ -290,7 +290,7 @@ export class DownloadFTP extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionDownloadFTPArgs | undefined;
+            const args = argsOrState as DownloadFTPArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

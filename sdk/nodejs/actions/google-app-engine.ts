@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionGoogleAppEngineState {
+export interface GoogleAppEngineState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -156,9 +156,9 @@ export interface ActionGoogleAppEngineState {
     zone_id?: string;
 }
 
-export type ActionGoogleAppEngineArgs = AsInputs<ActionGoogleAppEngineState>;
+export type GoogleAppEngineArgs = AsInputs<GoogleAppEngineState>;
 
-export interface ActionGoogleAppEngineProps {
+export interface GoogleAppEngineProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -211,7 +211,7 @@ export interface ActionGoogleAppEngineProps {
 export class GoogleAppEngine extends CustomResource {
     static __pulumiType = 'buddy:action:GoogleAppEngine';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionGoogleAppEngineState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<GoogleAppEngineState>, opts?: CustomResourceOptions) {
         return new GoogleAppEngine(name, state as any, { ...opts, id });
     }
 
@@ -267,14 +267,14 @@ export class GoogleAppEngine extends CustomResource {
     version_label!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionGoogleAppEngineArgs | ActionGoogleAppEngineState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GoogleAppEngineArgs | GoogleAppEngineState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionGoogleAppEngineState | undefined;
+            const state = argsOrState as GoogleAppEngineState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_name'] = state?.application_name;
@@ -306,7 +306,7 @@ export class GoogleAppEngine extends CustomResource {
             inputs['version_label'] = state?.version_label;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionGoogleAppEngineArgs | undefined;
+            const args = argsOrState as GoogleAppEngineArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionBugsnagState {
+export interface BugsnagState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -136,9 +136,9 @@ export interface ActionBugsnagState {
     zone_id?: string;
 }
 
-export type ActionBugsnagArgs = AsInputs<ActionBugsnagState>;
+export type BugsnagArgs = AsInputs<BugsnagState>;
 
-export interface ActionBugsnagProps {
+export interface BugsnagProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -187,7 +187,7 @@ export interface ActionBugsnagProps {
 export class Bugsnag extends CustomResource {
     static __pulumiType = 'buddy:action:Bugsnag';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionBugsnagState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<BugsnagState>, opts?: CustomResourceOptions) {
         return new Bugsnag(name, state as any, { ...opts, id });
     }
 
@@ -239,14 +239,14 @@ export class Bugsnag extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionBugsnagArgs | ActionBugsnagState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: BugsnagArgs | BugsnagState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionBugsnagState | undefined;
+            const state = argsOrState as BugsnagState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
@@ -274,7 +274,7 @@ export class Bugsnag extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionBugsnagArgs | undefined;
+            const args = argsOrState as BugsnagArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

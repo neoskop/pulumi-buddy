@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionHerokuState {
+export interface HerokuState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionHerokuState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -141,14 +142,14 @@ export interface ActionHerokuState {
     zone_id?: string;
 }
 
-export type ActionHerokuArgs = AsInputs<ActionHerokuState>;
+export type HerokuArgs = AsInputs<HerokuState>;
 
-export interface ActionHerokuProps {
+export interface HerokuProps {
     url: string;
     html_url: string;
     action_id: number;
     application_name: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'HEROKU';
@@ -193,7 +194,7 @@ export interface ActionHerokuProps {
 export class Heroku extends CustomResource {
     static __pulumiType = 'buddy:action:Heroku';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionHerokuState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<HerokuState>, opts?: CustomResourceOptions) {
         return new Heroku(name, state as any, { ...opts, id });
     }
 
@@ -209,7 +210,7 @@ export class Heroku extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     application_name!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'HEROKU'>;
@@ -246,18 +247,18 @@ export class Heroku extends CustomResource {
     without_force!: Output<boolean | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionHerokuArgs | ActionHerokuState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: HerokuArgs | HerokuState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionHerokuState | undefined;
+            const state = argsOrState as HerokuState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_name'] = state?.application_name;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
@@ -282,7 +283,7 @@ export class Heroku extends CustomResource {
             inputs['without_force'] = state?.without_force;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionHerokuArgs | undefined;
+            const args = argsOrState as HerokuArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -308,7 +309,9 @@ export class Heroku extends CustomResource {
             }
 
             inputs['application_name'] = args.application_name;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;

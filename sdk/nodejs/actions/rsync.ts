@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionRsyncState {
+export interface RsyncState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -181,9 +181,9 @@ export interface ActionRsyncState {
     zone_id?: string;
 }
 
-export type ActionRsyncArgs = AsInputs<ActionRsyncState>;
+export type RsyncArgs = AsInputs<RsyncState>;
 
-export interface ActionRsyncProps {
+export interface RsyncProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -241,7 +241,7 @@ export interface ActionRsyncProps {
 export class Rsync extends CustomResource {
     static __pulumiType = 'buddy:action:Rsync';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionRsyncState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<RsyncState>, opts?: CustomResourceOptions) {
         return new Rsync(name, state as any, { ...opts, id });
     }
 
@@ -302,14 +302,14 @@ export class Rsync extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionRsyncArgs | ActionRsyncState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: RsyncArgs | RsyncState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionRsyncState | undefined;
+            const state = argsOrState as RsyncState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['authentication_mode'] = state?.authentication_mode;
@@ -346,7 +346,7 @@ export class Rsync extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionRsyncArgs | undefined;
+            const args = argsOrState as RsyncArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

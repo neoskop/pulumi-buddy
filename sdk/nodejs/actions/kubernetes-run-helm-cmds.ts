@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionKubernetesRunHelmCMDsState {
+export interface KubernetesRunHelmCMDsState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -39,7 +40,7 @@ export interface ActionKubernetesRunHelmCMDsState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The ID of the Google integration.
@@ -94,7 +95,7 @@ export interface ActionKubernetesRunHelmCMDsState {
     /**
      * Amazon integration ID. Set it if Helm repository is on AWS S3.
      */
-    helm_repository_integration?: IntegrationRef;
+    helm_repository_integration?: IntegrationRef | Integration;
 
     /**
      * Service Account Key from Google Cloud Storage. Set it if Helm repository is on GCS.
@@ -206,9 +207,9 @@ export interface ActionKubernetesRunHelmCMDsState {
     variables?: Variable[];
 }
 
-export type ActionKubernetesRunHelmCMDsArgs = AsInputs<ActionKubernetesRunHelmCMDsState>;
+export type KubernetesRunHelmCMDsArgs = AsInputs<KubernetesRunHelmCMDsState>;
 
-export interface ActionKubernetesRunHelmCMDsProps {
+export interface KubernetesRunHelmCMDsProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -218,7 +219,7 @@ export interface ActionKubernetesRunHelmCMDsProps {
     cluster: string;
     execute_commands: string[];
     helm_version: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     integration_hash: string;
     name: string;
     server: string;
@@ -230,7 +231,7 @@ export interface ActionKubernetesRunHelmCMDsProps {
     client_cert?: string;
     client_key?: string;
     disabled?: boolean;
-    helm_repository_integration?: IntegrationRef;
+    helm_repository_integration?: IntegrationRef | Integration;
     helm_repository_key?: string;
     helm_repository_region?: string;
     ignore_errors?: boolean;
@@ -271,7 +272,7 @@ export interface ActionKubernetesRunHelmCMDsProps {
 export class KubernetesRunHelmCMDs extends CustomResource {
     static __pulumiType = 'buddy:action:KubernetesRunHelmCMDs';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionKubernetesRunHelmCMDsState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<KubernetesRunHelmCMDsState>, opts?: CustomResourceOptions) {
         return new KubernetesRunHelmCMDs(name, state as any, { ...opts, id });
     }
 
@@ -292,7 +293,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
     cluster!: Output<string>;
     execute_commands!: Output<string[]>;
     helm_version!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     integration_hash!: Output<string>;
     name!: Output<string>;
     server!: Output<string>;
@@ -304,7 +305,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
     client_cert!: Output<string | undefined>;
     client_key!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
-    helm_repository_integration!: Output<IntegrationRef | undefined>;
+    helm_repository_integration!: Output<IntegrationRef | Integration | undefined>;
     helm_repository_key!: Output<string | undefined>;
     helm_repository_region!: Output<string | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -337,18 +338,14 @@ export class KubernetesRunHelmCMDs extends CustomResource {
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
 
-    constructor(
-        name: string,
-        argsOrState: ActionKubernetesRunHelmCMDsArgs | ActionKubernetesRunHelmCMDsState,
-        opts?: CustomResourceOptions
-    ) {
+    constructor(name: string, argsOrState: KubernetesRunHelmCMDsArgs | KubernetesRunHelmCMDsState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionKubernetesRunHelmCMDsState | undefined;
+            const state = argsOrState as KubernetesRunHelmCMDsState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['action'] = state?.action;
@@ -357,7 +354,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['cluster'] = state?.cluster;
             inputs['execute_commands'] = state?.execute_commands;
             inputs['helm_version'] = state?.helm_version;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['integration_hash'] = state?.integration_hash;
             inputs['name'] = state?.name;
             inputs['server'] = state?.server;
@@ -368,7 +365,10 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['client_cert'] = state?.client_cert;
             inputs['client_key'] = state?.client_key;
             inputs['disabled'] = state?.disabled;
-            inputs['helm_repository_integration'] = state?.helm_repository_integration;
+            inputs['helm_repository_integration'] =
+                state?.helm_repository_integration instanceof Integration
+                    ? { hash_id: state.helm_repository_integration.hash_id }
+                    : state?.helm_repository_integration;
             inputs['helm_repository_key'] = state?.helm_repository_key;
             inputs['helm_repository_region'] = state?.helm_repository_region;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -390,7 +390,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
         } else {
-            const args = argsOrState as ActionKubernetesRunHelmCMDsArgs | undefined;
+            const args = argsOrState as KubernetesRunHelmCMDsArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -453,7 +453,9 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['cluster'] = args.cluster;
             inputs['execute_commands'] = args.execute_commands;
             inputs['helm_version'] = args.helm_version;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['integration_hash'] = args.integration_hash;
             inputs['name'] = args.name;
             inputs['server'] = args.server;
@@ -464,7 +466,11 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['client_cert'] = args.client_cert;
             inputs['client_key'] = args.client_key;
             inputs['disabled'] = args.disabled;
-            inputs['helm_repository_integration'] = args.helm_repository_integration;
+            inputs['helm_repository_integration'] = output(args.helm_repository_integration).apply(helm_repository_integration =>
+                helm_repository_integration instanceof Integration
+                    ? { hash_id: helm_repository_integration.hash_id }
+                    : helm_repository_integration
+            );
             inputs['helm_repository_key'] = args.helm_repository_key;
             inputs['helm_repository_region'] = args.helm_repository_region;
             inputs['ignore_errors'] = args.ignore_errors;

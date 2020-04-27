@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionElasticBeanstalkState {
+export interface ElasticBeanstalkState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -19,7 +20,7 @@ export interface ActionElasticBeanstalkState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -141,15 +142,15 @@ export interface ActionElasticBeanstalkState {
     zone_id?: string;
 }
 
-export type ActionElasticBeanstalkArgs = AsInputs<ActionElasticBeanstalkState>;
+export type ElasticBeanstalkArgs = AsInputs<ElasticBeanstalkState>;
 
-export interface ActionElasticBeanstalkProps {
+export interface ElasticBeanstalkProps {
     url: string;
     html_url: string;
     action_id: number;
     application_name: string;
     environment: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     region: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -193,7 +194,7 @@ export interface ActionElasticBeanstalkProps {
 export class ElasticBeanstalk extends CustomResource {
     static __pulumiType = 'buddy:action:ElasticBeanstalk';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionElasticBeanstalkState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<ElasticBeanstalkState>, opts?: CustomResourceOptions) {
         return new ElasticBeanstalk(name, state as any, { ...opts, id });
     }
 
@@ -210,7 +211,7 @@ export class ElasticBeanstalk extends CustomResource {
     action_id!: Output<number>;
     application_name!: Output<string>;
     environment!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     region!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -246,19 +247,19 @@ export class ElasticBeanstalk extends CustomResource {
     version_label!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionElasticBeanstalkArgs | ActionElasticBeanstalkState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: ElasticBeanstalkArgs | ElasticBeanstalkState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionElasticBeanstalkState | undefined;
+            const state = argsOrState as ElasticBeanstalkState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_name'] = state?.application_name;
             inputs['environment'] = state?.environment;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['region'] = state?.region;
             inputs['trigger_time'] = state?.trigger_time;
@@ -282,7 +283,7 @@ export class ElasticBeanstalk extends CustomResource {
             inputs['version_label'] = state?.version_label;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionElasticBeanstalkArgs | undefined;
+            const args = argsOrState as ElasticBeanstalkArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -317,7 +318,9 @@ export class ElasticBeanstalk extends CustomResource {
 
             inputs['application_name'] = args.application_name;
             inputs['environment'] = args.environment;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['region'] = args.region;
             inputs['trigger_time'] = args.trigger_time;

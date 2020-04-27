@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionSSHCommandState {
+export interface SSHCommandState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -156,9 +156,9 @@ export interface ActionSSHCommandState {
     zone_id?: string;
 }
 
-export type ActionSSHCommandArgs = AsInputs<ActionSSHCommandState>;
+export type SSHCommandArgs = AsInputs<SSHCommandState>;
 
-export interface ActionSSHCommandProps {
+export interface SSHCommandProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -211,7 +211,7 @@ export interface ActionSSHCommandProps {
 export class SSHCommand extends CustomResource {
     static __pulumiType = 'buddy:action:SSHCommand';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionSSHCommandState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<SSHCommandState>, opts?: CustomResourceOptions) {
         return new SSHCommand(name, state as any, { ...opts, id });
     }
 
@@ -267,14 +267,14 @@ export class SSHCommand extends CustomResource {
     working_directory!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionSSHCommandArgs | ActionSSHCommandState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: SSHCommandArgs | SSHCommandState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionSSHCommandState | undefined;
+            const state = argsOrState as SSHCommandState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['authentication_mode'] = state?.authentication_mode;
@@ -306,7 +306,7 @@ export class SSHCommand extends CustomResource {
             inputs['working_directory'] = state?.working_directory;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionSSHCommandArgs | undefined;
+            const args = argsOrState as SSHCommandArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

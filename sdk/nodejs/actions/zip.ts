@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Variable } from '../common';
 
-export interface ActionZIPState {
+export interface ZIPState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -126,9 +126,9 @@ export interface ActionZIPState {
     zone_id?: string;
 }
 
-export type ActionZIPArgs = AsInputs<ActionZIPState>;
+export type ZIPArgs = AsInputs<ZIPState>;
 
-export interface ActionZIPProps {
+export interface ZIPProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -175,7 +175,7 @@ export interface ActionZIPProps {
 export class ZIP extends CustomResource {
     static __pulumiType = 'buddy:action:ZIP';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionZIPState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<ZIPState>, opts?: CustomResourceOptions) {
         return new ZIP(name, state as any, { ...opts, id });
     }
 
@@ -225,14 +225,14 @@ export class ZIP extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionZIPArgs | ActionZIPState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: ZIPArgs | ZIPState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionZIPState | undefined;
+            const state = argsOrState as ZIPState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['destination'] = state?.destination;
@@ -258,7 +258,7 @@ export class ZIP extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionZIPArgs | undefined;
+            const args = argsOrState as ZIPArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }

@@ -83,7 +83,8 @@ async function main() {
                 const codegen = (ctx.codegen = new BuddyCodegenActions({
                     utilsImport: '@pulumi-utils/sdk',
                     pipelineImport: '../pipeline',
-                    commonImport: '../common'
+                    commonImport: '../common',
+                    integrationImport: '../integration'
                 }));
 
                 let i = 0;

@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionPushoverState {
+export interface PushoverState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionPushoverState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -141,14 +142,14 @@ export interface ActionPushoverState {
     zone_id?: string;
 }
 
-export type ActionPushoverArgs = AsInputs<ActionPushoverState>;
+export type PushoverArgs = AsInputs<PushoverState>;
 
-export interface ActionPushoverProps {
+export interface PushoverProps {
     url: string;
     html_url: string;
     action_id: number;
     content: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'PUSHOVER';
@@ -193,7 +194,7 @@ export interface ActionPushoverProps {
 export class Pushover extends CustomResource {
     static __pulumiType = 'buddy:action:Pushover';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionPushoverState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<PushoverState>, opts?: CustomResourceOptions) {
         return new Pushover(name, state as any, { ...opts, id });
     }
 
@@ -209,7 +210,7 @@ export class Pushover extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     content!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'PUSHOVER'>;
@@ -246,18 +247,18 @@ export class Pushover extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionPushoverArgs | ActionPushoverState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: PushoverArgs | PushoverState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionPushoverState | undefined;
+            const state = argsOrState as PushoverState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['content'] = state?.content;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
@@ -282,7 +283,7 @@ export class Pushover extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionPushoverArgs | undefined;
+            const args = argsOrState as PushoverArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -308,7 +309,9 @@ export class Pushover extends CustomResource {
             }
 
             inputs['content'] = args.content;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;

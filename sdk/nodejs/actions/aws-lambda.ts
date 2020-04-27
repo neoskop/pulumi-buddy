@@ -1,9 +1,10 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
 import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
-export interface ActionAWSLambdaState {
+export interface AWSLambdaState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -14,7 +15,7 @@ export interface ActionAWSLambdaState {
     /**
      * The integration.
      */
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
 
     /**
      * The name of the action.
@@ -146,14 +147,14 @@ export interface ActionAWSLambdaState {
     zone_id?: string;
 }
 
-export type ActionAWSLambdaArgs = AsInputs<ActionAWSLambdaState>;
+export type AWSLambdaArgs = AsInputs<AWSLambdaState>;
 
-export interface ActionAWSLambdaProps {
+export interface AWSLambdaProps {
     url: string;
     html_url: string;
     action_id: number;
     function_name: string;
-    integration: IntegrationRef;
+    integration: IntegrationRef | Integration;
     name: string;
     region: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -199,7 +200,7 @@ export interface ActionAWSLambdaProps {
 export class AWSLambda extends CustomResource {
     static __pulumiType = 'buddy:action:AWSLambda';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionAWSLambdaState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<AWSLambdaState>, opts?: CustomResourceOptions) {
         return new AWSLambda(name, state as any, { ...opts, id });
     }
 
@@ -215,7 +216,7 @@ export class AWSLambda extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     function_name!: Output<string>;
-    integration!: Output<IntegrationRef>;
+    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     region!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -253,18 +254,18 @@ export class AWSLambda extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionAWSLambdaArgs | ActionAWSLambdaState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: AWSLambdaArgs | AWSLambdaState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionAWSLambdaState | undefined;
+            const state = argsOrState as AWSLambdaState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['function_name'] = state?.function_name;
-            inputs['integration'] = state?.integration;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['region'] = state?.region;
             inputs['trigger_time'] = state?.trigger_time;
@@ -290,7 +291,7 @@ export class AWSLambda extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionAWSLambdaArgs | undefined;
+            const args = argsOrState as AWSLambdaArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -320,7 +321,9 @@ export class AWSLambda extends CustomResource {
             }
 
             inputs['function_name'] = args.function_name;
-            inputs['integration'] = args.integration;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['name'] = args.name;
             inputs['region'] = args.region;
             inputs['trigger_time'] = args.trigger_time;
