@@ -1,7 +1,8 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
+import { Variable, IntegrationRef } from '../common';
+import { Integration } from '../integration';
 
 export interface KubernetesKubectlState {
     project_name: string;
@@ -24,7 +25,7 @@ export interface KubernetesKubectlState {
     /**
      * The host for the connection.
      */
-    server: string;
+    server?: string;
 
     /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
@@ -154,6 +155,21 @@ export interface KubernetesKubectlState {
      * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
      */
     zone_id?: string;
+
+    /**
+     * Integration
+     */
+    integration?: IntegrationRef | Integration;
+
+    /**
+     * Azure Resource Group Name
+     */
+    resource_group_name?: string;
+
+    /**
+     * Azure Resource Name
+     */
+    resource_name?: string;
 }
 
 export type KubernetesKubectlArgs = AsInputs<KubernetesKubectlState>;
@@ -165,7 +181,7 @@ export interface KubernetesKubectlProps {
     auth_type: 'BASIC' | 'TOKEN' | 'CERTS';
     execute_commands: string[];
     name: string;
-    server: string;
+    server?: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'KUBERNETES_CLI';
     after_action_id?: number;
@@ -200,6 +216,9 @@ export interface KubernetesKubectlProps {
     trigger_variable_value?: string;
     variables?: Variable[];
     zone_id?: string;
+    integration?: IntegrationRef | Integration;
+    resource_group_name?: string;
+    resource_name?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -229,7 +248,7 @@ export class KubernetesKubectl extends CustomResource {
     auth_type!: Output<'BASIC' | 'TOKEN' | 'CERTS'>;
     execute_commands!: Output<string[]>;
     name!: Output<string>;
-    server!: Output<string>;
+    server!: Output<string | undefined>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'KUBERNETES_CLI'>;
     after_action_id!: Output<number | undefined>;
@@ -266,6 +285,9 @@ export class KubernetesKubectl extends CustomResource {
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
+    integration!: Output<IntegrationRef | Integration | undefined>;
+    resource_group_name!: Output<string | undefined>;
+    resource_name!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: KubernetesKubectlArgs | KubernetesKubectlState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -305,6 +327,9 @@ export class KubernetesKubectl extends CustomResource {
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
+            inputs['resource_group_name'] = state?.resource_group_name;
+            inputs['resource_name'] = state?.resource_name;
         } else {
             const args = argsOrState as KubernetesKubectlArgs | undefined;
             if (!args?.project_name) {
@@ -325,10 +350,6 @@ export class KubernetesKubectl extends CustomResource {
 
             if (!args?.name) {
                 throw new Error('Missing required property "name"');
-            }
-
-            if (!args?.server) {
-                throw new Error('Missing required property "server"');
             }
 
             if (!args?.trigger_time) {
@@ -363,6 +384,11 @@ export class KubernetesKubectl extends CustomResource {
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
             inputs['zone_id'] = args.zone_id;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
+            inputs['resource_group_name'] = args.resource_group_name;
+            inputs['resource_name'] = args.resource_name;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

@@ -53,6 +53,40 @@ async function main() {
                                 ]
                             };
                         }
+                        if (action.name === 'Kubernetes kubectl') {
+                            return {
+                                ...action,
+                                parameters: [
+                                    ...action.parameters.map(p => {
+                                        if (p.name === 'server') {
+                                            return {
+                                                ...p,
+                                                required: false
+                                            };
+                                        }
+                                        return { ...p };
+                                    }),
+                                    {
+                                        name: 'integration',
+                                        type: { ref: 'Integration' },
+                                        required: false,
+                                        description: 'Integration'
+                                    },
+                                    {
+                                        name: 'resource_group_name',
+                                        type: { scalar: 'String' },
+                                        required: false,
+                                        description: 'Azure Resource Group Name'
+                                    },
+                                    {
+                                        name: 'resource_name',
+                                        type: { scalar: 'String' },
+                                        required: false,
+                                        description: 'Azure Resource Name'
+                                    }
+                                ]
+                            };
+                        }
                         return;
                     }
                 });
