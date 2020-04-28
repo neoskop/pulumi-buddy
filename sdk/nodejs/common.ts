@@ -14,6 +14,7 @@ export interface Variable {
     ssh_key?: boolean;
     settable?: boolean;
     encrypted?: boolean;
+    defaults?: string;
 }
 
 export interface APKs {
