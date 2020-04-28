@@ -10,7 +10,7 @@ export interface KubernetesKubectlState {
     /**
      * Authorization type. Can be one of `BASIC`, `TOKEN` or `CERTS`.
      */
-    auth_type: 'BASIC' | 'TOKEN' | 'CERTS';
+    auth_type?: 'BASIC' | 'TOKEN' | 'CERTS';
 
     /**
      * The commands that will be executed.
@@ -178,7 +178,7 @@ export interface KubernetesKubectlProps {
     url: string;
     html_url: string;
     action_id: number;
-    auth_type: 'BASIC' | 'TOKEN' | 'CERTS';
+    auth_type?: 'BASIC' | 'TOKEN' | 'CERTS';
     execute_commands: string[];
     name: string;
     server?: string;
@@ -245,7 +245,7 @@ export class KubernetesKubectl extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    auth_type!: Output<'BASIC' | 'TOKEN' | 'CERTS'>;
+    auth_type!: Output<'BASIC' | 'TOKEN' | 'CERTS' | undefined>;
     execute_commands!: Output<string[]>;
     name!: Output<string>;
     server!: Output<string | undefined>;
@@ -338,10 +338,6 @@ export class KubernetesKubectl extends CustomResource {
 
             if (!args?.pipeline_id) {
                 throw new Error('Missing required property "pipeline_id"');
-            }
-
-            if (!args?.auth_type) {
-                throw new Error('Missing required property "auth_type"');
             }
 
             if (!args?.execute_commands) {

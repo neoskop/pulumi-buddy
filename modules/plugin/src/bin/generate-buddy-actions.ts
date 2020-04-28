@@ -58,7 +58,7 @@ async function main() {
                                 ...action,
                                 parameters: [
                                     ...action.parameters.map(p => {
-                                        if (p.name === 'server') {
+                                        if (p.name === 'server' || p.name === 'auth_type') {
                                             return {
                                                 ...p,
                                                 required: false
