@@ -83,6 +83,12 @@ async function main() {
                                         type: { scalar: 'String' },
                                         required: false,
                                         description: 'Azure Resource Name'
+                                    },
+                                    {
+                                        name: 'subscription_id',
+                                        type: { scalar: 'String' },
+                                        required: false,
+                                        description: 'Azure Subscription ID'
                                     }
                                 ]
                             };
