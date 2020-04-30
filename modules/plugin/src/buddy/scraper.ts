@@ -4,7 +4,7 @@ import { Observable, from } from 'rxjs';
 import { switchMap, mergeMap, toArray } from 'rxjs/operators';
 
 export type ParamaterTypeScalar = { scalar: 'String' | 'Number' | 'Boolean'; isArray?: boolean };
-export type ParamaterTypeText = { text: string[]; isArray?: boolean };
+export type ParamaterTypeText = { text: string[]; isArray?: boolean; default?: string };
 export type ParameterTypeRef = { ref: string; isArray?: boolean };
 
 export type ParameterType = ParamaterTypeScalar | ParamaterTypeText | ParameterTypeRef;
@@ -121,14 +121,7 @@ export class BuddyScraper {
         const $ = cheerio.load(response.data);
         return $('li.list__card-element a')
             .toArray()
-            .map(
-                el =>
-                    this.options?.baseUrl ||
-                    BuddyScraper.DEFAULT_BASE_URL +
-                        $(el)
-                            .attr('href')!
-                            .toString()
-            );
+            .map(el => this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL + $(el).attr('href')!.toString());
     }
 
     parseType(name: string, type: string, description: string): ParameterType {
@@ -142,11 +135,19 @@ export class BuddyScraper {
             return { scalar: 'Number', isArray };
         } else if ('String' === type || 'Boolean' === type) {
             const exact = /Should be set to ([\w-]+)/.exec(description);
-            const oneOf = /Can be one of ([\w-]+(?:\s?,\s?[\w-]+)* or [\w-]+)/.exec(description);
+            const oneOf = /Can be one of ([\w-]+(?: \(default\))?(?:\s?,\s?[\w-]+)* or [\w-]+(?: \(default\))?)/.exec(description);
             if ('String' === type && exact) {
                 return { text: [exact[1]!], isArray };
             } else if ('String' === type && oneOf) {
-                return { text: oneOf[1].split(/\s*(?:,|or)\s*/), isArray };
+                let defaultValue: string | undefined;
+                const text = oneOf[1].split(/\s*(?:,|or)\s*/).map(t => {
+                    if (t.endsWith(' (default)')) {
+                        t = t.substr(0, t.length - 10);
+                        defaultValue = t;
+                    }
+                    return t;
+                });
+                return { text, isArray, default: defaultValue };
             } else {
                 return { scalar: type, isArray };
             }
@@ -163,25 +164,13 @@ export class BuddyScraper {
     parseParameter(tr: CheerioElement): ActionParameter {
         const $ = cheerio.load(tr);
         const tds = $('td').toArray();
-        const required = $(tds[0])
-            .text()
-            .includes('Required');
-        $(tds[0])
-            .children()
-            .remove();
-        const name = $(tds[0])
-            .text()
-            .replace(/[^\w]/g, '');
+        const required = $(tds[0]).text().includes('Required');
+        $(tds[0]).children().remove();
+        const name = $(tds[0]).text().replace(/[^\w]/g, '');
         return {
             name,
             required,
-            type: this.parseType(
-                name,
-                $(tds[1])
-                    .text()
-                    .trim(),
-                $(tds[2]).text()
-            ),
+            type: this.parseType(name, $(tds[1]).text().trim(), $(tds[2]).text()),
             description: $(tds[2])
                 .clone()
                 .find('code')
@@ -241,9 +230,7 @@ export class BuddyScraper {
     }
 
     getActions(): Promise<Action[]> {
-        return this.getActionsAsStream()
-            .pipe(toArray())
-            .toPromise();
+        return this.getActionsAsStream().pipe(toArray()).toPromise();
     }
 
     getActionsAsStream(): Observable<Action> {
