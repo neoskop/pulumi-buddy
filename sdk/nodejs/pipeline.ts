@@ -12,6 +12,7 @@ export interface PipelineState {
     name: string;
     ref_name: string;
     trigger_mode: TriggerMode;
+    folder?: string;
     ref_type?: RefType;
     always_from_scratch?: boolean;
     auto_clear_cache?: boolean;
@@ -44,6 +45,7 @@ export interface PipelineProps {
     no_skip_to_most_recent: boolean;
     do_not_create_commit_status: boolean;
     ignore_fail_on_project_status: boolean;
+    folder?: string;
     start_date?: string;
     delay?: number;
     cron?: string;
@@ -87,6 +89,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
     readonly ignore_fail_on_project_status!: Output<boolean>;
     readonly no_skip_to_most_recent!: Output<boolean>;
     readonly paused!: Output<boolean | undefined>;
+    readonly folder!: Output<string | undefined>;
     readonly project_name!: Output<string>;
     readonly ref_name!: Output<string>;
     readonly ref_type!: Output<RefType>;
@@ -112,6 +115,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['ref_name'] = state?.ref_name;
             inputs['trigger_mode'] = state?.trigger_mode;
             inputs['ref_type'] = state?.ref_type;
+            inputs['folder'] = state?.folder;
             inputs['always_from_scratch'] = state?.always_from_scratch;
             inputs['auto_clear_cache'] = state?.auto_clear_cache;
             inputs['no_skip_to_most_recent'] = state?.no_skip_to_most_recent;
@@ -145,6 +149,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['ref_name'] = args?.ref_name;
             inputs['trigger_mode'] = args?.trigger_mode;
             inputs['ref_type'] = args?.ref_type;
+            inputs['folder'] = args?.folder;
             inputs['always_from_scratch'] = args?.always_from_scratch;
             inputs['auto_clear_cache'] = args?.auto_clear_cache;
             inputs['no_skip_to_most_recent'] = args?.no_skip_to_most_recent;
