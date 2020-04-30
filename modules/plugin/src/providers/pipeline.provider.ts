@@ -52,6 +52,7 @@ export class PipelineProvider implements IProvider {
             .diff('ref_name', 'ref_name')
             .diff('trigger_mode', 'trigger_mode')
             .diff('ref_type', 'ref_type')
+            .diff('folder', 'folder')
             .diff('always_from_scratch', 'always_from_scratch')
             .diff('auto_clear_cache', 'auto_clear_cache')
             .diff('no_skip_to_most_recent', 'no_skip_to_most_recent')
@@ -167,11 +168,7 @@ export class PipelineProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .project(props.project_name)
-                .pipeline(id)
-                .delete();
+            await this.buddyApi.workspace(this.configuration.require('workspace')).project(props.project_name).pipeline(id).delete();
         } catch (err) {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
