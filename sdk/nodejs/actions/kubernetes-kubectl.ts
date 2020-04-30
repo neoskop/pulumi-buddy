@@ -88,6 +88,11 @@ export interface KubernetesKubectlState {
     run_only_on_first_failure?: boolean;
 
     /**
+     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
+     */
+    shell?: 'SH' | 'BASH';
+
+    /**
      * The timeout in seconds.
      */
     timeout?: number;
@@ -170,6 +175,11 @@ export interface KubernetesKubectlState {
      * Azure Resource Name
      */
     resource_name?: string;
+
+    /**
+     * Azure Subscription ID
+     */
+    subscription_id?: string;
 }
 
 export type KubernetesKubectlArgs = AsInputs<KubernetesKubectlState>;
@@ -195,6 +205,7 @@ export interface KubernetesKubectlProps {
     password?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    shell?: 'SH' | 'BASH';
     timeout?: number;
     token?: string;
     trigger_condition?:
@@ -219,6 +230,7 @@ export interface KubernetesKubectlProps {
     integration?: IntegrationRef | Integration;
     resource_group_name?: string;
     resource_name?: string;
+    subscription_id?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -262,6 +274,7 @@ export class KubernetesKubectl extends CustomResource {
     password!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     token!: Output<string | undefined>;
     trigger_condition!: Output<
@@ -288,6 +301,7 @@ export class KubernetesKubectl extends CustomResource {
     integration!: Output<IntegrationRef | Integration | undefined>;
     resource_group_name!: Output<string | undefined>;
     resource_name!: Output<string | undefined>;
+    subscription_id!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: KubernetesKubectlArgs | KubernetesKubectlState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -315,6 +329,7 @@ export class KubernetesKubectl extends CustomResource {
             inputs['password'] = state?.password;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['token'] = state?.token;
             inputs['trigger_condition'] = state?.trigger_condition;
@@ -330,6 +345,7 @@ export class KubernetesKubectl extends CustomResource {
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['resource_group_name'] = state?.resource_group_name;
             inputs['resource_name'] = state?.resource_name;
+            inputs['subscription_id'] = state?.subscription_id;
         } else {
             const args = argsOrState as KubernetesKubectlArgs | undefined;
             if (!args?.project_name) {
@@ -368,6 +384,7 @@ export class KubernetesKubectl extends CustomResource {
             inputs['password'] = args.password;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['token'] = args.token;
             inputs['trigger_condition'] = args.trigger_condition;
@@ -385,6 +402,7 @@ export class KubernetesKubectl extends CustomResource {
             );
             inputs['resource_group_name'] = args.resource_group_name;
             inputs['resource_name'] = args.resource_name;
+            inputs['subscription_id'] = args.subscription_id;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

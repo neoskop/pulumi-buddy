@@ -63,6 +63,11 @@ export interface NetlifyState {
     run_only_on_first_failure?: boolean;
 
     /**
+     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
+     */
+    shell?: 'SH' | 'BASH';
+
+    /**
      * The timeout in seconds.
      */
     timeout?: number;
@@ -145,6 +150,7 @@ export interface NetlifyProps {
     ignore_errors?: boolean;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_condition?:
         | 'ALWAYS'
@@ -203,6 +209,7 @@ export class Netlify extends CustomResource {
     ignore_errors!: Output<boolean | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<
         | 'ALWAYS'
@@ -247,6 +254,7 @@ export class Netlify extends CustomResource {
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
@@ -305,6 +313,7 @@ export class Netlify extends CustomResource {
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;

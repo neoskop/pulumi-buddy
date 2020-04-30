@@ -1,7 +1,8 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
+import { IntegrationRef, Variable } from '../common';
+import { Integration } from '../integration';
 
 export interface VultrState {
     project_name: string;
@@ -15,6 +16,11 @@ export interface VultrState {
      * The host for the connection.
      */
     host: string;
+
+    /**
+     * The integration.
+     */
+    integration: IntegrationRef | Integration;
 
     /**
      * The username required to connect to the server.
@@ -164,6 +170,7 @@ export interface VultrProps {
     action_id: number;
     authentication_mode: 'PASS';
     host: string;
+    integration: IntegrationRef | Integration;
     login: string;
     name: string;
     port: string;
@@ -228,6 +235,7 @@ export class Vultr extends CustomResource {
     action_id!: Output<number>;
     authentication_mode!: Output<'PASS'>;
     host!: Output<string>;
+    integration!: Output<IntegrationRef | Integration>;
     login!: Output<string>;
     name!: Output<string>;
     port!: Output<string>;
@@ -279,6 +287,7 @@ export class Vultr extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['authentication_mode'] = state?.authentication_mode;
             inputs['host'] = state?.host;
+            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['login'] = state?.login;
             inputs['name'] = state?.name;
             inputs['port'] = state?.port;
@@ -323,6 +332,10 @@ export class Vultr extends CustomResource {
                 throw new Error('Missing required property "host"');
             }
 
+            if (!args?.integration) {
+                throw new Error('Missing required property "integration"');
+            }
+
             if (!args?.login) {
                 throw new Error('Missing required property "login"');
             }
@@ -341,6 +354,9 @@ export class Vultr extends CustomResource {
 
             inputs['authentication_mode'] = args.authentication_mode;
             inputs['host'] = args.host;
+            inputs['integration'] = output(args.integration).apply(integration =>
+                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
+            );
             inputs['login'] = args.login;
             inputs['name'] = args.name;
             inputs['port'] = args.port;

@@ -143,6 +143,11 @@ export interface KubernetesRunHelmCMDsState {
     setup_commands?: string;
 
     /**
+     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
+     */
+    shell?: 'SH' | 'BASH';
+
+    /**
      * The timeout in seconds.
      */
     timeout?: number;
@@ -241,6 +246,7 @@ export interface KubernetesRunHelmCMDsProps {
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     setup_commands?: string;
+    shell?: 'SH' | 'BASH';
     timeout?: number;
     token?: string;
     trigger_condition?:
@@ -315,6 +321,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     setup_commands!: Output<string | undefined>;
+    shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     token!: Output<string | undefined>;
     trigger_condition!: Output<
@@ -378,6 +385,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['setup_commands'] = state?.setup_commands;
+            inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['token'] = state?.token;
             inputs['trigger_condition'] = state?.trigger_condition;
@@ -480,6 +488,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['setup_commands'] = args.setup_commands;
+            inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['token'] = args.token;
             inputs['trigger_condition'] = args.trigger_condition;

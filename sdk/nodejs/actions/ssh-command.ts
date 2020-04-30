@@ -82,7 +82,7 @@ export interface SSHCommandState {
     run_only_on_first_failure?: boolean;
 
     /**
-     * The name of the shell that will be used to execute commands. Can be one of `SH` or `BASH` (default).
+     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
      */
     shell?: 'SH' | 'BASH';
 

@@ -1,36 +1,20 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, Variable } from '../common';
-import { Integration } from '../integration';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { ExcludedArea, Variable } from '../common';
 
-export interface GKEKubectlState {
+export interface VisualTestsState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The ID of the GKE application.
+     * Defines which browser will be used in tests. Can be one of `CHROME` or `FIREFOX`.
      */
-    application_id: string;
+    browser_type: 'CHROME' | 'FIREFOX';
 
     /**
-     * The ID of the GKE cluster.
+     * The number of items that should be kept in history.
      */
-    cluster: string;
-
-    /**
-     * The commands that will be executed.
-     */
-    execute_commands: string[];
-
-    /**
-     * Authorization type. Can be one of `BASIC`, `SERVICE_ACCOUNT` or `CERTS`.
-     */
-    gke_auth_type: 'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS';
-
-    /**
-     * The integration.
-     */
-    integration: IntegrationRef | Integration;
+    images_history_limit: number;
 
     /**
      * The name of the action.
@@ -38,9 +22,19 @@ export interface GKEKubectlState {
     name: string;
 
     /**
-     * The host for the connection.
+     * The acceptable level of pixel tolerance. Allowed number of decimal places is two.
      */
-    server: string;
+    pixel_tolerance_level: number;
+
+    /**
+     * Resolution height.
+     */
+    resolution_height: number;
+
+    /**
+     * Resolution width.
+     */
+    resolution_width: number;
 
     /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
@@ -48,9 +42,9 @@ export interface GKEKubectlState {
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
 
     /**
-     * The ID of the GKE zone.
+     * URLs of the sites that should be tested.
      */
-    zone_id: string;
+    urls: string[];
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -61,6 +55,11 @@ export interface GKEKubectlState {
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
+
+    /**
+     * Defines the area to be excluded during the tests.
+     */
+    excluded_areas?: ExcludedArea[];
 
     /**
      * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
@@ -76,16 +75,6 @@ export interface GKEKubectlState {
      * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
      */
     run_only_on_first_failure?: boolean;
-
-    /**
-     * The server key required when `gke_auth_type` is set to `SERVICE_ACCOUNT`.
-     */
-    server_key?: string;
-
-    /**
-     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
-     */
-    shell?: 'SH' | 'BASH';
 
     /**
      * The timeout in seconds.
@@ -145,31 +134,34 @@ export interface GKEKubectlState {
      * The list of variables you can use the action.
      */
     variables?: Variable[];
+
+    /**
+     * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
+     */
+    zone_id?: string;
 }
 
-export type GKEKubectlArgs = AsInputs<GKEKubectlState>;
+export type VisualTestsArgs = AsInputs<VisualTestsState>;
 
-export interface GKEKubectlProps {
+export interface VisualTestsProps {
     url: string;
     html_url: string;
     action_id: number;
-    application_id: string;
-    cluster: string;
-    execute_commands: string[];
-    gke_auth_type: 'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS';
-    integration: IntegrationRef | Integration;
+    browser_type: 'CHROME' | 'FIREFOX';
+    images_history_limit: number;
     name: string;
-    server: string;
+    pixel_tolerance_level: number;
+    resolution_height: number;
+    resolution_width: number;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'KUBERNETES_CLI';
-    zone_id: string;
+    type: 'VISUAL_TESTS';
+    urls: string[];
     after_action_id?: number;
     disabled?: boolean;
+    excluded_areas?: ExcludedArea[];
     ignore_errors?: boolean;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    server_key?: string;
-    shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_condition?:
         | 'ALWAYS'
@@ -189,6 +181,7 @@ export interface GKEKubectlProps {
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
+    zone_id?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -197,41 +190,39 @@ export interface GKEKubectlProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class GKEKubectl extends CustomResource {
-    static __pulumiType = 'buddy:action:GKEKubectl';
+export class VisualTests extends CustomResource {
+    static __pulumiType = 'buddy:action:VisualTests';
 
-    static get(name: string, id: Input<ID>, state?: Partial<GKEKubectlState>, opts?: CustomResourceOptions) {
-        return new GKEKubectl(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<VisualTestsState>, opts?: CustomResourceOptions) {
+        return new VisualTests(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is GKEKubectl {
+    static isInstance(obj: any): obj is VisualTests {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === GKEKubectl.__pulumiType;
+        return obj['__pulumiType'] === VisualTests.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    application_id!: Output<string>;
-    cluster!: Output<string>;
-    execute_commands!: Output<string[]>;
-    gke_auth_type!: Output<'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS'>;
-    integration!: Output<IntegrationRef | Integration>;
+    browser_type!: Output<'CHROME' | 'FIREFOX'>;
+    images_history_limit!: Output<number>;
     name!: Output<string>;
-    server!: Output<string>;
+    pixel_tolerance_level!: Output<number>;
+    resolution_height!: Output<number>;
+    resolution_width!: Output<number>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'KUBERNETES_CLI'>;
-    zone_id!: Output<string>;
+    type!: Output<'VISUAL_TESTS'>;
+    urls!: Output<string[]>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
+    excluded_areas!: Output<ExcludedArea[] | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
-    server_key!: Output<string | undefined>;
-    shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<
         | 'ALWAYS'
@@ -253,33 +244,32 @@ export class GKEKubectl extends CustomResource {
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
+    zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: GKEKubectlArgs | GKEKubectlState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: VisualTestsArgs | VisualTestsState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as GKEKubectlState | undefined;
+            const state = argsOrState as VisualTestsState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['application_id'] = state?.application_id;
-            inputs['cluster'] = state?.cluster;
-            inputs['execute_commands'] = state?.execute_commands;
-            inputs['gke_auth_type'] = state?.gke_auth_type;
-            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
+            inputs['browser_type'] = state?.browser_type;
+            inputs['images_history_limit'] = state?.images_history_limit;
             inputs['name'] = state?.name;
-            inputs['server'] = state?.server;
+            inputs['pixel_tolerance_level'] = state?.pixel_tolerance_level;
+            inputs['resolution_height'] = state?.resolution_height;
+            inputs['resolution_width'] = state?.resolution_width;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['zone_id'] = state?.zone_id;
+            inputs['urls'] = state?.urls;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
+            inputs['excluded_areas'] = state?.excluded_areas;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
-            inputs['server_key'] = state?.server_key;
-            inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
@@ -290,8 +280,9 @@ export class GKEKubectl extends CustomResource {
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
+            inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as GKEKubectlArgs | undefined;
+            const args = argsOrState as VisualTestsArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -300,60 +291,52 @@ export class GKEKubectl extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.application_id) {
-                throw new Error('Missing required property "application_id"');
+            if (!args?.browser_type) {
+                throw new Error('Missing required property "browser_type"');
             }
 
-            if (!args?.cluster) {
-                throw new Error('Missing required property "cluster"');
-            }
-
-            if (!args?.execute_commands) {
-                throw new Error('Missing required property "execute_commands"');
-            }
-
-            if (!args?.gke_auth_type) {
-                throw new Error('Missing required property "gke_auth_type"');
-            }
-
-            if (!args?.integration) {
-                throw new Error('Missing required property "integration"');
+            if (!args?.images_history_limit) {
+                throw new Error('Missing required property "images_history_limit"');
             }
 
             if (!args?.name) {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.server) {
-                throw new Error('Missing required property "server"');
+            if (!args?.pixel_tolerance_level) {
+                throw new Error('Missing required property "pixel_tolerance_level"');
+            }
+
+            if (!args?.resolution_height) {
+                throw new Error('Missing required property "resolution_height"');
+            }
+
+            if (!args?.resolution_width) {
+                throw new Error('Missing required property "resolution_width"');
             }
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            if (!args?.zone_id) {
-                throw new Error('Missing required property "zone_id"');
+            if (!args?.urls) {
+                throw new Error('Missing required property "urls"');
             }
 
-            inputs['application_id'] = args.application_id;
-            inputs['cluster'] = args.cluster;
-            inputs['execute_commands'] = args.execute_commands;
-            inputs['gke_auth_type'] = args.gke_auth_type;
-            inputs['integration'] = output(args.integration).apply(integration =>
-                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
-            );
+            inputs['browser_type'] = args.browser_type;
+            inputs['images_history_limit'] = args.images_history_limit;
             inputs['name'] = args.name;
-            inputs['server'] = args.server;
+            inputs['pixel_tolerance_level'] = args.pixel_tolerance_level;
+            inputs['resolution_height'] = args.resolution_height;
+            inputs['resolution_width'] = args.resolution_width;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['zone_id'] = args.zone_id;
+            inputs['urls'] = args.urls;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
+            inputs['excluded_areas'] = args.excluded_areas;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
-            inputs['server_key'] = args.server_key;
-            inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
@@ -364,6 +347,7 @@ export class GKEKubectl extends CustomResource {
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
+            inputs['zone_id'] = args.zone_id;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }
@@ -374,11 +358,11 @@ export class GKEKubectl extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'KUBERNETES_CLI';
+        inputs['type'] = 'VISUAL_TESTS';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(GKEKubectl.__pulumiType, name, inputs, opts);
+        super(VisualTests.__pulumiType, name, inputs, opts);
     }
 }

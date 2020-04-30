@@ -81,6 +81,7 @@ import {
 import { KubernetesRunPodState, KubernetesRunPodProps, KubernetesRunPodArgs, KubernetesRunPod } from './kubernetes-run-pod';
 import { KubernetesSetImageState, KubernetesSetImageProps, KubernetesSetImageArgs, KubernetesSetImage } from './kubernetes-set-image';
 import { LighthouseState, LighthouseProps, LighthouseArgs, Lighthouse } from './lighthouse';
+import { LinkValidatorState, LinkValidatorProps, LinkValidatorArgs, LinkValidator } from './link-validator';
 import { LogglyState, LogglyProps, LogglyArgs, Loggly } from './loggly';
 import { NetlifyState, NetlifyProps, NetlifyArgs, Netlify } from './netlify';
 import {
@@ -142,6 +143,7 @@ import {
     TriggerGoogleFunctions
 } from './trigger-google-functions';
 import { UpcloudState, UpcloudProps, UpcloudArgs, Upcloud } from './upcloud';
+import { VisualTestsState, VisualTestsProps, VisualTestsArgs, VisualTests } from './visual-tests';
 import { VultrState, VultrProps, VultrArgs, Vultr } from './vultr';
 import { WaitForApplyState, WaitForApplyProps, WaitForApplyArgs, WaitForApply } from './wait-for-apply';
 import { WebMonitoringState, WebMonitoringProps, WebMonitoringArgs, WebMonitoring } from './web-monitoring';
@@ -207,6 +209,7 @@ export * from './kubernetes-run-helm-cmds';
 export * from './kubernetes-run-pod';
 export * from './kubernetes-set-image';
 export * from './lighthouse';
+export * from './link-validator';
 export * from './loggly';
 export * from './netlify';
 export * from './new-relic-notification';
@@ -238,6 +241,7 @@ export * from './tcp-monitoring';
 export * from './telegram-notification';
 export * from './trigger-google-functions';
 export * from './upcloud';
+export * from './visual-tests';
 export * from './vultr';
 export * from './wait-for-apply';
 export * from './web-monitoring';
@@ -303,6 +307,7 @@ export type ActionState =
     | KubernetesRunPodState
     | KubernetesSetImageState
     | LighthouseState
+    | LinkValidatorState
     | LogglyState
     | NetlifyState
     | NewRelicNotificationState
@@ -334,6 +339,7 @@ export type ActionState =
     | TelegramNotificationState
     | TriggerGoogleFunctionsState
     | UpcloudState
+    | VisualTestsState
     | VultrState
     | WaitForApplyState
     | WebMonitoringState
@@ -398,6 +404,7 @@ export type ActionArgs =
     | KubernetesRunPodArgs
     | KubernetesSetImageArgs
     | LighthouseArgs
+    | LinkValidatorArgs
     | LogglyArgs
     | NetlifyArgs
     | NewRelicNotificationArgs
@@ -429,6 +436,7 @@ export type ActionArgs =
     | TelegramNotificationArgs
     | TriggerGoogleFunctionsArgs
     | UpcloudArgs
+    | VisualTestsArgs
     | VultrArgs
     | WaitForApplyArgs
     | WebMonitoringArgs
@@ -493,6 +501,7 @@ export type ActionProps =
     | KubernetesRunPodProps
     | KubernetesSetImageProps
     | LighthouseProps
+    | LinkValidatorProps
     | LogglyProps
     | NetlifyProps
     | NewRelicNotificationProps
@@ -524,6 +533,7 @@ export type ActionProps =
     | TelegramNotificationProps
     | TriggerGoogleFunctionsProps
     | UpcloudProps
+    | VisualTestsProps
     | VultrProps
     | WaitForApplyProps
     | WebMonitoringProps
@@ -588,6 +598,7 @@ export type Action =
     | KubernetesRunPod
     | KubernetesSetImage
     | Lighthouse
+    | LinkValidator
     | Loggly
     | Netlify
     | NewRelicNotification
@@ -619,6 +630,7 @@ export type Action =
     | TelegramNotification
     | TriggerGoogleFunctions
     | Upcloud
+    | VisualTests
     | Vultr
     | WaitForApply
     | WebMonitoring
