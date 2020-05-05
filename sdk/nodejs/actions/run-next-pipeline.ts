@@ -119,6 +119,11 @@ export interface RunNextPipelineState {
      * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
      */
     zone_id?: string;
+
+    /**
+     * Pause execution until triggered pipeline has finished
+     */
+    wait?: boolean;
 }
 
 export type RunNextPipelineArgs = AsInputs<RunNextPipelineState>;
@@ -158,6 +163,7 @@ export interface RunNextPipelineProps {
     trigger_variable_value?: string;
     variables?: Variable[];
     zone_id?: string;
+    wait?: boolean;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -217,6 +223,7 @@ export class RunNextPipeline extends CustomResource {
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
+    wait!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: RunNextPipelineArgs | RunNextPipelineState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -249,6 +256,7 @@ export class RunNextPipeline extends CustomResource {
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
+            inputs['wait'] = state?.wait;
         } else {
             const args = argsOrState as RunNextPipelineArgs | undefined;
             if (!args?.project_name) {
@@ -296,6 +304,7 @@ export class RunNextPipeline extends CustomResource {
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
             inputs['zone_id'] = args.zone_id;
+            inputs['wait'] = args.wait;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

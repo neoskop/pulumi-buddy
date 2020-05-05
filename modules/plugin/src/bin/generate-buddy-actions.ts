@@ -93,6 +93,20 @@ async function main() {
                                 ]
                             };
                         }
+                        if (action.name === 'Run Next Pipeline' && !action.parameters.some(p => p.name === 'wait')) {
+                            return {
+                                ...action,
+                                parameters: [
+                                    ...action.parameters,
+                                    {
+                                        name: 'wait',
+                                        type: { scalar: 'Boolean' },
+                                        required: false,
+                                        description: 'Pause execution until triggered pipeline has finished'
+                                    }
+                                ]
+                            };
+                        }
                         return;
                     }
                 });
