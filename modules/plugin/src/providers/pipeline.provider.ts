@@ -64,6 +64,7 @@ export class PipelineProvider implements IProvider {
             .diff('paused', 'paused')
             .diff('ignore_fail_on_project_status', 'ignore_fail_on_project_status', true)
             .diff('execution_message_template', 'execution_message_template', true)
+            .addStable('project_name', 'pipeline_id')
             .toResponse();
     }
 

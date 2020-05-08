@@ -61,6 +61,8 @@ export class ActionProvider implements IProvider {
             }
         }
 
+        response.addStables('action_id');
+
         return response;
     }
 

@@ -50,6 +50,7 @@ export class MemberProvider implements IProvider {
             .diff('email', null, true)
             .diff('isAdmin', 'admin')
             .setDeleteBeforeReplace(true)
+            .addStable('member_id')
             .toResponse();
     }
 
@@ -57,17 +58,11 @@ export class MemberProvider implements IProvider {
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as MemberState;
 
         try {
-            const o = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .member()
-                .create(props);
+            const o = await this.buddyApi.workspace(this.configuration.require('workspace')).member().create(props);
 
             const outputs = !props.isAdmin
                 ? o
-                : await this.buddyApi
-                      .workspace(this.configuration.require('workspace'))
-                      .member(o.id)
-                      .setAdmin(true);
+                : await this.buddyApi.workspace(this.configuration.require('workspace')).member(o.id).setAdmin(true);
 
             const response = new CreateResponse();
             response.setId(outputs.id.toString());
@@ -93,10 +88,7 @@ export class MemberProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .member(id)
-                .read();
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).member(id).read();
 
             const response = new ReadResponse();
             response.setId(req.request.getId());
@@ -126,10 +118,7 @@ export class MemberProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .member(id)
-                .setAdmin(!!news.isAdmin);
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).member(id).setAdmin(!!news.isAdmin);
 
             const response = new UpdateResponse();
             response.setProperties(
@@ -156,10 +145,7 @@ export class MemberProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .member(id)
-                .delete();
+            await this.buddyApi.workspace(this.configuration.require('workspace')).member(id).delete();
 
             await sleep(1000);
         } catch (err) {

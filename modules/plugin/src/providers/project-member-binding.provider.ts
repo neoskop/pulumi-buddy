@@ -52,6 +52,7 @@ export class ProjectMemberBindingProvider implements IProvider {
             .diff('member_id', null, true)
             .diff('permission_id', ['permission_set', 'id'], true)
             .setDeleteBeforeReplace(true)
+            .addStable('project_member_binding_id')
             .toResponse();
     }
 

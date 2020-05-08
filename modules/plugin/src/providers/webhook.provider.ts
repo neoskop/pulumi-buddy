@@ -52,6 +52,7 @@ export class WebhookProvider implements IProvider {
             .diff('target_url', 'target_url')
             .diff('project_name')
             .diff('secret_key', 'secret_key')
+            .addStable('webhook_id')
             .toResponse();
     }
 
@@ -92,10 +93,7 @@ export class WebhookProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .webhook(id)
-                .read();
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).webhook(id).read();
 
             const response = new ReadResponse();
             response.setId(req.request.getId());
@@ -158,10 +156,7 @@ export class WebhookProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .webhook(id)
-                .delete();
+            await this.buddyApi.workspace(this.configuration.require('workspace')).webhook(id).delete();
             await sleep(1000);
         } catch (err) {
             if (Axios.isCancel(err)) {

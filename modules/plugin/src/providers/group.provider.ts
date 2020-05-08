@@ -46,20 +46,14 @@ export class GroupProvider implements IProvider {
         const news = (req.request.getNews()!.toJavaScript()! as unknown) as GroupState;
         const olds = this.olds.get(req.request.getUrn())!;
 
-        return new Differ(olds, news, props)
-            .diff('name', 'name')
-            .diff('description', 'description')
-            .toResponse();
+        return new Differ(olds, news, props).diff('name', 'name').diff('description', 'description').addStable('group_id').toResponse();
     }
 
     async create(req: ServerUnaryCall<CreateRequest>): Promise<CreateResponse> {
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as GroupState;
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .group()
-                .create(props);
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).group().create(props);
 
             const response = new CreateResponse();
             response.setId(outputs.id.toString());
@@ -86,10 +80,7 @@ export class GroupProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .group(id)
-                .read();
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).group(id).read();
 
             const response = new ReadResponse();
             response.setId(req.request.getId());
@@ -118,10 +109,7 @@ export class GroupProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .group(id)
-                .update(news);
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).group(id).update(news);
 
             const response = new UpdateResponse();
             response.setProperties(
@@ -148,10 +136,7 @@ export class GroupProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .group(id)
-                .delete();
+            await this.buddyApi.workspace(this.configuration.require('workspace')).group(id).delete();
         } catch (err) {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');

@@ -50,6 +50,7 @@ export class SshKeyProvider implements IProvider {
         return new Differ(olds, news, props)
             .diff('content', 'content', true)
             .diff('title', 'title', true)
+            .addStable('ssh_key_id')
             .setDeleteBeforeReplace(true)
             .toResponse();
     }

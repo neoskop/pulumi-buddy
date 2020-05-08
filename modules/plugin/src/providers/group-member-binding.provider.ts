@@ -49,6 +49,7 @@ export class GroupMemberBindingProvider implements IProvider {
             .diff('group_id', null, true)
             .diff('member_id', null, true)
             .setDeleteBeforeReplace(true)
+            .addStable('group_member_binding_id')
             .toResponse();
     }
 
@@ -86,16 +87,10 @@ export class GroupMemberBindingProvider implements IProvider {
 
     async read(req: ServerUnaryCall<ReadRequest>): Promise<ReadResponse> {
         const props = (req.request.getInputs()!.toJavaScript() as unknown) as GroupMemberBindingState;
-        const [groupId, memberId] = req.request
-            .getId()
-            .split(/~~~/)
-            .map(Number);
+        const [groupId, memberId] = req.request.getId().split(/~~~/).map(Number);
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .group(groupId)
-                .getMember(memberId);
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).group(groupId).getMember(memberId);
 
             const response = new ReadResponse();
             response.setId(req.request.getId());
@@ -125,16 +120,10 @@ export class GroupMemberBindingProvider implements IProvider {
     }
 
     async delete(req: ServerUnaryCall<DeleteRequest>): Promise<void> {
-        const [groupId, memberId] = req.request
-            .getId()
-            .split(/~~~/)
-            .map(Number);
+        const [groupId, memberId] = req.request.getId().split(/~~~/).map(Number);
 
         try {
-            await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .group(groupId)
-                .deleteMember(memberId);
+            await this.buddyApi.workspace(this.configuration.require('workspace')).group(groupId).deleteMember(memberId);
         } catch (err) {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');

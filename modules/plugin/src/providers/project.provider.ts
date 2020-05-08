@@ -54,6 +54,7 @@ export class ProjectProvider implements IProvider {
             .diff('custom_repo_url', null, true)
             .diff('custom_repo_user', null, true)
             .diff('custom_repo_pass', null, true)
+            .addStable('name')
             .setDeleteBeforeReplace(true)
             .toResponse();
     }
@@ -67,10 +68,7 @@ export class ProjectProvider implements IProvider {
         }
 
         try {
-            let outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .project()
-                .create(props);
+            let outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).project().create(props);
 
             while (true) {
                 try {
@@ -81,10 +79,7 @@ export class ProjectProvider implements IProvider {
                     break;
                 } catch (e) {
                     if (!(e instanceof ProjectNotReady)) {
-                        await this.buddyApi
-                            .workspace(this.configuration.require('workspace'))
-                            .project(outputs.name)
-                            .delete();
+                        await this.buddyApi.workspace(this.configuration.require('workspace')).project(outputs.name).delete();
                         throw e;
                     } else {
                         await sleep(2500);
@@ -110,10 +105,7 @@ export class ProjectProvider implements IProvider {
         const id = req.request.getId();
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .project(id)
-                .read();
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).project(id).read();
 
             const response = new ReadResponse();
             response.setId(id);
@@ -137,10 +129,7 @@ export class ProjectProvider implements IProvider {
         const id = req.request.getId();
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .project(id)
-                .update(news);
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).project(id).update(news);
 
             const response = new UpdateResponse();
             response.setProperties(Struct.fromJavaScript({ ...outputs }));
@@ -161,10 +150,7 @@ export class ProjectProvider implements IProvider {
         const id = req.request.getId();
 
         try {
-            await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .project(id)
-                .delete();
+            await this.buddyApi.workspace(this.configuration.require('workspace')).project(id).delete();
 
             await sleep(1000);
         } catch (err) {

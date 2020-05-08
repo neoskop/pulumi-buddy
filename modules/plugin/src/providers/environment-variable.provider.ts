@@ -57,6 +57,7 @@ export class EnvironmentVariableProvider implements IProvider {
             .diff('project_name', null, true)
             .diff('pipeline_id', null, true)
             .diff('action_id', null, true)
+            .addStable('variable_id')
             .toResponse();
     }
 
@@ -99,10 +100,7 @@ export class EnvironmentVariableProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .environmentVariable(id)
-                .read();
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).environmentVariable(id).read();
             const response = new ReadResponse();
             response.setId(req.request.getId());
             response.setInputs(Struct.fromJavaScript(props as any));
@@ -166,10 +164,7 @@ export class EnvironmentVariableProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .environmentVariable(id)
-                .delete();
+            await this.buddyApi.workspace(this.configuration.require('workspace')).environmentVariable(id).delete();
         } catch (err) {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');

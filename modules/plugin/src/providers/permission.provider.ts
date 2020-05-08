@@ -54,6 +54,7 @@ export class PermissionProvider implements IProvider {
             .diff('pipeline_access_level', 'pipeline_access_level')
             .diff('repository_access_level', 'repository_access_level')
             .diff('sandbox_access_level', 'sandbox_access_level')
+            .addStable('permission_id')
             .toResponse();
     }
 
@@ -61,10 +62,7 @@ export class PermissionProvider implements IProvider {
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as PermissionState;
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .permission()
-                .create(props);
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).permission().create(props);
 
             const response = new CreateResponse();
             response.setId(outputs.id.toString());
@@ -91,10 +89,7 @@ export class PermissionProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            const outputs = await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .permission(id)
-                .read();
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).permission(id).read();
 
             const response = new ReadResponse();
             response.setId(req.request.getId());
@@ -157,10 +152,7 @@ export class PermissionProvider implements IProvider {
         const id = +req.request.getId();
 
         try {
-            await this.buddyApi
-                .workspace(this.configuration.require('workspace'))
-                .permission(id)
-                .delete();
+            await this.buddyApi.workspace(this.configuration.require('workspace')).permission(id).delete();
             await sleep(1000);
         } catch (err) {
             if (Axios.isCancel(err)) {
