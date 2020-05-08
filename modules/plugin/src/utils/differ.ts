@@ -83,6 +83,13 @@ export class Differ<T, P> {
         this.response.addDiffs(key);
     }
 
+    addStable(...keys: string[]) {
+        for (const key of keys) {
+            this.response.addStables(key);
+        }
+        return this;
+    }
+
     toResponse(): DiffResponse {
         if (!this.hasChanged) {
             this.response.setChanges(DiffResponse.DiffChanges.DIFF_NONE);
