@@ -602,20 +602,20 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
-"@pulumi-utils/common@0.1.0-rc.11":
-  version "0.1.0-rc.11"
-  resolved "https://registry.yarnpkg.com/@pulumi-utils/common/-/common-0.1.0-rc.11.tgz#98c84cde19124433063987270c0298d754c972e0"
-  integrity sha512-Uk3gSi5RIJzBtcf0npkQC46icDmk61iScnLHB6grnH8pxNyWctWQqbY96YpRTK2V45cTtTIjP8RsZXeyoaovDQ==
+"@pulumi-utils/common@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@pulumi-utils/common/-/common-0.1.0.tgz#3fa55bf8ead9e36349d06547ea23d1d1d5d1da17"
+  integrity sha512-t17P5yzOOzlG/x3tPLHWFrhgC/rp2AaEOuMMzAEr2dID1cD0BN5tFNqFkBOYZqCHtKBx3sbI0DJkqMb3pqaQxQ==
   dependencies:
     "@types/google-protobuf" "3.7.2"
     "@types/node" "13.13.2"
     google-protobuf "3.11.4"
     tslib "1.11.1"
 
-"@pulumi-utils/grpc@0.1.0-rc.11":
-  version "0.1.0-rc.11"
-  resolved "https://registry.yarnpkg.com/@pulumi-utils/grpc/-/grpc-0.1.0-rc.11.tgz#343b734690d90520809eaab36dc333a04fee7522"
-  integrity sha512-Cuqfl7ubs7+yKZY4dR1NVVHc2I5LQyOiOtUgaUi0me2UtCoawGrQ2y6km6KHd9jDiKxIz74sdFBV6KdThS9x4w==
+"@pulumi-utils/grpc@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@pulumi-utils/grpc/-/grpc-0.1.0.tgz#e365077a22cb9006060281f9eff00e84df3aec48"
+  integrity sha512-20W2kk63F81UiMwx5aLU8Fs2PMMVIG+8m1etNBn7/FxjDZddnPfnavZ0xpRIMn0dB48blekg02Alb7o/rHuhFw==
   dependencies:
     "@types/google-protobuf" "3.7.2"
     "@types/node" "13.13.2"
@@ -623,23 +623,23 @@
     grpc "1.24.2"
     tslib "1.11.1"
 
-"@pulumi-utils/plugin@0.1.0-rc.11":
-  version "0.1.0-rc.11"
-  resolved "https://registry.yarnpkg.com/@pulumi-utils/plugin/-/plugin-0.1.0-rc.11.tgz#e934916d969275534e7628be53b64ecd3459ad96"
-  integrity sha512-8GaHkCH16uRpsVjqXH+rSgy9TlukJZH+kByg6ZJXlQ/G7LstS0442UdheUZ3uwIv3trGHzJaMqoinZIXk4qfsA==
+"@pulumi-utils/plugin@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@pulumi-utils/plugin/-/plugin-0.1.0.tgz#dd28e439d13c79df9401676f0cc84c92a57b03e3"
+  integrity sha512-ta3E0bHC7WMoEOVnPnZHvQ5EGxxkNlvpNFfqJq4wpXWXNXwJfYSSGlPkxkYJFzXVH6B9q11t7cxfT4JoYSG6Uw==
   dependencies:
-    "@pulumi-utils/common" "0.1.0-rc.11"
-    "@pulumi-utils/grpc" "0.1.0-rc.11"
+    "@pulumi-utils/common" "0.1.0"
+    "@pulumi-utils/grpc" "0.1.0"
     injection-js "2.3.0"
     rxjs "6.5.5"
     tslib "1.11.1"
 
-"@pulumi-utils/sdk@0.1.0-rc.11":
-  version "0.1.0-rc.11"
-  resolved "https://registry.yarnpkg.com/@pulumi-utils/sdk/-/sdk-0.1.0-rc.11.tgz#98cbd4077d2ce5e380850b46d6b235ca0858bf36"
-  integrity sha512-+LTCFr3DuLUHNCfHDlMmMqzvfpndPm2MPubK5rrgbOP7a8gnknQjgwHIxJu7zuqsXiiTjocWz73FBjRP5ySz+g==
+"@pulumi-utils/sdk@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@pulumi-utils/sdk/-/sdk-0.1.0.tgz#e51c06ef65ce4d376257e32aa27fa9add3a5b028"
+  integrity sha512-A5Ul3yowqx0vUWExNQncJ/vgME+AFTQQMz1ePLfLtu9yvL2s4QeK9Jb4eca6K+1LZOM86YAgYuon8/6oAlNJaA==
   dependencies:
-    "@pulumi-utils/common" "0.1.0-rc.11"
+    "@pulumi-utils/common" "0.1.0"
     "@pulumi/pulumi" "2.0.0"
     tslib "1.11.1"
 
