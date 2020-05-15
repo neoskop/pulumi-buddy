@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 import { BuddyWorkspaceApi } from './workspace';
 import { IBuddyProject } from './project';
 
@@ -12,7 +12,7 @@ export interface IBuddyWebhookInput {
     events: WebhookEvent[];
     target_url: string;
     project_filter?: {
-        name: string
+        name: string;
     };
     secret_key?: string;
 }
@@ -23,8 +23,8 @@ export interface IBuddyWebhook {
     id: number;
     events: WebhookEvent[];
     target_url: string;
-    project: IBuddyProject|null;
-    secret_key: string|null;
+    project: IBuddyProject | null;
+    secret_key: string | null;
 }
 
 export class BuddyWebhookApi {
@@ -40,18 +40,23 @@ export class BuddyWebhookApi {
     async create(webhook: IBuddyWebhookInput): Promise<IBuddyWebhook> {
         debug('create %O', webhook);
         try {
-            const result = await Axios.post<IBuddyWebhook>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/webhooks`, webhook, {
-                cancelToken: this.api.registerCanceler('webhook').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
+            const result = await Axios.post<IBuddyWebhook>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/webhooks`,
+                webhook,
+                {
+                    cancelToken: this.api.registerCanceler('webhook').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
                 }
-            });
+            );
 
             return result.data;
         } catch (e) {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 throw new WebhookError(e.response.data.errors[0].message);
             } else {
                 throw new WebhookError(e.message);
@@ -81,6 +86,7 @@ export class BuddyWebhookApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new WebhookNotFound(this.webhookId);
                 } else {
@@ -115,6 +121,7 @@ export class BuddyWebhookApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new WebhookNotFound(this.webhookId);
                 } else {
@@ -143,6 +150,7 @@ export class BuddyWebhookApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new WebhookNotFound(this.webhookId);
                 } else {

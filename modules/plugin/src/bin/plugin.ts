@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as cp from 'child_process';
 import * as chalk from 'chalk';
 import * as os from 'os';
+import { error, success, warn } from './cli-utils';
 
 const pkg = require('../../package');
 const PLUGIN_NAME = 'buddy';
@@ -69,16 +70,3 @@ yargs
         }
     )
     .parse();
-
-function error(str: string): never {
-    console.error(chalk.red(str));
-    process.exit(1);
-}
-
-function success(str: string) {
-    console.log(chalk.green(str));
-}
-
-function warn(str: string) {
-    console.warn(chalk.yellow(str));
-}

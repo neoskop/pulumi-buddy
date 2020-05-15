@@ -1,14 +1,4 @@
-import { ActionProps, ActionState } from '@neoskop/pulumi-buddy/actions';
-import Axios from 'axios';
-import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
-import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
-import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
-import { Injectable } from 'injection-js';
-import { ActionNotFound } from '../buddy/api/action';
-import { BuddyApi } from '../buddy/api/api';
-import { PipelineNotFound } from '../buddy/api/pipeline';
-import { ProjectNotFound } from '../buddy/api/project';
-import { ServiceError } from '../errors/service.error';
+import { ActionProps, ActionState } from 'pulumi-buddy/actions';
 import {
     CheckRequest,
     CheckResponse,
@@ -21,35 +11,37 @@ import {
     ReadResponse,
     UpdateRequest,
     UpdateResponse
-} from '../grpc/provider_pb';
-import { deleteUndefined } from '../utils/delete-undefined';
-import { IProviderConfig, Kind, SubProvider } from './main.provider';
+} from '@pulumi-utils/grpc';
+import { Configuration, IProvider, ServiceError, Struct } from '@pulumi-utils/plugin';
+import Axios from 'axios';
+import { ServerUnaryCall, status } from 'grpc';
+import { Injectable } from 'injection-js';
+
+import { ActionNotFound } from '../buddy/api/action';
+import { BuddyApi } from '../buddy/api/api';
+import { PipelineNotFound } from '../buddy/api/pipeline';
+import { ProjectNotFound } from '../buddy/api/project';
+import { Kind } from './kind';
 
 @Injectable()
-export class ActionProvider implements SubProvider {
+export class ActionProvider implements IProvider {
     readonly kind = Kind.Action;
-
-    config?: IProviderConfig;
 
     protected readonly olds = new Map<string, ActionState>();
 
-    constructor(protected readonly buddyApi: BuddyApi) {}
+    constructor(protected readonly buddyApi: BuddyApi, protected readonly configuration: Configuration) {}
 
-    setConfig(config: IProviderConfig) {
-        this.config = config;
-    }
-
-    check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
+    check({ request }: ServerUnaryCall<CheckRequest>): CheckResponse {
         const olds = (request.getOlds()!.toJavaScript() as unknown) as ActionState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
         const checkResponse = new CheckResponse();
         checkResponse.setInputs(Struct.fromJavaScript(news));
-        callback(null, checkResponse);
+        return checkResponse;
     }
 
-    diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
+    diff(req: ServerUnaryCall<DiffRequest>): DiffResponse {
         const props = (req.request.getOlds()!.toJavaScript()! as unknown) as ActionProps;
         const news = (req.request.getNews()!.toJavaScript()! as unknown) as ActionState;
         const olds = this.olds.get(req.request.getUrn());
@@ -64,172 +56,144 @@ export class ActionProvider implements SubProvider {
 
         for (const key of keys) {
             if (!olds || JSON.stringify(olds[key]) !== JSON.stringify(news[key])) {
-                console.log(key, olds![key], news[key]);
                 response.addReplaces(key);
                 response.setChanges(DiffResponse.DiffChanges.DIFF_SOME);
             }
         }
 
-        callback(null, response);
+        response.addStables('action_id');
+
+        return response;
     }
 
-    create(req: ServerUnaryCall<CreateRequest>, callback: sendUnaryData<CreateResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
+    async create(req: ServerUnaryCall<CreateRequest>): Promise<CreateResponse> {
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as ActionState & { type: string };
         const pipeline = this.buddyApi
-            .workspace(this.config.workspace)
+            .workspace(this.configuration.require('workspace'))
             .project(props.project_name)
             .pipeline(props.pipeline_id);
 
-        pipeline
-            .action()
-            .create(props)
-            .then(
-                outputs => {
-                    const response = new CreateResponse();
-                    response.setId(outputs.id.toString());
-                    response.setProperties(
-                        Struct.fromJavaScript(
-                            deleteUndefined({
-                                ...outputs,
-                                id: undefined,
-                                action_id: outputs.id,
-                                pipeline_id: props.pipeline_id,
-                                project_name: props.project_name
-                            })
-                        )
-                    );
+        try {
+            const outputs = await pipeline.action().create(props as any);
 
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound) {
-                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
+            const response = new CreateResponse();
+            response.setId(outputs.id.toString());
+            response.setProperties(
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined,
+                    action_id: outputs.id,
+                    pipeline_id: props.pipeline_id,
+                    project_name: props.project_name
+                } as any)
             );
+
+            return response;
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound) {
+                throw new ServiceError(err.message, status.NOT_FOUND);
+            } else {
+                throw new ServiceError(err.message, status.INTERNAL);
+            }
+        }
     }
 
-    read(req: ServerUnaryCall<ReadRequest>, callback: sendUnaryData<ReadResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
+    async read(req: ServerUnaryCall<ReadRequest>): Promise<ReadResponse> {
         const id = +req.request.getId();
         const props = (req.request.getInputs()!.toJavaScript() as unknown) as ActionState;
 
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .project(props.project_name)
-            .pipeline(props.pipeline_id)
-            .action(id)
-            .read()
-            .then(
-                outputs => {
-                    const response = new ReadResponse();
-                    response.setId(req.request.getId());
-                    response.setInputs(Struct.fromJavaScript(deleteUndefined(props)));
-                    response.setProperties(
-                        Struct.fromJavaScript(
-                            deleteUndefined({
-                                ...outputs,
-                                id: undefined,
-                                action_id: outputs.id,
-                                pipeline_id: props.pipeline_id,
-                                project_name: props.project_name
-                            })
-                        )
-                    );
+        try {
+            const outputs = await this.buddyApi
+                .workspace(this.configuration.require('workspace'))
+                .project(props.project_name)
+                .pipeline(props.pipeline_id)
+                .action(id)
+                .read();
 
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound || err instanceof ActionNotFound) {
-                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                    } else {
-                        callback(new ServiceError(err.response.data.errors[0].message, status.INTERNAL), null);
-                    }
-                }
+            const response = new ReadResponse();
+            response.setId(req.request.getId());
+            response.setInputs(Struct.fromJavaScript(props as any));
+            response.setProperties(
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined,
+                    action_id: outputs.id,
+                    pipeline_id: props.pipeline_id,
+                    project_name: props.project_name
+                } as any)
             );
+
+            return response;
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound || err instanceof ActionNotFound) {
+                throw new ServiceError(err.message, status.NOT_FOUND);
+            } else {
+                throw new ServiceError(err.response.data.errors[0].message, status.INTERNAL);
+            }
+        }
     }
 
-    update(req: ServerUnaryCall<UpdateRequest>, callback: sendUnaryData<UpdateResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
+    async update(req: ServerUnaryCall<UpdateRequest>): Promise<UpdateResponse> {
         const news = (req.request.getNews()!.toJavaScript() as unknown) as ActionState & { type: string };
         const id = +req.request.getId();
 
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .project(news.project_name)
-            .pipeline(news.pipeline_id)
-            .action(id)
-            .update(news)
-            .then(
-                outputs => {
-                    const response = new UpdateResponse();
-                    response.setProperties(
-                        Struct.fromJavaScript(
-                            deleteUndefined({
-                                ...outputs,
-                                id: undefined,
-                                action_id: outputs.id,
-                                pipeline_id: news.pipeline_id,
-                                project_name: news.project_name
-                            })
-                        )
-                    );
+        try {
+            const outputs = await this.buddyApi
+                .workspace(this.configuration.require('workspace'))
+                .project(news.project_name)
+                .pipeline(news.pipeline_id)
+                .action(id)
+                .update(news);
 
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
+            const response = new UpdateResponse();
+            response.setProperties(
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined,
+                    action_id: outputs.id,
+                    pipeline_id: news.pipeline_id,
+                    project_name: news.project_name
+                } as any)
             );
+
+            return response;
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else {
+                throw new ServiceError(err.message, status.INTERNAL);
+            }
+        }
     }
 
-    delete(req: ServerUnaryCall<DeleteRequest>, callback: sendUnaryData<Empty>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
+    async delete(req: ServerUnaryCall<DeleteRequest>): Promise<void> {
         const props = (req.request.getProperties()!.toJavaScript() as unknown) as ActionProps;
         const id = +req.request.getId();
 
-        this.buddyApi
-            .workspace(this.config.workspace)
-            .project(props.project_name)
-            .pipeline(props.pipeline_id)
-            .action(id)
-            .delete()
-            .then(
-                () => callback(null, new Empty()),
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound) {
-                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                    } else if (err instanceof ActionNotFound) {
-                        callback(null, new Empty());
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
-            );
+        try {
+            await this.buddyApi
+                .workspace(this.configuration.require('workspace'))
+                .project(props.project_name)
+                .pipeline(props.pipeline_id)
+                .action(id)
+                .delete();
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound) {
+                throw new ServiceError(err.message, status.NOT_FOUND);
+            } else if (!(err instanceof ActionNotFound)) {
+                throw new ServiceError(err.message, status.INTERNAL);
+            }
+            // handle not found as deleted
+        }
+    }
+
+    cancel() {
+        this.buddyApi.cancel('action');
     }
 }

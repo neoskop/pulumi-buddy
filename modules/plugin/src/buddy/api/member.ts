@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 import { BuddyWorkspaceApi } from './workspace';
 
 const debug = require('debug')('pulumi-buddy:api:member');
@@ -48,6 +48,7 @@ export class BuddyMemberApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 throw new MemberError(e.response.data.errors[0].message);
             } else {
                 throw new MemberError(e.message);
@@ -77,6 +78,7 @@ export class BuddyMemberApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new MemberNotFound(this.memberId);
                 } else {
@@ -105,6 +107,7 @@ export class BuddyMemberApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new MemberNotFound(this.memberId);
                 } else {
@@ -139,6 +142,7 @@ export class BuddyMemberApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new MemberNotFound(this.memberId);
                 } else {

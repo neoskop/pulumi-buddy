@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 import { BuddyWorkspaceApi } from './workspace';
 import { IBuddyMember } from './member';
 
@@ -43,6 +43,7 @@ export class BuddyGroupApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 throw new GroupError(e.response.data.errors[0].message);
             } else {
                 throw new GroupError(e.message);
@@ -72,6 +73,7 @@ export class BuddyGroupApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new GroupNotFound(this.groupId);
                 } else {
@@ -106,6 +108,7 @@ export class BuddyGroupApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new GroupNotFound(this.groupId);
                 } else {
@@ -134,6 +137,7 @@ export class BuddyGroupApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new GroupNotFound(this.groupId);
                 } else {
@@ -167,6 +171,7 @@ export class BuddyGroupApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new GroupNotFound(this.groupId);
                 } else {
@@ -201,6 +206,7 @@ export class BuddyGroupApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new GroupNotFound(this.groupId);
                 } else {
@@ -234,6 +240,7 @@ export class BuddyGroupApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new GroupNotFound(this.groupId);
                 } else {

@@ -14,6 +14,7 @@ export interface Variable {
     ssh_key?: boolean;
     settable?: boolean;
     encrypted?: boolean;
+    defaults?: string;
 }
 
 export interface APKs {
@@ -42,4 +43,12 @@ export interface Service {
     type: ServiceType;
     version: string;
     connection?: any;
+}
+
+export interface ExcludedArea {
+    url: string;
+    min_x: number;
+    min_y: number;
+    max_x: number;
+    max_y: number;
 }

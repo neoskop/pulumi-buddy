@@ -1,6 +1,6 @@
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
 import { IntegrationRef } from './common';
-import { AsInputs, AsOutputs } from './utils';
+import { AsInputs, AsOutputs } from '@pulumi-utils/sdk';
 import { MemberProps } from './member';
 
 export interface IntegrationProjectState {
@@ -93,10 +93,6 @@ export class Project extends CustomResource implements AsOutputs<ProjectProps> {
                 }
                 if (!args.external_project_id) {
                     throw new Error('Missing required property "external_project_id"');
-                }
-            } else {
-                if (!args.name) {
-                    throw new Error('Missing required property "name"');
                 }
             }
             inputs['name'] = args?.name;

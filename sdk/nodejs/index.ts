@@ -12,5 +12,4 @@ export * from './project';
 export * from './project-member-binding';
 export * from './provider';
 export * from './ssh-key';
-export * from './utils';
 export * from './webhook';

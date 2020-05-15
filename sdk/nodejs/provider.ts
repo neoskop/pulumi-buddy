@@ -1,4 +1,4 @@
-import { ProviderResource, ResourceOptions, Config, Inputs, Output } from '@pulumi/pulumi';
+import { ProviderResource, ResourceOptions, Config, Inputs, Output, Input } from '@pulumi/pulumi';
 
 export class Provider extends ProviderResource {
     static readonly __pulumiType = 'buddy';
@@ -8,7 +8,7 @@ export class Provider extends ProviderResource {
     readonly token!: Output<string>;
 
     static isInstance(obj: any): obj is Provider {
-        if(obj == null) {
+        if (obj == null) {
             return false;
         }
 
@@ -16,28 +16,28 @@ export class Provider extends ProviderResource {
     }
 
     constructor(name: string, args?: ProviderArgs, opts?: ResourceOptions) {
-        if(!opts) {
+        if (!opts) {
             opts = {};
         }
 
-        if(!opts.version) {
+        if (!opts.version) {
             opts.version = require('./package').version;
         }
 
         const config = new Config('buddy');
 
-        const inputs : Inputs = {
-            apiUrl: args?.apiUrl ?? config.get('apiUrl')?.replace(/\/?/, '') ?? 'https://api.buddy.works',
+        const inputs: Inputs = {
+            apiUrl: args?.apiUrl ?? config.get('apiUrl')?.replace(/\/?/, ''),
             workspace: args?.workspace ?? config.require('workspace'),
             token: args?.token ?? config.requireSecret('token')
-        }
+        };
 
         super(Provider.__pulumiType, name, inputs, opts);
     }
 }
 
 export interface ProviderArgs {
-    apiUrl?: string;
-    workspace?: string;
-    token?: string;
+    apiUrl?: Input<string>;
+    workspace?: Input<string>;
+    token?: Input<string>;
 }

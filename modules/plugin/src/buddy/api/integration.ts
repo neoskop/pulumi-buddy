@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 
 const debug = require('debug')('pulumi-buddy:api:integration');
 
@@ -49,9 +49,9 @@ export interface IBuddyIntegration {
 }
 
 export class BuddyIntegrationApi {
-    constructor(protected readonly api: BuddyApi, protected readonly integrationId?: number) {}
+    constructor(protected readonly api: BuddyApi, protected readonly integrationId?: number | string) {}
 
-    getIntegrationId(): number {
+    getIntegrationId(): number | string {
         if (!this.integrationId) {
             throw new IntegrationIdRequired();
         }
@@ -77,6 +77,7 @@ export class BuddyIntegrationApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new IntegrationNotFound(this.integrationId);
                 } else {
@@ -97,12 +98,12 @@ export class BuddyIntegrationApi {
                     Authorization: `Bearer ${this.api.getToken()}`
                 }
             });
-
             return result.data.integrations;
         } catch (e) {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 throw new IntegrationError(e.response.data.errors[0].message);
             } else {
                 throw new IntegrationError(e.message);
@@ -120,7 +121,7 @@ export class IntegrationIdRequired extends IntegrationError {
 }
 
 export class IntegrationNotFound extends IntegrationError {
-    constructor(integrationId: number) {
+    constructor(integrationId: number | string) {
         super(`Integration '${integrationId}' not found.`);
     }
 }

@@ -1,16 +1,16 @@
 import Axios from 'axios';
 
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 import { BuddyWorkspaceApi } from './workspace';
 
-export type PipelineAccessLevel = 'DENIED' | 'READ_ONLY' | 'RUN_ONLY'| 'READ_WRITE';
-export type RepositoryAccessLevel = 'DENIED' | 'READ_ONLY'| 'READ_WRITE';
+export type PipelineAccessLevel = 'DENIED' | 'READ_ONLY' | 'RUN_ONLY' | 'READ_WRITE';
+export type RepositoryAccessLevel = 'DENIED' | 'READ_ONLY' | 'READ_WRITE';
 export type SandboxAccessLevel = 'DENIED' | 'READ_WRITE';
 
 const debug = require('debug')('pulumi-buddy:api:permission');
 export interface IBuddyPermissionInput {
     name: string;
-    description?: string|null;
+    description?: string | null;
     pipeline_access_level: PipelineAccessLevel;
     repository_access_level: RepositoryAccessLevel;
     sandbox_access_level: SandboxAccessLevel;
@@ -20,11 +20,15 @@ export interface IBuddyPermission extends IBuddyPermissionInput {
     url: string;
     html_url: string;
     id: number;
-    description: string|null;
+    description: string | null;
 }
 
 export class BuddyPermissionApi {
-    constructor(protected readonly api: BuddyApi, protected readonly workspace: BuddyWorkspaceApi, protected readonly permissionId?: number) {}
+    constructor(
+        protected readonly api: BuddyApi,
+        protected readonly workspace: BuddyWorkspaceApi,
+        protected readonly permissionId?: number
+    ) {}
 
     getPermissionId(): number {
         if (!this.permissionId) {
@@ -36,18 +40,23 @@ export class BuddyPermissionApi {
     async create(permission: IBuddyPermissionInput): Promise<IBuddyPermission> {
         debug('create %O', permission);
         try {
-            const result = await Axios.post<IBuddyPermission>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/permissions`, permission, {
-                cancelToken: this.api.registerCanceler('permission').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
+            const result = await Axios.post<IBuddyPermission>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/permissions`,
+                permission,
+                {
+                    cancelToken: this.api.registerCanceler('permission').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
                 }
-            });
+            );
 
             return result.data;
         } catch (e) {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 throw new PermissionError(e.response.data.errors[0].message);
             } else {
                 throw new PermissionError(e.message);
@@ -77,6 +86,7 @@ export class BuddyPermissionApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new PermissionNotFound(this.permissionId);
                 } else {
@@ -111,6 +121,7 @@ export class BuddyPermissionApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new PermissionNotFound(this.permissionId);
                 } else {
@@ -139,6 +150,7 @@ export class BuddyPermissionApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new PermissionNotFound(this.permissionId);
                 } else {

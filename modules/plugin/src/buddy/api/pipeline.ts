@@ -1,7 +1,6 @@
 import Axios from 'axios';
-
 import { BuddyActionApi } from './action';
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 import { BuddyProjectApi, ProjectNotFound } from './project';
 import { BuddyWorkspaceApi } from './workspace';
 
@@ -24,6 +23,15 @@ export interface IBuddyPipeline {
     no_skip_to_most_recent: boolean;
     do_not_create_commit_status: boolean;
     ignore_fail_on_project_status: boolean;
+    trigger_condition?: TriggerCondition;
+    trigger_condition_paths?: string[];
+    trigger_variable_key?: string;
+    trigger_variable_value?: string;
+    trigger_hours?: number[];
+    trigger_days?: number[];
+    zone_id?: string;
+    trigger_project_name?: string;
+    trigger_pipeline_name?: string;
     project: {
         url: string;
         html_url: string;
@@ -44,6 +52,16 @@ export interface IBuddyPipeline {
 
 export type TriggerMode = 'MANUAL' | 'SCHEDULED' | 'ON_EVERY_PUSH';
 export type RefType = 'BRANCH' | 'TAG' | 'WILDCARD' | 'PULL_REQUEST' | 'NONE';
+export type TriggerCondition =
+    | 'ALWAYS'
+    | 'ON_CHANGE'
+    | 'ON_CHANGE_AT_PATH'
+    | 'VAR_IS'
+    | 'VAR_IS_NOT'
+    | 'VAR_CONTAINS'
+    | 'VAR_NOT_CONTAINS'
+    | 'DATETIME'
+    | 'SUCCESS_PIPELINE';
 
 export interface IBuddyPipelineInput {
     project_name: string;
@@ -62,6 +80,15 @@ export interface IBuddyPipelineInput {
     paused?: boolean;
     ignore_fail_on_project_status?: boolean;
     execution_message_template?: string;
+    trigger_condition?: TriggerCondition;
+    trigger_condition_paths?: string[];
+    trigger_variable_key?: string;
+    trigger_variable_value?: string;
+    trigger_hours?: number[];
+    trigger_days?: number[];
+    zone_id?: string;
+    trigger_project_name?: string;
+    trigger_pipeline_name?: string;
 }
 
 export class BuddyPipelineApi {
@@ -102,6 +129,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.project.getProjectName());
                 } else {
@@ -137,6 +165,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new PipelineNotFound(this.pipelineId);
                 } else {
@@ -173,6 +202,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.code === 404) {
                     throw new PipelineNotFound(this.pipelineId);
                 } else {
@@ -206,6 +236,7 @@ export class BuddyPipelineApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new PipelineNotFound(this.pipelineId);
                 } else {

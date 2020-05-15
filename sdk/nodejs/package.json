@@ -1,7 +1,7 @@
 {
-    "name": "@neoskop/pulumi-buddy",
+    "name": "pulumi-buddy",
     "description": "A Pulumi integration for Buddy",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "repository": "https://github.com/neoskop/pulumi-buddy",
     "author": "Mark Wecke <wecke@neoskop.de>",
     "keywords": [
@@ -15,18 +15,22 @@
         "clean": "rimraf dist",
         "prebuild": "npm run clean",
         "build": "tsc",
-        "bundle": "cp README.md dist && cp ../../LICENSE dist && jq '.main |= \"index.js\" | del(.scripts) | .' package.json > dist/package.json",
-        "compile": "npm run build && npm run bundle"
+        "postbuild": "./bin/bundle.sh",
+        "publish-next": "npm run build && npm publish dist --tag next",
+        "publish-latest-only": "npm run build && npm publish dist",
+        "publish-latest": "npm run publish-latest-only && npm dist-tag add `jq '.name' package.json -r`@`jq '.version' package.json -r` next"
     },
     "dependencies": {
-        "@pulumi/pulumi": "^1.0.0"
+        "@pulumi-utils/sdk": "0.1.0",
+        "@pulumi/pulumi": "^2.0.0"
     },
     "devDependencies": {
-        "@types/node": "^8.0.0",
+        "@types/node": "^13.13.2",
         "rimraf": "3.0.2",
-        "typescript": "3.8.2"
+        "typescript": "3.8.3"
     },
     "pulumi": {
-        "resource": true
+        "resource": true,
+        "server": "https://pulumi.neoskop.cloud"
     }
 }

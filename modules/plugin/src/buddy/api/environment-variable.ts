@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-import { BuddyApi } from './api';
+import { BuddyApi, InvalidResponseType } from './api';
 import { BuddyWorkspaceApi } from './workspace';
 import { IBuddyProject } from './project';
 import { IBuddyPipeline } from './pipeline';
@@ -31,7 +31,11 @@ export interface IBuddyEnvironmentVariable extends IBuddyEnvironmentVariableInpu
 }
 
 export class BuddyEnvironmentVariableApi {
-    constructor(protected readonly api: BuddyApi, protected readonly workspace: BuddyWorkspaceApi, protected readonly environmentVariableId?: number) {}
+    constructor(
+        protected readonly api: BuddyApi,
+        protected readonly workspace: BuddyWorkspaceApi,
+        protected readonly environmentVariableId?: number
+    ) {}
 
     getEnvironmentVariableId(): number {
         if (!this.environmentVariableId) {
@@ -43,18 +47,23 @@ export class BuddyEnvironmentVariableApi {
     async create(variable: IBuddyEnvironmentVariableInput): Promise<IBuddyEnvironmentVariable> {
         debug('create %O', variable);
         try {
-            const result = await Axios.post<IBuddyEnvironmentVariable>(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/variables`, variable, {
-                cancelToken: this.api.registerCanceler('environment-variable').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
+            const result = await Axios.post<IBuddyEnvironmentVariable>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/variables`,
+                variable,
+                {
+                    cancelToken: this.api.registerCanceler('environment-variable').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
                 }
-            });
+            );
 
             return result.data;
         } catch (e) {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 throw new EnvironmentVariableError(e.response.data.errors[0].message);
             } else {
                 throw new EnvironmentVariableError(e.message);
@@ -84,6 +93,7 @@ export class BuddyEnvironmentVariableApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new EnvironmentVariableNotFound(this.environmentVariableId);
                 } else {
@@ -118,6 +128,7 @@ export class BuddyEnvironmentVariableApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new EnvironmentVariableNotFound(this.environmentVariableId);
                 } else {
@@ -146,6 +157,7 @@ export class BuddyEnvironmentVariableApi {
             if (Axios.isCancel(e)) {
                 throw e;
             } else if (e.response) {
+                InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new EnvironmentVariableNotFound(this.environmentVariableId);
                 } else {

@@ -1,9 +1,9 @@
-import { AsInputs } from '../utils';
+import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Header, Variable } from '../common';
 
-export interface ActionWebMonitoringState {
+export interface WebMonitoringState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -15,6 +15,11 @@ export interface ActionWebMonitoringState {
      * The name of the action.
      */
     name: string;
+
+    /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -30,6 +35,11 @@ export interface ActionWebMonitoringState {
      * The headers that will be sent with the request.
      */
     headers?: Header[];
+
+    /**
+     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     */
+    ignore_errors?: boolean;
 
     /**
      * The username required to connect to the server.
@@ -77,9 +87,18 @@ export interface ActionWebMonitoringState {
     timeout?: number;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Can't be used in deployment actions.
+     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
      */
-    trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
+    trigger_condition?:
+        | 'ALWAYS'
+        | 'ON_CHANGE'
+        | 'ON_CHANGE_AT_PATH'
+        | 'VAR_IS'
+        | 'VAR_IS_NOT'
+        | 'VAR_CONTAINS'
+        | 'VAR_NOT_CONTAINS'
+        | 'DATETIME'
+        | 'SUCCESS_PIPELINE';
 
     /**
      * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
@@ -87,9 +106,24 @@ export interface ActionWebMonitoringState {
     trigger_condition_paths?: string[];
 
     /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
      */
-    trigger_time?: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+    trigger_days?: number[];
+
+    /**
+     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
+     */
+    trigger_hours?: number[];
+
+    /**
+     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
+     */
+    trigger_pipeline_name?: string;
+
+    /**
+     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
+     */
+    trigger_project_name?: string;
 
     /**
      * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
@@ -105,20 +139,27 @@ export interface ActionWebMonitoringState {
      * The list of variables you can use the action.
      */
     variables?: Variable[];
+
+    /**
+     * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
+     */
+    zone_id?: string;
 }
 
-export type ActionWebMonitoringArgs = AsInputs<ActionWebMonitoringState>;
+export type WebMonitoringArgs = AsInputs<WebMonitoringState>;
 
-export interface ActionWebMonitoringProps {
+export interface WebMonitoringProps {
     url: string;
     html_url: string;
     action_id: number;
     destination: string;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'WEB';
     after_action_id?: number;
     disabled?: boolean;
     headers?: Header[];
+    ignore_errors?: boolean;
     login?: string;
     password?: string;
     port?: string;
@@ -128,12 +169,25 @@ export interface ActionWebMonitoringProps {
     text?: string;
     text_existence?: boolean;
     timeout?: number;
-    trigger_condition?: 'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS';
+    trigger_condition?:
+        | 'ALWAYS'
+        | 'ON_CHANGE'
+        | 'ON_CHANGE_AT_PATH'
+        | 'VAR_IS'
+        | 'VAR_IS_NOT'
+        | 'VAR_CONTAINS'
+        | 'VAR_NOT_CONTAINS'
+        | 'DATETIME'
+        | 'SUCCESS_PIPELINE';
     trigger_condition_paths?: string[];
-    trigger_time?: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+    trigger_days?: number[];
+    trigger_hours?: number[];
+    trigger_pipeline_name?: string;
+    trigger_project_name?: string;
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
+    zone_id?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -145,7 +199,7 @@ export interface ActionWebMonitoringProps {
 export class WebMonitoring extends CustomResource {
     static __pulumiType = 'buddy:action:WebMonitoring';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ActionWebMonitoringState>, opts?: CustomResourceOptions) {
+    static get(name: string, id: Input<ID>, state?: Partial<WebMonitoringState>, opts?: CustomResourceOptions) {
         return new WebMonitoring(name, state as any, { ...opts, id });
     }
 
@@ -162,10 +216,12 @@ export class WebMonitoring extends CustomResource {
     action_id!: Output<number>;
     destination!: Output<string>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'WEB'>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     headers!: Output<Header[] | undefined>;
+    ignore_errors!: Output<boolean | undefined>;
     login!: Output<string | undefined>;
     password!: Output<string | undefined>;
     port!: Output<string | undefined>;
@@ -175,28 +231,45 @@ export class WebMonitoring extends CustomResource {
     text!: Output<string | undefined>;
     text_existence!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
-    trigger_condition!: Output<'ALWAYS' | 'ON_CHANGE' | 'ON_CHANGE_AT_PATH' | 'VAR_IS' | 'VAR_IS_NOT' | 'VAR_CONTAINS' | undefined>;
+    trigger_condition!: Output<
+        | 'ALWAYS'
+        | 'ON_CHANGE'
+        | 'ON_CHANGE_AT_PATH'
+        | 'VAR_IS'
+        | 'VAR_IS_NOT'
+        | 'VAR_CONTAINS'
+        | 'VAR_NOT_CONTAINS'
+        | 'DATETIME'
+        | 'SUCCESS_PIPELINE'
+        | undefined
+    >;
     trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS' | undefined>;
+    trigger_days!: Output<number[] | undefined>;
+    trigger_hours!: Output<number[] | undefined>;
+    trigger_pipeline_name!: Output<string | undefined>;
+    trigger_project_name!: Output<string | undefined>;
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
+    zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ActionWebMonitoringArgs | ActionWebMonitoringState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: WebMonitoringArgs | WebMonitoringState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ActionWebMonitoringState | undefined;
+            const state = argsOrState as WebMonitoringState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['destination'] = state?.destination;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['headers'] = state?.headers;
+            inputs['ignore_errors'] = state?.ignore_errors;
             inputs['login'] = state?.login;
             inputs['password'] = state?.password;
             inputs['port'] = state?.port;
@@ -208,12 +281,16 @@ export class WebMonitoring extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_time'] = state?.trigger_time;
+            inputs['trigger_days'] = state?.trigger_days;
+            inputs['trigger_hours'] = state?.trigger_hours;
+            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
+            inputs['trigger_project_name'] = state?.trigger_project_name;
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
+            inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ActionWebMonitoringArgs | undefined;
+            const args = argsOrState as WebMonitoringArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -230,11 +307,17 @@ export class WebMonitoring extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['destination'] = args.destination;
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['headers'] = args.headers;
+            inputs['ignore_errors'] = args.ignore_errors;
             inputs['login'] = args.login;
             inputs['password'] = args.password;
             inputs['port'] = args.port;
@@ -246,10 +329,14 @@ export class WebMonitoring extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_time'] = args.trigger_time;
+            inputs['trigger_days'] = args.trigger_days;
+            inputs['trigger_hours'] = args.trigger_hours;
+            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
+            inputs['trigger_project_name'] = args.trigger_project_name;
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
+            inputs['zone_id'] = args.zone_id;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

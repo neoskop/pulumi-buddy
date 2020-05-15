@@ -1,17 +1,8 @@
-import { IntegrationState } from '@neoskop/pulumi-buddy';
-import Axios from 'axios';
-import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
-import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
-import { sendUnaryData, ServerUnaryCall, status } from 'grpc';
-import { Injectable } from 'injection-js';
-import { BuddyApi } from '../buddy/api/api';
-import { IntegrationNotFound } from '../buddy/api/integration';
-import { ServiceError } from '../errors/service.error';
+import { IntegrationState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,
     CreateRequest,
-    CreateResponse,
     DeleteRequest,
     DiffRequest,
     DiffResponse,
@@ -19,120 +10,107 @@ import {
     InvokeResponse,
     ReadRequest,
     ReadResponse,
-    UpdateRequest,
-    UpdateResponse
-} from '../grpc/provider_pb';
-import { deleteUndefined } from '../utils/delete-undefined';
-import { Tok } from '../utils/tok';
-import { IProviderConfig, Kind, SubProvider } from './main.provider';
+    UpdateRequest
+} from '@pulumi-utils/grpc';
+import { IProvider, Struct, Tok } from '@pulumi-utils/plugin';
+import Axios from 'axios';
+import { ServerUnaryCall, status } from 'grpc';
+import { Injectable } from 'injection-js';
+
+import { BuddyApi } from '../buddy/api/api';
+import { IntegrationNotFound } from '../buddy/api/integration';
+import { ServiceError } from '../errors/service.error';
+import { Kind } from './kind';
 
 @Injectable()
-export class IntegrationProvider implements SubProvider {
+export class IntegrationProvider implements IProvider {
     readonly kind = Kind.Integration;
-
-    config?: IProviderConfig;
 
     protected readonly olds = new Map<string, IntegrationState>();
 
     constructor(protected readonly buddyApi: BuddyApi) {}
 
-    setConfig(config: IProviderConfig) {
-        this.config = config;
-    }
-
-    invoke({ request }: ServerUnaryCall<InvokeRequest>, callback: sendUnaryData<InvokeResponse>) {
+    async invoke({ request }: ServerUnaryCall<InvokeRequest>): Promise<InvokeResponse> {
         const tok = Tok.parse(request.getTok());
 
-        switch (tok.method) {
-            case 'list':
-                this.buddyApi
-                    .integration()
-                    .list()
-                    .then(
-                        integrations => {
-                            const response = new InvokeResponse();
-                            response.setReturn(
-                                Struct.fromJavaScript(
-                                    deleteUndefined({
-                                        integrations
-                                    })
-                                )
-                            );
-                            callback(null, response);
-                        },
-                        err => {
-                            if (Axios.isCancel(err)) {
-                                callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                            } else {
-                                callback(new ServiceError(err.message, status.INTERNAL), null);
-                            }
-                        }
+        try {
+            switch (tok.name) {
+                case 'list': {
+                    const integrations = await this.buddyApi.integration().list();
+                    const response = new InvokeResponse();
+                    response.setReturn(
+                        Struct.fromJavaScript({
+                            integrations
+                        } as any)
                     );
-                break;
+                    return response;
+                }
+                default:
+                    throw new ServiceError('Unknown', status.UNKNOWN);
+            }
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else {
+                throw new ServiceError(err.message, status.INTERNAL);
+            }
         }
     }
 
-    check({ request }: ServerUnaryCall<CheckRequest>, callback: sendUnaryData<CheckResponse>) {
+    check({ request }: ServerUnaryCall<CheckRequest>): CheckResponse {
         const olds = (request.getOlds()!.toJavaScript() as unknown) as IntegrationState;
         const news = request.getNews()!.toJavaScript();
         this.olds.set(request.getUrn(), olds);
 
         const checkResponse = new CheckResponse();
         checkResponse.setInputs(Struct.fromJavaScript(news));
-        callback(null, checkResponse);
+        return checkResponse;
     }
 
-    diff(req: ServerUnaryCall<DiffRequest>, callback: sendUnaryData<DiffResponse>) {
-        callback(null, new DiffResponse());
+    diff(req: ServerUnaryCall<DiffRequest>): DiffResponse {
+        return new DiffResponse();
     }
 
-    create(req: ServerUnaryCall<CreateRequest>, callback: sendUnaryData<CreateResponse>) {
-        callback(new ServiceError('Not implemented', status.UNIMPLEMENTED), null);
+    create(req: ServerUnaryCall<CreateRequest>): never {
+        throw new ServiceError('Not implemented', status.UNIMPLEMENTED);
     }
 
-    read(req: ServerUnaryCall<ReadRequest>, callback: sendUnaryData<ReadResponse>) {
-        if (!this.config) {
-            return callback(new ServiceError('config not set', status.INTERNAL), null);
-        }
-
+    async read(req: ServerUnaryCall<ReadRequest>): Promise<ReadResponse> {
         const id = req.request.getId();
 
-        this.buddyApi
-            .integration(id as any)
-            .read()
-            .then(
-                outputs => {
-                    const response = new ReadResponse();
-                    response.setId(req.request.getId());
-                    response.setProperties(
-                        Struct.fromJavaScript(
-                            deleteUndefined({
-                                ...outputs,
-                                id: undefined!,
-                                integration_id: outputs.id
-                            })
-                        )
-                    );
-
-                    callback(null, response);
-                },
-                err => {
-                    if (Axios.isCancel(err)) {
-                        callback(new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled'), null);
-                    } else if (err instanceof IntegrationNotFound) {
-                        callback(new ServiceError(err.message, status.NOT_FOUND), null);
-                    } else {
-                        callback(new ServiceError(err.message, status.INTERNAL), null);
-                    }
-                }
+        try {
+            const outputs = await this.buddyApi.integration(id).read();
+            const response = new ReadResponse();
+            response.setId(req.request.getId());
+            response.setProperties(
+                Struct.fromJavaScript({
+                    ...outputs,
+                    id: undefined!,
+                    integration_id: outputs.id
+                })
             );
+
+            return response;
+        } catch (err) {
+            if (Axios.isCancel(err)) {
+                throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
+            } else if (err instanceof IntegrationNotFound) {
+                throw new ServiceError(err.message, status.NOT_FOUND);
+            } else {
+                throw new ServiceError(err.message, status.INTERNAL);
+            }
+        }
     }
 
-    update(req: ServerUnaryCall<UpdateRequest>, callback: sendUnaryData<UpdateResponse>) {
-        callback(new ServiceError('not implemented', status.UNIMPLEMENTED), null);
+    update(req: ServerUnaryCall<UpdateRequest>): never {
+        throw new ServiceError('not implemented', status.UNIMPLEMENTED);
     }
 
-    delete(req: ServerUnaryCall<DeleteRequest>, callback: sendUnaryData<Empty>) {
-        callback(new ServiceError('not implemented', status.UNIMPLEMENTED), null);
+    delete(req: ServerUnaryCall<DeleteRequest>): never {
+        throw new ServiceError('not implemented', status.UNIMPLEMENTED);
+    }
+
+    cancel() {
+        this.buddyApi.cancel('integration');
     }
 }

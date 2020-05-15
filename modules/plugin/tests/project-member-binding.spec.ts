@@ -1,22 +1,18 @@
-import { Server } from 'grpc';
-import { createServerAndClient, makeCallback, sleep } from './utils';
-import { ResourceProviderClient } from '../dist/grpc/provider_grpc_pb';
-import { CheckRequest, CheckResponse, DiffResponse, DiffRequest } from '../dist/grpc/provider_pb';
+import { CheckRequest, CheckResponse, DiffRequest, DiffResponse, ResourceProviderClient } from '@pulumi-utils/grpc';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
+import { Server } from 'grpc';
+
+import { createServerAndClient, makeCallback } from './utils';
 
 describe('ProjectMemberBinding', () => {
     let server!: Server;
     let client!: ResourceProviderClient;
     beforeEach(async () => {
-        await sleep(10);
         ({ server, client } = await createServerAndClient());
-        await sleep(10);
     });
 
     afterEach(async () => {
-        await sleep(10);
         server!.forceShutdown();
-        await sleep(10);
     });
 
     it('should handle check/diff', async () => {

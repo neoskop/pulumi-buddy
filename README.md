@@ -6,13 +6,16 @@
 
 > A [Pulumi](https://www.pulumi.com/) integration for [Buddy](https://buddy.works/)
 
-## SDK
+## Project Structure
 
-See the [NodeJS SDK](./sdk/nodejs) for details.
+This repository uses [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/) and contains two submodules which integrate with each other:
 
-## Plugin
+-   The NodeJS SDK provides your Pulumi-based project with resources for Buddy ([README](./sdk/nodejs))
+-   The Plugin provides a provider for Pulumi to provision infrastructure based on the SDK's described resources ([README](./modules/plugin))
 
-See the [plugin](./modules/plugin) for details
+## Usage
+
+See [NodeJS SDK](./sdk/nodejs) for usage description.
 
 ## License
 
