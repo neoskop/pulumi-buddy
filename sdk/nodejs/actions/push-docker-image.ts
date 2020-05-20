@@ -140,6 +140,11 @@ export interface PushDockerImageState {
      * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
      */
     zone_id?: string;
+
+    /**
+     * Docker Registry URL
+     */
+    registry?: string;
 }
 
 export type PushDockerImageArgs = AsInputs<PushDockerImageState>;
@@ -183,6 +188,7 @@ export interface PushDockerImageProps {
     trigger_variable_value?: string;
     variables?: Variable[];
     zone_id?: string;
+    registry?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -246,6 +252,7 @@ export class PushDockerImage extends CustomResource {
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
+    registry!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: PushDockerImageArgs | PushDockerImageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -282,6 +289,7 @@ export class PushDockerImage extends CustomResource {
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
+            inputs['registry'] = state?.registry;
         } else {
             const args = argsOrState as PushDockerImageArgs | undefined;
             if (!args?.project_name) {
@@ -327,6 +335,7 @@ export class PushDockerImage extends CustomResource {
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
             inputs['zone_id'] = args.zone_id;
+            inputs['registry'] = args.registry;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

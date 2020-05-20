@@ -39,7 +39,10 @@ async function main() {
                         return;
                     },
                     patchAction(action) {
-                        if (action.name === 'Build Dockerfile' && !action.parameters.some(p => p.name === 'registry')) {
+                        if (
+                            ['Build Dockerfile', 'Push Docker Image'].includes(action.name) &&
+                            !action.parameters.some(p => p.name === 'registry')
+                        ) {
                             return {
                                 ...action,
                                 parameters: [

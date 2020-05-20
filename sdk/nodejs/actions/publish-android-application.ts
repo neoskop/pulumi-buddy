@@ -27,7 +27,7 @@ export interface PublishAndroidApplicationState {
     name: string;
 
     /**
-     * The track type to read or modify. Can be one of `production`, `alpha`, `beta`, `rollout`, `internal`.
+     * The track type to read or modify. Can be one of `production`, `alpha`, `beta`, `rollout`, `internal` or custom track as configured in Google Play Console.
      */
     track: string;
 
