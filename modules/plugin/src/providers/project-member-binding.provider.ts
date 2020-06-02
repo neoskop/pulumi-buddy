@@ -1,4 +1,3 @@
-import { ProjectMemberBindingProps, ProjectMemberBindingState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,
@@ -17,11 +16,13 @@ import Axios from 'axios';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
+import { ProjectMemberBindingProps, ProjectMemberBindingState } from 'pulumi-buddy';
 
 import { BuddyApi } from '../buddy/api/api';
 import { ProjectNotFound } from '../buddy/api/project';
 import { ServiceError } from '../errors/service.error';
 import { Differ } from '../utils/differ';
+import { DELETE_RESPONSE } from './delete-response';
 import { Kind } from './kind';
 
 @Injectable()
@@ -81,7 +82,7 @@ export class ProjectMemberBindingProvider implements IProvider {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
             } else if (err instanceof ProjectNotFound) {
-                throw new ServiceError(err.message, status.NOT_FOUND);
+                return DELETE_RESPONSE;
             } else {
                 throw new ServiceError(err.message, status.INTERNAL);
             }

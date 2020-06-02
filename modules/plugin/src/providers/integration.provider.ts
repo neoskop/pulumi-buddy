@@ -1,4 +1,3 @@
-import { IntegrationState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,
@@ -16,10 +15,12 @@ import { IProvider, Struct, Tok } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
+import { IntegrationState } from 'pulumi-buddy';
 
 import { BuddyApi } from '../buddy/api/api';
 import { IntegrationNotFound } from '../buddy/api/integration';
 import { ServiceError } from '../errors/service.error';
+import { DELETE_RESPONSE } from './delete-response';
 import { Kind } from './kind';
 
 @Injectable()
@@ -95,7 +96,7 @@ export class IntegrationProvider implements IProvider {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
             } else if (err instanceof IntegrationNotFound) {
-                throw new ServiceError(err.message, status.NOT_FOUND);
+                return DELETE_RESPONSE;
             } else {
                 throw new ServiceError(err.message, status.INTERNAL);
             }

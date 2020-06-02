@@ -1,4 +1,3 @@
-import { PipelineProps, PipelineState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,
@@ -16,11 +15,13 @@ import { Configuration, IProvider, ServiceError, Struct } from '@pulumi-utils/pl
 import Axios from 'axios';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
+import { PipelineProps, PipelineState } from 'pulumi-buddy';
 
 import { BuddyApi } from '../buddy/api/api';
 import { PipelineNotFound } from '../buddy/api/pipeline';
 import { ProjectNotFound } from '../buddy/api/project';
 import { Differ } from '../utils/differ';
+import { DELETE_RESPONSE } from './delete-response';
 import { Kind } from './kind';
 
 @Injectable()
@@ -126,7 +127,7 @@ export class PipelineProvider implements IProvider {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
             } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound) {
-                throw ServiceError.wrap(err, status.NOT_FOUND);
+                return DELETE_RESPONSE;
             } else {
                 throw new ServiceError(err.response.data.errors[0].message, status.INTERNAL);
             }

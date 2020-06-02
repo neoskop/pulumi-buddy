@@ -1,4 +1,3 @@
-import { GroupProps, GroupState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,
@@ -16,11 +15,13 @@ import { Configuration, IProvider, Struct } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
+import { GroupProps, GroupState } from 'pulumi-buddy';
 
 import { BuddyApi } from '../buddy/api/api';
 import { GroupNotFound } from '../buddy/api/group';
 import { ServiceError } from '../errors/service.error';
 import { Differ } from '../utils/differ';
+import { DELETE_RESPONSE } from './delete-response';
 import { Kind } from './kind';
 
 @Injectable()
@@ -97,7 +98,7 @@ export class GroupProvider implements IProvider {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
             } else if (err instanceof GroupNotFound) {
-                throw new ServiceError(err.message, status.NOT_FOUND);
+                return DELETE_RESPONSE;
             } else {
                 throw new ServiceError(err.message, status.INTERNAL);
             }

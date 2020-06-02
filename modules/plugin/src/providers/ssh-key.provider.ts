@@ -1,4 +1,3 @@
-import { SshKeyProps, SshKeyState } from 'pulumi-buddy';
 import {
     CheckRequest,
     CheckResponse,
@@ -17,11 +16,13 @@ import Axios from 'axios';
 import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
+import { SshKeyProps, SshKeyState } from 'pulumi-buddy';
 
 import { BuddyApi } from '../buddy/api/api';
 import { SshKeyNotFound } from '../buddy/api/ssh-key';
 import { ServiceError } from '../errors/service.error';
 import { Differ } from '../utils/differ';
+import { DELETE_RESPONSE } from './delete-response';
 import { Kind } from './kind';
 
 @Injectable()
@@ -104,7 +105,7 @@ export class SshKeyProvider implements IProvider {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
             } else if (err instanceof SshKeyNotFound) {
-                throw new ServiceError(err.message, status.NOT_FOUND);
+                return DELETE_RESPONSE;
             } else {
                 throw new ServiceError(err.message, status.INTERNAL);
             }

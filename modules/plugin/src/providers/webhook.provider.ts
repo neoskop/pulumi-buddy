@@ -23,6 +23,7 @@ import { WebhookNotFound } from '../buddy/api/webhook';
 import { ServiceError } from '../errors/service.error';
 import { Differ } from '../utils/differ';
 import { Kind } from './kind';
+import { DELETE_RESPONSE } from './delete-response';
 
 @Injectable()
 export class WebhookProvider implements IProvider {
@@ -111,7 +112,7 @@ export class WebhookProvider implements IProvider {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
             } else if (err instanceof WebhookNotFound) {
-                throw new ServiceError(err.message, status.NOT_FOUND);
+                return DELETE_RESPONSE;
             } else {
                 throw new ServiceError(err.message, status.INTERNAL);
             }

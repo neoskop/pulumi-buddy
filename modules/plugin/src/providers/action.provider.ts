@@ -22,6 +22,7 @@ import { BuddyApi } from '../buddy/api/api';
 import { PipelineNotFound } from '../buddy/api/pipeline';
 import { ProjectNotFound } from '../buddy/api/project';
 import { Kind } from './kind';
+import { DELETE_RESPONSE } from './delete-response';
 
 @Injectable()
 export class ActionProvider implements IProvider {
@@ -130,7 +131,7 @@ export class ActionProvider implements IProvider {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
             } else if (err instanceof ProjectNotFound || err instanceof PipelineNotFound || err instanceof ActionNotFound) {
-                throw new ServiceError(err.message, status.NOT_FOUND);
+                return DELETE_RESPONSE;
             } else {
                 throw new ServiceError(err.response.data.errors[0].message, status.INTERNAL);
             }

@@ -21,6 +21,7 @@ import {
 import { Differ } from '../utils/differ';
 import { Kind } from './kind';
 import { IProvider, ServiceError, Struct, Configuration, Urn, sleep, uniqify } from '@pulumi-utils/plugin';
+import { DELETE_RESPONSE } from './delete-response';
 
 @Injectable()
 export class ProjectProvider implements IProvider {
@@ -117,7 +118,7 @@ export class ProjectProvider implements IProvider {
             if (Axios.isCancel(err)) {
                 throw new ServiceError('Canceled', status.CANCELLED, undefined, 'Cancelled');
             } else if (err instanceof ProjectNotFound) {
-                throw ServiceError.wrap(err, status.NOT_FOUND);
+                return DELETE_RESPONSE;
             } else {
                 throw ServiceError.wrap(err, status.INTERNAL);
             }
