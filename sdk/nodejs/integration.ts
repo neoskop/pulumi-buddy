@@ -19,7 +19,8 @@ export type IntegrationType =
     | 'CUSTOM'
     | 'SLACK'
     | 'DIGITAL_OCEAN'
-    | 'AZURE'
+    | 'AZURE' // DEPRECATED
+    | 'AZURE_CLOUD'
     | 'UPCLOUD'
     | 'DO_SPACES'
     | 'VULTR'
