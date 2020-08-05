@@ -1,7 +1,7 @@
 {
     "name": "pulumi-buddy-plugin",
     "description": "A Pulumi integration for Buddy",
-    "version": "0.2.0",
+    "version": "0.3.0-rc.0",
     "repository": "https://github.com/neoskop/pulumi-buddy",
     "author": "Mark Wecke <wecke@neoskop.de>",
     "license": "MIT",
