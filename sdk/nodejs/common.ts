@@ -33,6 +33,11 @@ export interface Header {
     value: string;
 }
 
+export interface Tag {
+    key: string;
+    value: string;
+}
+
 export interface PipelineRef {
     id: number;
 }
