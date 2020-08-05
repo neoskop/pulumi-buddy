@@ -10,7 +10,7 @@ export interface GCloudCLIState {
     /**
      * The array of commands invoked on the remote server.
      */
-    execute_commands: string;
+    execute_commands: string[];
 
     /**
      * The integration.
@@ -66,6 +66,11 @@ export interface GCloudCLIState {
      * The Google server key (base64 encoded).
      */
     server_key?: string;
+
+    /**
+     * The command that will be executed only on the first run.
+     */
+    setup_commands?: string[];
 
     /**
      * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
@@ -143,7 +148,7 @@ export interface GCloudCLIProps {
     url: string;
     html_url: string;
     action_id: number;
-    execute_commands: string;
+    execute_commands: string[];
     integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -156,6 +161,7 @@ export interface GCloudCLIProps {
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     server_key?: string;
+    setup_commands?: string[];
     shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_condition?:
@@ -203,7 +209,7 @@ export class GCloudCLI extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    execute_commands!: Output<string>;
+    execute_commands!: Output<string[]>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -216,6 +222,7 @@ export class GCloudCLI extends CustomResource {
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     server_key!: Output<string | undefined>;
+    setup_commands!: Output<string[] | undefined>;
     shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<
@@ -262,6 +269,7 @@ export class GCloudCLI extends CustomResource {
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['server_key'] = state?.server_key;
+            inputs['setup_commands'] = state?.setup_commands;
             inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
@@ -314,6 +322,7 @@ export class GCloudCLI extends CustomResource {
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['server_key'] = args.server_key;
+            inputs['setup_commands'] = args.setup_commands;
             inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;

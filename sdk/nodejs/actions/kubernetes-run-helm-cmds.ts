@@ -140,7 +140,7 @@ export interface KubernetesRunHelmCMDsState {
     /**
      * Allow you to install Helm plugins.
      */
-    setup_commands?: string;
+    setup_commands?: string[];
 
     /**
      * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
@@ -245,7 +245,7 @@ export interface KubernetesRunHelmCMDsProps {
     password?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    setup_commands?: string;
+    setup_commands?: string[];
     shell?: 'SH' | 'BASH';
     timeout?: number;
     token?: string;
@@ -320,7 +320,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
     password!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
-    setup_commands!: Output<string | undefined>;
+    setup_commands!: Output<string[] | undefined>;
     shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     token!: Output<string | undefined>;

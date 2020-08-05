@@ -1,36 +1,30 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, Variable } from '../common';
-import { Integration } from '../integration';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { Variable } from '../common';
 
-export interface AWSCLIState {
+export interface SSLVerifyState {
     project_name: string;
     pipeline_id: number;
-    /**
-     * The commands that will be executed.
-     */
-    execute_commands: string[];
-
-    /**
-     * The integration.
-     */
-    integration: IntegrationRef | Integration;
-
     /**
      * The name of the action.
      */
     name: string;
 
     /**
-     * The Amazon S3 region.
-     */
-    region: string;
-
-    /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * Validation period for SSL certificate.
+     */
+    valid_for_days: number;
+
+    /**
+     * The URL of the website to be monitored.
+     */
+    website: string;
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -48,6 +42,11 @@ export interface AWSCLIState {
     ignore_errors?: boolean;
 
     /**
+     * The port for the connection. By default it is 443.
+     */
+    port?: string;
+
+    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -56,16 +55,6 @@ export interface AWSCLIState {
      * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
      */
     run_only_on_first_failure?: boolean;
-
-    /**
-     * The command that will be executed only on the first run.
-     */
-    setup_commands?: string[];
-
-    /**
-     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
-     */
-    shell?: 'SH' | 'BASH';
 
     /**
      * The timeout in seconds.
@@ -132,25 +121,23 @@ export interface AWSCLIState {
     zone_id?: string;
 }
 
-export type AWSCLIArgs = AsInputs<AWSCLIState>;
+export type SSLVerifyArgs = AsInputs<SSLVerifyState>;
 
-export interface AWSCLIProps {
+export interface SSLVerifyProps {
     url: string;
     html_url: string;
     action_id: number;
-    execute_commands: string[];
-    integration: IntegrationRef | Integration;
     name: string;
-    region: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'AWS_CLI';
+    type: 'SSL_VERIFY';
+    valid_for_days: number;
+    website: string;
     after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
+    port?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    setup_commands?: string[];
-    shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_condition?:
         | 'ALWAYS'
@@ -179,37 +166,35 @@ export interface AWSCLIProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class AWSCLI extends CustomResource {
-    static __pulumiType = 'buddy:action:AWSCLI';
+export class SSLVerify extends CustomResource {
+    static __pulumiType = 'buddy:action:SSLVerify';
 
-    static get(name: string, id: Input<ID>, state?: Partial<AWSCLIState>, opts?: CustomResourceOptions) {
-        return new AWSCLI(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<SSLVerifyState>, opts?: CustomResourceOptions) {
+        return new SSLVerify(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is AWSCLI {
+    static isInstance(obj: any): obj is SSLVerify {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === AWSCLI.__pulumiType;
+        return obj['__pulumiType'] === SSLVerify.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    execute_commands!: Output<string[]>;
-    integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
-    region!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'AWS_CLI'>;
+    type!: Output<'SSL_VERIFY'>;
+    valid_for_days!: Output<number>;
+    website!: Output<string>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    port!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
-    setup_commands!: Output<string[] | undefined>;
-    shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<
         | 'ALWAYS'
@@ -233,28 +218,26 @@ export class AWSCLI extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: AWSCLIArgs | AWSCLIState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: SSLVerifyArgs | SSLVerifyState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as AWSCLIState | undefined;
+            const state = argsOrState as SSLVerifyState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['execute_commands'] = state?.execute_commands;
-            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
-            inputs['region'] = state?.region;
             inputs['trigger_time'] = state?.trigger_time;
+            inputs['valid_for_days'] = state?.valid_for_days;
+            inputs['website'] = state?.website;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['port'] = state?.port;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
-            inputs['setup_commands'] = state?.setup_commands;
-            inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
@@ -267,7 +250,7 @@ export class AWSCLI extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as AWSCLIArgs | undefined;
+            const args = argsOrState as SSLVerifyArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -276,40 +259,32 @@ export class AWSCLI extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.execute_commands) {
-                throw new Error('Missing required property "execute_commands"');
-            }
-
-            if (!args?.integration) {
-                throw new Error('Missing required property "integration"');
-            }
-
             if (!args?.name) {
                 throw new Error('Missing required property "name"');
-            }
-
-            if (!args?.region) {
-                throw new Error('Missing required property "region"');
             }
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            inputs['execute_commands'] = args.execute_commands;
-            inputs['integration'] = output(args.integration).apply(integration =>
-                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
-            );
+            if (!args?.valid_for_days) {
+                throw new Error('Missing required property "valid_for_days"');
+            }
+
+            if (!args?.website) {
+                throw new Error('Missing required property "website"');
+            }
+
             inputs['name'] = args.name;
-            inputs['region'] = args.region;
             inputs['trigger_time'] = args.trigger_time;
+            inputs['valid_for_days'] = args.valid_for_days;
+            inputs['website'] = args.website;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['port'] = args.port;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
-            inputs['setup_commands'] = args.setup_commands;
-            inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
@@ -331,11 +306,11 @@ export class AWSCLI extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'AWS_CLI';
+        inputs['type'] = 'SSL_VERIFY';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(AWSCLI.__pulumiType, name, inputs, opts);
+        super(SSLVerify.__pulumiType, name, inputs, opts);
     }
 }

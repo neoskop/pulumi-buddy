@@ -27,7 +27,7 @@ export interface DockerfileLinterState {
     disabled?: boolean;
 
     /**
-     * The errors that will be ignored by linter.
+     * The errors that will be ignored by linter. You can find the error codes below or use ShellCheck.
      */
     ignore_codes?: string;
 

@@ -3,6 +3,7 @@ import { AWSCLIState, AWSCLIProps, AWSCLIArgs, AWSCLI } from './aws-cli';
 import { AWSECSState, AWSECSProps, AWSECSArgs, AWSECS } from './aws-ecs';
 import { AWSLambdaDeployState, AWSLambdaDeployProps, AWSLambdaDeployArgs, AWSLambdaDeploy } from './aws-lambda-deploy';
 import { AWSLambdaState, AWSLambdaProps, AWSLambdaArgs, AWSLambda } from './aws-lambda';
+import { AzureCLIState, AzureCLIProps, AzureCLIArgs, AzureCLI } from './azure-cli';
 import { AzureState, AzureProps, AzureArgs, Azure } from './azure';
 import { BugsnagState, BugsnagProps, BugsnagArgs, Bugsnag } from './bugsnag';
 import { BuildAndroidAppState, BuildAndroidAppProps, BuildAndroidAppArgs, BuildAndroidApp } from './build-android-app';
@@ -116,6 +117,7 @@ import { RunDockerContainerState, RunDockerContainerProps, RunDockerContainerArg
 import { RunNextPipelineState, RunNextPipelineProps, RunNextPipelineArgs, RunNextPipeline } from './run-next-pipeline';
 import { SentryNotificationState, SentryNotificationProps, SentryNotificationArgs, SentryNotification } from './sentry-notification';
 import { SFTPState, SFTPProps, SFTPArgs, SFTP } from './sftp';
+import { ShopifyCLIState, ShopifyCLIProps, ShopifyCLIArgs, ShopifyCLI } from './shopify-cli';
 import { ShopifyState, ShopifyProps, ShopifyArgs, Shopify } from './shopify';
 import {
     SignAndroidApplicationState,
@@ -129,6 +131,7 @@ import { SleepState, SleepProps, SleepArgs, Sleep } from './sleep';
 import { SmsNotificationState, SmsNotificationProps, SmsNotificationArgs, SmsNotification } from './sms-notification';
 import { SplitTestsState, SplitTestsProps, SplitTestsArgs, SplitTests } from './split-tests';
 import { SSHCommandState, SSHCommandProps, SSHCommandArgs, SSHCommand } from './ssh-command';
+import { SSLVerifyState, SSLVerifyProps, SSLVerifyArgs, SSLVerify } from './ssl-verify';
 import { TCPMonitoringState, TCPMonitoringProps, TCPMonitoringArgs, TCPMonitoring } from './tcp-monitoring';
 import {
     TelegramNotificationState,
@@ -155,6 +158,7 @@ export * from './aws-cli';
 export * from './aws-ecs';
 export * from './aws-lambda-deploy';
 export * from './aws-lambda';
+export * from './azure-cli';
 export * from './azure';
 export * from './bugsnag';
 export * from './build-android-app';
@@ -229,6 +233,7 @@ export * from './run-docker-container';
 export * from './run-next-pipeline';
 export * from './sentry-notification';
 export * from './sftp';
+export * from './shopify-cli';
 export * from './shopify';
 export * from './sign-android-application';
 export * from './sign-bundle';
@@ -237,6 +242,7 @@ export * from './sleep';
 export * from './sms-notification';
 export * from './split-tests';
 export * from './ssh-command';
+export * from './ssl-verify';
 export * from './tcp-monitoring';
 export * from './telegram-notification';
 export * from './trigger-google-functions';
@@ -254,6 +260,7 @@ export type ActionState =
     | AWSECSState
     | AWSLambdaDeployState
     | AWSLambdaState
+    | AzureCLIState
     | AzureState
     | BugsnagState
     | BuildAndroidAppState
@@ -327,6 +334,7 @@ export type ActionState =
     | RunNextPipelineState
     | SentryNotificationState
     | SFTPState
+    | ShopifyCLIState
     | ShopifyState
     | SignAndroidApplicationState
     | SignBundleState
@@ -335,6 +343,7 @@ export type ActionState =
     | SmsNotificationState
     | SplitTestsState
     | SSHCommandState
+    | SSLVerifyState
     | TCPMonitoringState
     | TelegramNotificationState
     | TriggerGoogleFunctionsState
@@ -351,6 +360,7 @@ export type ActionArgs =
     | AWSECSArgs
     | AWSLambdaDeployArgs
     | AWSLambdaArgs
+    | AzureCLIArgs
     | AzureArgs
     | BugsnagArgs
     | BuildAndroidAppArgs
@@ -424,6 +434,7 @@ export type ActionArgs =
     | RunNextPipelineArgs
     | SentryNotificationArgs
     | SFTPArgs
+    | ShopifyCLIArgs
     | ShopifyArgs
     | SignAndroidApplicationArgs
     | SignBundleArgs
@@ -432,6 +443,7 @@ export type ActionArgs =
     | SmsNotificationArgs
     | SplitTestsArgs
     | SSHCommandArgs
+    | SSLVerifyArgs
     | TCPMonitoringArgs
     | TelegramNotificationArgs
     | TriggerGoogleFunctionsArgs
@@ -448,6 +460,7 @@ export type ActionProps =
     | AWSECSProps
     | AWSLambdaDeployProps
     | AWSLambdaProps
+    | AzureCLIProps
     | AzureProps
     | BugsnagProps
     | BuildAndroidAppProps
@@ -521,6 +534,7 @@ export type ActionProps =
     | RunNextPipelineProps
     | SentryNotificationProps
     | SFTPProps
+    | ShopifyCLIProps
     | ShopifyProps
     | SignAndroidApplicationProps
     | SignBundleProps
@@ -529,6 +543,7 @@ export type ActionProps =
     | SmsNotificationProps
     | SplitTestsProps
     | SSHCommandProps
+    | SSLVerifyProps
     | TCPMonitoringProps
     | TelegramNotificationProps
     | TriggerGoogleFunctionsProps
@@ -545,6 +560,7 @@ export type Action =
     | AWSECS
     | AWSLambdaDeploy
     | AWSLambda
+    | AzureCLI
     | Azure
     | Bugsnag
     | BuildAndroidApp
@@ -618,6 +634,7 @@ export type Action =
     | RunNextPipeline
     | SentryNotification
     | SFTP
+    | ShopifyCLI
     | Shopify
     | SignAndroidApplication
     | SignBundle
@@ -626,6 +643,7 @@ export type Action =
     | SmsNotification
     | SplitTests
     | SSHCommand
+    | SSLVerify
     | TCPMonitoring
     | TelegramNotification
     | TriggerGoogleFunctions

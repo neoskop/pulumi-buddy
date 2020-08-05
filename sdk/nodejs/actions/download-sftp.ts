@@ -62,6 +62,16 @@ export interface DownloadSFTPState {
     disabled?: boolean;
 
     /**
+     * The paths and/or files that will be left out during the download.
+     */
+    download_excludes?: string[];
+
+    /**
+     * The exceptions from the ignore patterns set in `download_excludes`.
+     */
+    download_includes?: string[];
+
+    /**
      * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
@@ -174,6 +184,8 @@ export interface DownloadSFTPProps {
     type: 'DOWNLOAD_SSH';
     after_action_id?: number;
     disabled?: boolean;
+    download_excludes?: string[];
+    download_includes?: string[];
     ignore_errors?: boolean;
     overwrite?: boolean;
     passphrase?: string;
@@ -238,6 +250,8 @@ export class DownloadSFTP extends CustomResource {
     type!: Output<'DOWNLOAD_SSH'>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
+    download_excludes!: Output<string[] | undefined>;
+    download_includes!: Output<string[] | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     overwrite!: Output<boolean | undefined>;
     passphrase!: Output<string | undefined>;
@@ -288,6 +302,8 @@ export class DownloadSFTP extends CustomResource {
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
+            inputs['download_excludes'] = state?.download_excludes;
+            inputs['download_includes'] = state?.download_includes;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['overwrite'] = state?.overwrite;
             inputs['passphrase'] = state?.passphrase;
@@ -362,6 +378,8 @@ export class DownloadSFTP extends CustomResource {
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
+            inputs['download_excludes'] = args.download_excludes;
+            inputs['download_includes'] = args.download_includes;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['overwrite'] = args.overwrite;
             inputs['passphrase'] = args.passphrase;

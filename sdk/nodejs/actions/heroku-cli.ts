@@ -8,9 +8,9 @@ export interface HerokuCLIState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The array of commands invoked on the remote server.
+     * The commands that will be executed.
      */
-    execute_commands: string;
+    execute_commands: string[];
 
     /**
      * The integration.
@@ -56,6 +56,11 @@ export interface HerokuCLIState {
      * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
      */
     run_only_on_first_failure?: boolean;
+
+    /**
+     * The command that will be executed only on the first run.
+     */
+    setup_commands?: string[];
 
     /**
      * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
@@ -133,7 +138,7 @@ export interface HerokuCLIProps {
     url: string;
     html_url: string;
     action_id: number;
-    execute_commands: string;
+    execute_commands: string[];
     integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -144,6 +149,7 @@ export interface HerokuCLIProps {
     ignore_errors?: boolean;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    setup_commands?: string[];
     shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_condition?:
@@ -191,7 +197,7 @@ export class HerokuCLI extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    execute_commands!: Output<string>;
+    execute_commands!: Output<string[]>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -202,6 +208,7 @@ export class HerokuCLI extends CustomResource {
     ignore_errors!: Output<boolean | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    setup_commands!: Output<string[] | undefined>;
     shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<
@@ -246,6 +253,7 @@ export class HerokuCLI extends CustomResource {
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['setup_commands'] = state?.setup_commands;
             inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
@@ -296,6 +304,7 @@ export class HerokuCLI extends CustomResource {
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['setup_commands'] = args.setup_commands;
             inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;

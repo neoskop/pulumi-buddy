@@ -4,7 +4,7 @@ import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, outpu
 import { IntegrationRef, Variable } from '../common';
 import { Integration } from '../integration';
 
-export interface AWSCLIState {
+export interface AzureCLIState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -23,11 +23,6 @@ export interface AWSCLIState {
     name: string;
 
     /**
-     * The Amazon S3 region.
-     */
-    region: string;
-
-    /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -36,6 +31,11 @@ export interface AWSCLIState {
      * The numerical ID of the action, after which this action should be added.
      */
     after_action_id?: number;
+
+    /**
+     * The name of the application.
+     */
+    application_name?: string;
 
     /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
@@ -132,19 +132,19 @@ export interface AWSCLIState {
     zone_id?: string;
 }
 
-export type AWSCLIArgs = AsInputs<AWSCLIState>;
+export type AzureCLIArgs = AsInputs<AzureCLIState>;
 
-export interface AWSCLIProps {
+export interface AzureCLIProps {
     url: string;
     html_url: string;
     action_id: number;
     execute_commands: string[];
     integration: IntegrationRef | Integration;
     name: string;
-    region: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'AWS_CLI';
+    type: 'AZURE_CLI';
     after_action_id?: number;
+    application_name?: string;
     disabled?: boolean;
     ignore_errors?: boolean;
     run_next_parallel?: boolean;
@@ -179,19 +179,19 @@ export interface AWSCLIProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class AWSCLI extends CustomResource {
-    static __pulumiType = 'buddy:action:AWSCLI';
+export class AzureCLI extends CustomResource {
+    static __pulumiType = 'buddy:action:AzureCLI';
 
-    static get(name: string, id: Input<ID>, state?: Partial<AWSCLIState>, opts?: CustomResourceOptions) {
-        return new AWSCLI(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<AzureCLIState>, opts?: CustomResourceOptions) {
+        return new AzureCLI(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is AWSCLI {
+    static isInstance(obj: any): obj is AzureCLI {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === AWSCLI.__pulumiType;
+        return obj['__pulumiType'] === AzureCLI.__pulumiType;
     }
 
     project_name!: Output<string>;
@@ -200,10 +200,10 @@ export class AWSCLI extends CustomResource {
     execute_commands!: Output<string[]>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
-    region!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'AWS_CLI'>;
+    type!: Output<'AZURE_CLI'>;
     after_action_id!: Output<number | undefined>;
+    application_name!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
@@ -233,22 +233,22 @@ export class AWSCLI extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: AWSCLIArgs | AWSCLIState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: AzureCLIArgs | AzureCLIState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as AWSCLIState | undefined;
+            const state = argsOrState as AzureCLIState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['execute_commands'] = state?.execute_commands;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
-            inputs['region'] = state?.region;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
+            inputs['application_name'] = state?.application_name;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['run_next_parallel'] = state?.run_next_parallel;
@@ -267,7 +267,7 @@ export class AWSCLI extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as AWSCLIArgs | undefined;
+            const args = argsOrState as AzureCLIArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -288,10 +288,6 @@ export class AWSCLI extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.region) {
-                throw new Error('Missing required property "region"');
-            }
-
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
@@ -301,9 +297,9 @@ export class AWSCLI extends CustomResource {
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
-            inputs['region'] = args.region;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
+            inputs['application_name'] = args.application_name;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['run_next_parallel'] = args.run_next_parallel;
@@ -331,11 +327,11 @@ export class AWSCLI extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'AWS_CLI';
+        inputs['type'] = 'AZURE_CLI';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(AWSCLI.__pulumiType, name, inputs, opts);
+        super(AzureCLI.__pulumiType, name, inputs, opts);
     }
 }

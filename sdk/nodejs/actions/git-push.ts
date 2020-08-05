@@ -7,6 +7,11 @@ export interface GitPushState {
     project_name: string;
     pipeline_id: number;
     /**
+     * The authentication mode for GIT. Should be set to `HTTP`.
+     */
+    git_auth_mode: string;
+
+    /**
      * The name of the action.
      */
     name: string;
@@ -75,6 +80,11 @@ export interface GitPushState {
      * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
      */
     run_only_on_first_failure?: boolean;
+
+    /**
+     * The name of the tag to push.
+     */
+    tag?: string;
 
     /**
      * Defines the remote branch to which the push will be performed. If empty, files will be pushed to the same branch.
@@ -162,6 +172,7 @@ export interface GitPushProps {
     url: string;
     html_url: string;
     action_id: number;
+    git_auth_mode: string;
     name: string;
     push_url: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -177,6 +188,7 @@ export interface GitPushProps {
     push_tags?: boolean;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    tag?: string;
     target_branch?: string;
     timeout?: number;
     trigger_condition?:
@@ -226,6 +238,7 @@ export class GitPush extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
+    git_auth_mode!: Output<string>;
     name!: Output<string>;
     push_url!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -241,6 +254,7 @@ export class GitPush extends CustomResource {
     push_tags!: Output<boolean | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    tag!: Output<string | undefined>;
     target_branch!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<
@@ -277,6 +291,7 @@ export class GitPush extends CustomResource {
             const state = argsOrState as GitPushState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
+            inputs['git_auth_mode'] = state?.git_auth_mode;
             inputs['name'] = state?.name;
             inputs['push_url'] = state?.push_url;
             inputs['trigger_time'] = state?.trigger_time;
@@ -291,6 +306,7 @@ export class GitPush extends CustomResource {
             inputs['push_tags'] = state?.push_tags;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['tag'] = state?.tag;
             inputs['target_branch'] = state?.target_branch;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
@@ -315,6 +331,10 @@ export class GitPush extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
+            if (!args?.git_auth_mode) {
+                throw new Error('Missing required property "git_auth_mode"');
+            }
+
             if (!args?.name) {
                 throw new Error('Missing required property "name"');
             }
@@ -327,6 +347,7 @@ export class GitPush extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            inputs['git_auth_mode'] = args.git_auth_mode;
             inputs['name'] = args.name;
             inputs['push_url'] = args.push_url;
             inputs['trigger_time'] = args.trigger_time;
@@ -341,6 +362,7 @@ export class GitPush extends CustomResource {
             inputs['push_tags'] = args.push_tags;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['tag'] = args.tag;
             inputs['target_branch'] = args.target_branch;
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;

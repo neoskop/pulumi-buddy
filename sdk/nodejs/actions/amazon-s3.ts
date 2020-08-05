@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, Variable } from '../common';
+import { IntegrationRef, Tag, Variable } from '../common';
 import { Integration } from '../integration';
 
 export interface AmazonS3State {
@@ -50,6 +50,16 @@ export interface AmazonS3State {
     cache_control?: string;
 
     /**
+     * If set to `true`, files are not deleted if changeset indcates that.
+     */
+    deletion_disabled?: boolean;
+
+    /**
+     * Defines tags for files categorization as a key value pairs list.
+     */
+    deploy_tags?: Tag[];
+
+    /**
      * The paths and/or files that will be left out during the deployment.
      */
     deployment_excludes?: string[];
@@ -85,7 +95,7 @@ export interface AmazonS3State {
     local_path?: string;
 
     /**
-     * Set to `true` if you want to use Reduced Redundancy Storage
+     * Set to `true` if you want to use Reduced Redundancy Storage.
      */
     reduced_redundancy?: boolean;
 
@@ -195,6 +205,8 @@ export interface AmazonS3Props {
         | 'LOG_DELIVERY_WRITE';
     after_action_id?: number;
     cache_control?: string;
+    deletion_disabled?: boolean;
+    deploy_tags?: Tag[];
     deployment_excludes?: string[];
     deployment_includes?: string[];
     disabled?: boolean;
@@ -270,6 +282,8 @@ export class AmazonS3 extends CustomResource {
     >;
     after_action_id!: Output<number | undefined>;
     cache_control!: Output<string | undefined>;
+    deletion_disabled!: Output<boolean | undefined>;
+    deploy_tags!: Output<Tag[] | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -322,6 +336,8 @@ export class AmazonS3 extends CustomResource {
             inputs['acl'] = state?.acl;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['cache_control'] = state?.cache_control;
+            inputs['deletion_disabled'] = state?.deletion_disabled;
+            inputs['deploy_tags'] = state?.deploy_tags;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
             inputs['disabled'] = state?.disabled;
@@ -380,6 +396,8 @@ export class AmazonS3 extends CustomResource {
             inputs['acl'] = args.acl;
             inputs['after_action_id'] = args.after_action_id;
             inputs['cache_control'] = args.cache_control;
+            inputs['deletion_disabled'] = args.deletion_disabled;
+            inputs['deploy_tags'] = args.deploy_tags;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
             inputs['disabled'] = args.disabled;

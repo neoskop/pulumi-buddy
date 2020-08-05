@@ -4,7 +4,7 @@ import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, outpu
 import { IntegrationRef, Variable } from '../common';
 import { Integration } from '../integration';
 
-export interface AWSCLIState {
+export interface ShopifyCLIState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -21,11 +21,6 @@ export interface AWSCLIState {
      * The name of the action.
      */
     name: string;
-
-    /**
-     * The Amazon S3 region.
-     */
-    region: string;
 
     /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
@@ -132,18 +127,17 @@ export interface AWSCLIState {
     zone_id?: string;
 }
 
-export type AWSCLIArgs = AsInputs<AWSCLIState>;
+export type ShopifyCLIArgs = AsInputs<ShopifyCLIState>;
 
-export interface AWSCLIProps {
+export interface ShopifyCLIProps {
     url: string;
     html_url: string;
     action_id: number;
     execute_commands: string[];
     integration: IntegrationRef | Integration;
     name: string;
-    region: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'AWS_CLI';
+    type: 'SHOPIFY_THEMEKIT_CLI';
     after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -179,19 +173,19 @@ export interface AWSCLIProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class AWSCLI extends CustomResource {
-    static __pulumiType = 'buddy:action:AWSCLI';
+export class ShopifyCLI extends CustomResource {
+    static __pulumiType = 'buddy:action:ShopifyCLI';
 
-    static get(name: string, id: Input<ID>, state?: Partial<AWSCLIState>, opts?: CustomResourceOptions) {
-        return new AWSCLI(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<ShopifyCLIState>, opts?: CustomResourceOptions) {
+        return new ShopifyCLI(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is AWSCLI {
+    static isInstance(obj: any): obj is ShopifyCLI {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === AWSCLI.__pulumiType;
+        return obj['__pulumiType'] === ShopifyCLI.__pulumiType;
     }
 
     project_name!: Output<string>;
@@ -200,9 +194,8 @@ export class AWSCLI extends CustomResource {
     execute_commands!: Output<string[]>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
-    region!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'AWS_CLI'>;
+    type!: Output<'SHOPIFY_THEMEKIT_CLI'>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -233,20 +226,19 @@ export class AWSCLI extends CustomResource {
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: AWSCLIArgs | AWSCLIState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: ShopifyCLIArgs | ShopifyCLIState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as AWSCLIState | undefined;
+            const state = argsOrState as ShopifyCLIState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['execute_commands'] = state?.execute_commands;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
-            inputs['region'] = state?.region;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
@@ -267,7 +259,7 @@ export class AWSCLI extends CustomResource {
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as AWSCLIArgs | undefined;
+            const args = argsOrState as ShopifyCLIArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -288,10 +280,6 @@ export class AWSCLI extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.region) {
-                throw new Error('Missing required property "region"');
-            }
-
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
@@ -301,7 +289,6 @@ export class AWSCLI extends CustomResource {
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
-            inputs['region'] = args.region;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
@@ -331,11 +318,11 @@ export class AWSCLI extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'AWS_CLI';
+        inputs['type'] = 'SHOPIFY_THEMEKIT_CLI';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(AWSCLI.__pulumiType, name, inputs, opts);
+        super(ShopifyCLI.__pulumiType, name, inputs, opts);
     }
 }
