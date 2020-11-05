@@ -65,7 +65,7 @@ export class BuddyIntegrationApi {
         }
 
         try {
-            const result = await Axios.get<IBuddyIntegration>(`${this.api.getApiUrl()}/user/integrations/${this.integrationId}`, {
+            const result = await Axios.get<IBuddyIntegration>(`${this.api.getApiUrl()}/integrations/${this.integrationId}`, {
                 cancelToken: this.api.registerCanceler('integration').token,
                 headers: {
                     Authorization: `Bearer ${this.api.getToken()}`
@@ -92,7 +92,7 @@ export class BuddyIntegrationApi {
     async list(): Promise<IBuddyIntegration[]> {
         debug('list');
         try {
-            const result = await Axios.get<{ integrations: IBuddyIntegration[] }>(`${this.api.getApiUrl()}/user/integrations`, {
+            const result = await Axios.get<{ integrations: IBuddyIntegration[] }>(`${this.api.getApiUrl()}/integrations`, {
                 cancelToken: this.api.registerCanceler('integration').token,
                 headers: {
                     Authorization: `Bearer ${this.api.getToken()}`
