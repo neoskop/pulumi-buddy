@@ -1,5 +1,4 @@
-import Axios, { CancelTokenSource, ResponseType, AxiosResponse } from 'axios';
-import { BuddyIntegrationApi } from './integration';
+import Axios, { CancelTokenSource, AxiosResponse } from 'axios';
 import { BuddySshKeyApi } from './ssh-key';
 import { BuddyWorkspaceApi } from './workspace';
 
@@ -44,10 +43,6 @@ export class BuddyApi {
 
     sshKey(sshKeyId?: number) {
         return new BuddySshKeyApi(this, sshKeyId);
-    }
-
-    integration(integrationId?: number | string) {
-        return new BuddyIntegrationApi(this, integrationId);
     }
 }
 

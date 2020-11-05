@@ -1,5 +1,7 @@
 import Axios from 'axios';
+
 import { BuddyApi, InvalidResponseType } from './api';
+import { BuddyWorkspaceApi } from './workspace';
 
 const debug = require('debug')('pulumi-buddy:api:integration');
 
@@ -49,7 +51,11 @@ export interface IBuddyIntegration {
 }
 
 export class BuddyIntegrationApi {
-    constructor(protected readonly api: BuddyApi, protected readonly integrationId?: number | string) {}
+    constructor(
+        protected readonly api: BuddyApi,
+        protected readonly workspace: BuddyWorkspaceApi,
+        protected readonly integrationId?: number | string
+    ) {}
 
     getIntegrationId(): number | string {
         if (!this.integrationId) {
@@ -65,12 +71,15 @@ export class BuddyIntegrationApi {
         }
 
         try {
-            const result = await Axios.get<IBuddyIntegration>(`${this.api.getApiUrl()}/integrations/${this.integrationId}`, {
-                cancelToken: this.api.registerCanceler('integration').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
+            const result = await Axios.get<IBuddyIntegration>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/integrations/${this.integrationId}`,
+                {
+                    cancelToken: this.api.registerCanceler('integration').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
                 }
-            });
+            );
 
             return result.data;
         } catch (e) {
@@ -92,12 +101,15 @@ export class BuddyIntegrationApi {
     async list(): Promise<IBuddyIntegration[]> {
         debug('list');
         try {
-            const result = await Axios.get<{ integrations: IBuddyIntegration[] }>(`${this.api.getApiUrl()}/integrations`, {
-                cancelToken: this.api.registerCanceler('integration').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
+            const result = await Axios.get<{ integrations: IBuddyIntegration[] }>(
+                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/integrations`,
+                {
+                    cancelToken: this.api.registerCanceler('integration').token,
+                    headers: {
+                        Authorization: `Bearer ${this.api.getToken()}`
+                    }
                 }
-            });
+            );
             return result.data.integrations;
         } catch (e) {
             if (Axios.isCancel(e)) {

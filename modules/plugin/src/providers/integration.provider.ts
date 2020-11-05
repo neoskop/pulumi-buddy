@@ -11,7 +11,7 @@ import {
     ReadResponse,
     UpdateRequest
 } from '@pulumi-utils/grpc';
-import { IProvider, Struct, Tok } from '@pulumi-utils/plugin';
+import { Configuration, IProvider, Struct, Tok } from '@pulumi-utils/plugin';
 import Axios from 'axios';
 import { ServerUnaryCall, status } from 'grpc';
 import { Injectable } from 'injection-js';
@@ -29,7 +29,7 @@ export class IntegrationProvider implements IProvider {
 
     protected readonly olds = new Map<string, IntegrationState>();
 
-    constructor(protected readonly buddyApi: BuddyApi) {}
+    constructor(protected readonly buddyApi: BuddyApi, protected readonly configuration: Configuration) {}
 
     async invoke({ request }: ServerUnaryCall<InvokeRequest>): Promise<InvokeResponse> {
         const tok = Tok.parse(request.getTok());
@@ -37,7 +37,7 @@ export class IntegrationProvider implements IProvider {
         try {
             switch (tok.name) {
                 case 'list': {
-                    const integrations = await this.buddyApi.integration().list();
+                    const integrations = await this.buddyApi.workspace(this.configuration.require('workspace')).integration().list();
                     const response = new InvokeResponse();
                     response.setReturn(
                         Struct.fromJavaScript({
@@ -80,7 +80,7 @@ export class IntegrationProvider implements IProvider {
         const id = req.request.getId();
 
         try {
-            const outputs = await this.buddyApi.integration(id).read();
+            const outputs = await this.buddyApi.workspace(this.configuration.require('workspace')).integration(id).read();
             const response = new ReadResponse();
             response.setId(req.request.getId());
             response.setProperties(
