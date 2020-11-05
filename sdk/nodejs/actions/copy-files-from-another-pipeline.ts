@@ -52,6 +52,16 @@ export interface CopyFilesFromAnotherPipelineState {
     ignore_errors?: boolean;
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -152,6 +162,8 @@ export interface CopyFilesFromAnotherPipelineProps {
     deployment_includes?: string[];
     disabled?: boolean;
     ignore_errors?: boolean;
+    retry_count?: number;
+    retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     source_path?: string;
@@ -212,6 +224,8 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
     deployment_includes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     source_path!: Output<string | undefined>;
@@ -262,6 +276,8 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
             inputs['deployment_includes'] = state?.deployment_includes;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['source_path'] = state?.source_path;
@@ -308,6 +324,8 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
             inputs['deployment_includes'] = args.deployment_includes;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['source_path'] = args.source_path;

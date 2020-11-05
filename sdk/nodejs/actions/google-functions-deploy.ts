@@ -63,6 +63,16 @@ export interface GoogleFunctionsDeployState {
     local_path?: string;
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -160,6 +170,8 @@ export interface GoogleFunctionsDeployProps {
     disabled?: boolean;
     ignore_errors?: boolean;
     local_path?: string;
+    retry_count?: number;
+    retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     runtime?: string;
@@ -221,6 +233,8 @@ export class GoogleFunctionsDeploy extends CustomResource {
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     local_path!: Output<string | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     runtime!: Output<string | undefined>;
@@ -268,6 +282,8 @@ export class GoogleFunctionsDeploy extends CustomResource {
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['local_path'] = state?.local_path;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['runtime'] = state?.runtime;
@@ -318,7 +334,7 @@ export class GoogleFunctionsDeploy extends CustomResource {
 
             inputs['application_id'] = args.application_id;
             inputs['function_name'] = args.function_name;
-            inputs['integration'] = output(args.integration).apply(integration =>
+            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
@@ -329,6 +345,8 @@ export class GoogleFunctionsDeploy extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['local_path'] = args.local_path;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['runtime'] = args.runtime;

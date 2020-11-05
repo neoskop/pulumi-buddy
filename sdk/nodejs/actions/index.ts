@@ -1,9 +1,11 @@
 import { AmazonS3State, AmazonS3Props, AmazonS3Args, AmazonS3 } from './amazon-s3';
+import { AWSCLI2State, AWSCLI2Props, AWSCLI2Args, AWSCLI2 } from './aws-cli-2';
 import { AWSCLIState, AWSCLIProps, AWSCLIArgs, AWSCLI } from './aws-cli';
 import { AWSECSState, AWSECSProps, AWSECSArgs, AWSECS } from './aws-ecs';
 import { AWSLambdaDeployState, AWSLambdaDeployProps, AWSLambdaDeployArgs, AWSLambdaDeploy } from './aws-lambda-deploy';
 import { AWSLambdaState, AWSLambdaProps, AWSLambdaArgs, AWSLambda } from './aws-lambda';
 import { AzureCLIState, AzureCLIProps, AzureCLIArgs, AzureCLI } from './azure-cli';
+import { AzureStorageState, AzureStorageProps, AzureStorageArgs, AzureStorage } from './azure-storage';
 import { AzureState, AzureProps, AzureArgs, Azure } from './azure';
 import { BugsnagState, BugsnagProps, BugsnagArgs, Bugsnag } from './bugsnag';
 import { BuildAndroidAppState, BuildAndroidAppProps, BuildAndroidAppArgs, BuildAndroidApp } from './build-android-app';
@@ -54,6 +56,7 @@ import { GKERunPodState, GKERunPodProps, GKERunPodArgs, GKERunPod } from './gke-
 import { GKESetImageState, GKESetImageProps, GKESetImageArgs, GKESetImage } from './gke-set-image';
 import { GoogleAppEngineState, GoogleAppEngineProps, GoogleAppEngineArgs, GoogleAppEngine } from './google-app-engine';
 import { GoogleCDNState, GoogleCDNProps, GoogleCDNArgs, GoogleCDN } from './google-cdn';
+import { GoogleCloudRunState, GoogleCloudRunProps, GoogleCloudRunArgs, GoogleCloudRun } from './google-cloud-run';
 import { GoogleCloudStorageState, GoogleCloudStorageProps, GoogleCloudStorageArgs, GoogleCloudStorage } from './google-cloud-storage';
 import { GoogleComputeEngineState, GoogleComputeEngineProps, GoogleComputeEngineArgs, GoogleComputeEngine } from './google-compute-engine';
 import {
@@ -84,6 +87,7 @@ import { KubernetesSetImageState, KubernetesSetImageProps, KubernetesSetImageArg
 import { LighthouseState, LighthouseProps, LighthouseArgs, Lighthouse } from './lighthouse';
 import { LinkValidatorState, LinkValidatorProps, LinkValidatorArgs, LinkValidator } from './link-validator';
 import { LogglyState, LogglyProps, LogglyArgs, Loggly } from './loggly';
+import { MicrosoftTeamsState, MicrosoftTeamsProps, MicrosoftTeamsArgs, MicrosoftTeams } from './microsoft-teams';
 import { NetlifyState, NetlifyProps, NetlifyArgs, Netlify } from './netlify';
 import {
     NewRelicNotificationState,
@@ -154,11 +158,13 @@ import { WebDAVState, WebDAVProps, WebDAVArgs, WebDAV } from './webdav';
 import { ZIPState, ZIPProps, ZIPArgs, ZIP } from './zip';
 
 export * from './amazon-s3';
+export * from './aws-cli-2';
 export * from './aws-cli';
 export * from './aws-ecs';
 export * from './aws-lambda-deploy';
 export * from './aws-lambda';
 export * from './azure-cli';
+export * from './azure-storage';
 export * from './azure';
 export * from './bugsnag';
 export * from './build-android-app';
@@ -199,6 +205,7 @@ export * from './gke-run-pod';
 export * from './gke-set-image';
 export * from './google-app-engine';
 export * from './google-cdn';
+export * from './google-cloud-run';
 export * from './google-cloud-storage';
 export * from './google-compute-engine';
 export * from './google-functions-deploy';
@@ -215,6 +222,7 @@ export * from './kubernetes-set-image';
 export * from './lighthouse';
 export * from './link-validator';
 export * from './loggly';
+export * from './microsoft-teams';
 export * from './netlify';
 export * from './new-relic-notification';
 export * from './pass-arguments';
@@ -256,11 +264,13 @@ export * from './zip';
 
 export type ActionState =
     | AmazonS3State
+    | AWSCLI2State
     | AWSCLIState
     | AWSECSState
     | AWSLambdaDeployState
     | AWSLambdaState
     | AzureCLIState
+    | AzureStorageState
     | AzureState
     | BugsnagState
     | BuildAndroidAppState
@@ -301,6 +311,7 @@ export type ActionState =
     | GKESetImageState
     | GoogleAppEngineState
     | GoogleCDNState
+    | GoogleCloudRunState
     | GoogleCloudStorageState
     | GoogleComputeEngineState
     | GoogleFunctionsDeployState
@@ -316,6 +327,7 @@ export type ActionState =
     | LighthouseState
     | LinkValidatorState
     | LogglyState
+    | MicrosoftTeamsState
     | NetlifyState
     | NewRelicNotificationState
     | PassArgumentsState
@@ -356,11 +368,13 @@ export type ActionState =
     | ZIPState;
 export type ActionArgs =
     | AmazonS3Args
+    | AWSCLI2Args
     | AWSCLIArgs
     | AWSECSArgs
     | AWSLambdaDeployArgs
     | AWSLambdaArgs
     | AzureCLIArgs
+    | AzureStorageArgs
     | AzureArgs
     | BugsnagArgs
     | BuildAndroidAppArgs
@@ -401,6 +415,7 @@ export type ActionArgs =
     | GKESetImageArgs
     | GoogleAppEngineArgs
     | GoogleCDNArgs
+    | GoogleCloudRunArgs
     | GoogleCloudStorageArgs
     | GoogleComputeEngineArgs
     | GoogleFunctionsDeployArgs
@@ -416,6 +431,7 @@ export type ActionArgs =
     | LighthouseArgs
     | LinkValidatorArgs
     | LogglyArgs
+    | MicrosoftTeamsArgs
     | NetlifyArgs
     | NewRelicNotificationArgs
     | PassArgumentsArgs
@@ -456,11 +472,13 @@ export type ActionArgs =
     | ZIPArgs;
 export type ActionProps =
     | AmazonS3Props
+    | AWSCLI2Props
     | AWSCLIProps
     | AWSECSProps
     | AWSLambdaDeployProps
     | AWSLambdaProps
     | AzureCLIProps
+    | AzureStorageProps
     | AzureProps
     | BugsnagProps
     | BuildAndroidAppProps
@@ -501,6 +519,7 @@ export type ActionProps =
     | GKESetImageProps
     | GoogleAppEngineProps
     | GoogleCDNProps
+    | GoogleCloudRunProps
     | GoogleCloudStorageProps
     | GoogleComputeEngineProps
     | GoogleFunctionsDeployProps
@@ -516,6 +535,7 @@ export type ActionProps =
     | LighthouseProps
     | LinkValidatorProps
     | LogglyProps
+    | MicrosoftTeamsProps
     | NetlifyProps
     | NewRelicNotificationProps
     | PassArgumentsProps
@@ -556,11 +576,13 @@ export type ActionProps =
     | ZIPProps;
 export type Action =
     | AmazonS3
+    | AWSCLI2
     | AWSCLI
     | AWSECS
     | AWSLambdaDeploy
     | AWSLambda
     | AzureCLI
+    | AzureStorage
     | Azure
     | Bugsnag
     | BuildAndroidApp
@@ -601,6 +623,7 @@ export type Action =
     | GKESetImage
     | GoogleAppEngine
     | GoogleCDN
+    | GoogleCloudRun
     | GoogleCloudStorage
     | GoogleComputeEngine
     | GoogleFunctionsDeploy
@@ -616,6 +639,7 @@ export type Action =
     | Lighthouse
     | LinkValidator
     | Loggly
+    | MicrosoftTeams
     | Netlify
     | NewRelicNotification
     | PassArguments

@@ -53,6 +53,16 @@ export interface NetlifyState {
     ignore_errors?: boolean;
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -153,6 +163,8 @@ export interface NetlifyProps {
     after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
+    retry_count?: number;
+    retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     setup_commands?: string[];
@@ -213,6 +225,8 @@ export class Netlify extends CustomResource {
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     setup_commands!: Output<string[] | undefined>;
@@ -259,6 +273,8 @@ export class Netlify extends CustomResource {
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['setup_commands'] = state?.setup_commands;
@@ -310,7 +326,7 @@ export class Netlify extends CustomResource {
 
             inputs['application_name'] = args.application_name;
             inputs['execute_commands'] = args.execute_commands;
-            inputs['integration'] = output(args.integration).apply(integration =>
+            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
@@ -319,6 +335,8 @@ export class Netlify extends CustomResource {
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['setup_commands'] = args.setup_commands;

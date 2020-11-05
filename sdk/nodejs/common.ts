@@ -57,3 +57,15 @@ export interface ExcludedArea {
     max_x: number;
     max_y: number;
 }
+
+export interface Screenshot {
+    url: string;
+    baseline: string;
+    headers: Header[];
+    browser_type: string;
+    resolution_width: number;
+    resolution_height: number;
+    pixel_tolerance_level: number;
+    images_history_limit: number;
+    excluded_areas: ExcludedArea[];
+}

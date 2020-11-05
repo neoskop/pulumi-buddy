@@ -362,7 +362,7 @@ export class BuddyCodegenActions {
                     `inputs['${param.name}'] = state?.${param.name} instanceof Integration ? { hash_id: state.${param.name}.hash_id } : state?.${param.name};`
                 );
                 argsAdaption.push(
-                    `inputs['${param.name}'] = output(args.${param.name}).apply(${param.name} => ${param.name} instanceof Integration ? { hash_id: ${param.name}.hash_id } : ${param.name});`
+                    `inputs['${param.name}'] = output(args.${param.name} as Output<IntegrationRef | Integration>).apply(${param.name} => ${param.name} instanceof Integration ? { hash_id: ${param.name}.hash_id } : ${param.name});`
                 );
             } else {
                 stateAdaption.push(`inputs['${param.name}'] = state?.${param.name};`);

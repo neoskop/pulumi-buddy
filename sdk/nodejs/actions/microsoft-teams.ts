@@ -1,26 +1,15 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, Variable } from '../common';
-import { Integration } from '../integration';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { Variable } from '../common';
 
-export interface ElasticBeanstalkState {
+export interface MicrosoftTeamsState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The name of the application.
+     * The content of the notification.
      */
-    application_name: string;
-
-    /**
-     * The Amazon S3 environment.
-     */
-    environment: string;
-
-    /**
-     * The integration.
-     */
-    integration: IntegrationRef | Integration;
+    content: string;
 
     /**
      * The name of the action.
@@ -28,9 +17,14 @@ export interface ElasticBeanstalkState {
     name: string;
 
     /**
-     * The name of the Amazon S3 region. The full list of regions is available here.
+     * The recipient of the notification: email address.
      */
-    region: string;
+    recipients: string;
+
+    /**
+     * The title of the notification.
+     */
+    title: string;
 
     /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
@@ -43,19 +37,14 @@ export interface ElasticBeanstalkState {
     after_action_id?: number;
 
     /**
-     * The paths and/or files that will be left out during the deployment.
-     */
-    deployment_excludes?: string[];
-
-    /**
-     * The exceptions from the ignore patterns set in `deployment_excludes`.
-     */
-    deployment_includes?: string[];
-
-    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
+
+    /**
+     * The attached files.
+     */
+    file_attachments?: string[];
 
     /**
      * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
@@ -81,6 +70,11 @@ export interface ElasticBeanstalkState {
      * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
      */
     run_only_on_first_failure?: boolean;
+
+    /**
+     * Defines whether to send the content as HTML.
+     */
+    send_as_html?: boolean;
 
     /**
      * The timeout in seconds.
@@ -142,38 +136,32 @@ export interface ElasticBeanstalkState {
     variables?: Variable[];
 
     /**
-     * The label of the deployed version.
-     */
-    version_label?: string;
-
-    /**
      * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
      */
     zone_id?: string;
 }
 
-export type ElasticBeanstalkArgs = AsInputs<ElasticBeanstalkState>;
+export type MicrosoftTeamsArgs = AsInputs<MicrosoftTeamsState>;
 
-export interface ElasticBeanstalkProps {
+export interface MicrosoftTeamsProps {
     url: string;
     html_url: string;
     action_id: number;
-    application_name: string;
-    environment: string;
-    integration: IntegrationRef | Integration;
+    content: string;
     name: string;
-    region: string;
+    recipients: string;
+    title: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'ELASTIC_BEANSTALK';
+    type: 'MICROSOFT_TEAMS';
     after_action_id?: number;
-    deployment_excludes?: string[];
-    deployment_includes?: string[];
     disabled?: boolean;
+    file_attachments?: string[];
     ignore_errors?: boolean;
     retry_count?: number;
     retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    send_as_html?: boolean;
     timeout?: number;
     trigger_condition?:
         | 'ALWAYS'
@@ -193,7 +181,6 @@ export interface ElasticBeanstalkProps {
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
-    version_label?: string;
     zone_id?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -203,40 +190,39 @@ export interface ElasticBeanstalkProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class ElasticBeanstalk extends CustomResource {
-    static __pulumiType = 'buddy:action:ElasticBeanstalk';
+export class MicrosoftTeams extends CustomResource {
+    static __pulumiType = 'buddy:action:MicrosoftTeams';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ElasticBeanstalkState>, opts?: CustomResourceOptions) {
-        return new ElasticBeanstalk(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<MicrosoftTeamsState>, opts?: CustomResourceOptions) {
+        return new MicrosoftTeams(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is ElasticBeanstalk {
+    static isInstance(obj: any): obj is MicrosoftTeams {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === ElasticBeanstalk.__pulumiType;
+        return obj['__pulumiType'] === MicrosoftTeams.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    application_name!: Output<string>;
-    environment!: Output<string>;
-    integration!: Output<IntegrationRef | Integration>;
+    content!: Output<string>;
     name!: Output<string>;
-    region!: Output<string>;
+    recipients!: Output<string>;
+    title!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'ELASTIC_BEANSTALK'>;
+    type!: Output<'MICROSOFT_TEAMS'>;
     after_action_id!: Output<number | undefined>;
-    deployment_excludes!: Output<string[] | undefined>;
-    deployment_includes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
+    file_attachments!: Output<string[] | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
     retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    send_as_html!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<
         | 'ALWAYS'
@@ -258,34 +244,32 @@ export class ElasticBeanstalk extends CustomResource {
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
-    version_label!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ElasticBeanstalkArgs | ElasticBeanstalkState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: MicrosoftTeamsArgs | MicrosoftTeamsState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ElasticBeanstalkState | undefined;
+            const state = argsOrState as MicrosoftTeamsState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['application_name'] = state?.application_name;
-            inputs['environment'] = state?.environment;
-            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
+            inputs['content'] = state?.content;
             inputs['name'] = state?.name;
-            inputs['region'] = state?.region;
+            inputs['recipients'] = state?.recipients;
+            inputs['title'] = state?.title;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
-            inputs['deployment_excludes'] = state?.deployment_excludes;
-            inputs['deployment_includes'] = state?.deployment_includes;
             inputs['disabled'] = state?.disabled;
+            inputs['file_attachments'] = state?.file_attachments;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['send_as_html'] = state?.send_as_html;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
@@ -296,10 +280,9 @@ export class ElasticBeanstalk extends CustomResource {
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
-            inputs['version_label'] = state?.version_label;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ElasticBeanstalkArgs | undefined;
+            const args = argsOrState as MicrosoftTeamsArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -308,47 +291,40 @@ export class ElasticBeanstalk extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.application_name) {
-                throw new Error('Missing required property "application_name"');
-            }
-
-            if (!args?.environment) {
-                throw new Error('Missing required property "environment"');
-            }
-
-            if (!args?.integration) {
-                throw new Error('Missing required property "integration"');
+            if (!args?.content) {
+                throw new Error('Missing required property "content"');
             }
 
             if (!args?.name) {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.region) {
-                throw new Error('Missing required property "region"');
+            if (!args?.recipients) {
+                throw new Error('Missing required property "recipients"');
+            }
+
+            if (!args?.title) {
+                throw new Error('Missing required property "title"');
             }
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            inputs['application_name'] = args.application_name;
-            inputs['environment'] = args.environment;
-            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
-                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
-            );
+            inputs['content'] = args.content;
             inputs['name'] = args.name;
-            inputs['region'] = args.region;
+            inputs['recipients'] = args.recipients;
+            inputs['title'] = args.title;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
-            inputs['deployment_excludes'] = args.deployment_excludes;
-            inputs['deployment_includes'] = args.deployment_includes;
             inputs['disabled'] = args.disabled;
+            inputs['file_attachments'] = args.file_attachments;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['send_as_html'] = args.send_as_html;
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
@@ -359,7 +335,6 @@ export class ElasticBeanstalk extends CustomResource {
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
-            inputs['version_label'] = args.version_label;
             inputs['zone_id'] = args.zone_id;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
@@ -371,11 +346,11 @@ export class ElasticBeanstalk extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'ELASTIC_BEANSTALK';
+        inputs['type'] = 'MICROSOFT_TEAMS';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(ElasticBeanstalk.__pulumiType, name, inputs, opts);
+        super(MicrosoftTeams.__pulumiType, name, inputs, opts);
     }
 }

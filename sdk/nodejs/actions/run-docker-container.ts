@@ -83,6 +83,16 @@ export interface RunDockerContainerState {
     registry?: string;
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * All build commands are run as the default user defined in the selected Docker image. Can be set to another username (on the condition that this user exists in the selected image).
      */
     run_as_user?: string;
@@ -189,6 +199,8 @@ export interface RunDockerContainerProps {
     password?: string;
     region?: string;
     registry?: string;
+    retry_count?: number;
+    retry_delay?: number;
     run_as_user?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
@@ -255,6 +267,8 @@ export class RunDockerContainer extends CustomResource {
     password!: Output<string | undefined>;
     region!: Output<string | undefined>;
     registry!: Output<string | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_as_user!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
@@ -307,6 +321,8 @@ export class RunDockerContainer extends CustomResource {
             inputs['password'] = state?.password;
             inputs['region'] = state?.region;
             inputs['registry'] = state?.registry;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_as_user'] = state?.run_as_user;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
@@ -361,7 +377,7 @@ export class RunDockerContainer extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['export_container_path'] = args.export_container_path;
             inputs['ignore_errors'] = args.ignore_errors;
-            inputs['integration'] = output(args.integration).apply(integration =>
+            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['login'] = args.login;
@@ -369,6 +385,8 @@ export class RunDockerContainer extends CustomResource {
             inputs['password'] = args.password;
             inputs['region'] = args.region;
             inputs['registry'] = args.registry;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_as_user'] = args.run_as_user;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;

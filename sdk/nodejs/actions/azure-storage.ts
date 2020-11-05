@@ -4,18 +4,13 @@ import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, outpu
 import { IntegrationRef, Variable } from '../common';
 import { Integration } from '../integration';
 
-export interface ElasticBeanstalkState {
+export interface AzureStorageState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The name of the application.
+     * The name of the bucket.
      */
-    application_name: string;
-
-    /**
-     * The Amazon S3 environment.
-     */
-    environment: string;
+    bucket_name: string;
 
     /**
      * The integration.
@@ -28,11 +23,6 @@ export interface ElasticBeanstalkState {
     name: string;
 
     /**
-     * The name of the Amazon S3 region. The full list of regions is available here.
-     */
-    region: string;
-
-    /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -41,6 +31,21 @@ export interface ElasticBeanstalkState {
      * The numerical ID of the action, after which this action should be added.
      */
     after_action_id?: number;
+
+    /**
+     * The display name of the application.
+     */
+    application_display_name?: string;
+
+    /**
+     * The name of the application.
+     */
+    application_name?: string;
+
+    /**
+     * If set to `true`, files are not deleted if changeset indcates that.
+     */
+    deletion_disabled?: boolean;
 
     /**
      * The paths and/or files that will be left out during the deployment.
@@ -63,6 +68,21 @@ export interface ElasticBeanstalkState {
     ignore_errors?: boolean;
 
     /**
+     * Defines whether the files are deployed from the repository or from the  build filesystem. Can be one of `SCM_REPOSITORY` or `BUILD_ARTIFACTS`.
+     */
+    input_type?: 'SCM_REPOSITORY' | 'BUILD_ARTIFACTS';
+
+    /**
+     * The path in the repository.
+     */
+    local_path?: string;
+
+    /**
+     * The absolute or relative path on the remote server.
+     */
+    remote_path?: string;
+
+    /**
      * Number of retries if the action fails.
      */
     retry_count?: number;
@@ -81,6 +101,11 @@ export interface ElasticBeanstalkState {
      * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
      */
     run_only_on_first_failure?: boolean;
+
+    /**
+     * When set to `true`, all files will have their mime-types set to `application/octet-stream`.
+     */
+    skip_content_type_setting?: boolean;
 
     /**
      * The timeout in seconds.
@@ -142,38 +167,38 @@ export interface ElasticBeanstalkState {
     variables?: Variable[];
 
     /**
-     * The label of the deployed version.
-     */
-    version_label?: string;
-
-    /**
      * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
      */
     zone_id?: string;
 }
 
-export type ElasticBeanstalkArgs = AsInputs<ElasticBeanstalkState>;
+export type AzureStorageArgs = AsInputs<AzureStorageState>;
 
-export interface ElasticBeanstalkProps {
+export interface AzureStorageProps {
     url: string;
     html_url: string;
     action_id: number;
-    application_name: string;
-    environment: string;
+    bucket_name: string;
     integration: IntegrationRef | Integration;
     name: string;
-    region: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'ELASTIC_BEANSTALK';
+    type: 'AZURE_STORAGE';
     after_action_id?: number;
+    application_display_name?: string;
+    application_name?: string;
+    deletion_disabled?: boolean;
     deployment_excludes?: string[];
     deployment_includes?: string[];
     disabled?: boolean;
     ignore_errors?: boolean;
+    input_type?: 'SCM_REPOSITORY' | 'BUILD_ARTIFACTS';
+    local_path?: string;
+    remote_path?: string;
     retry_count?: number;
     retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    skip_content_type_setting?: boolean;
     timeout?: number;
     trigger_condition?:
         | 'ALWAYS'
@@ -193,7 +218,6 @@ export interface ElasticBeanstalkProps {
     trigger_variable_key?: string;
     trigger_variable_value?: string;
     variables?: Variable[];
-    version_label?: string;
     zone_id?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -203,40 +227,45 @@ export interface ElasticBeanstalkProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class ElasticBeanstalk extends CustomResource {
-    static __pulumiType = 'buddy:action:ElasticBeanstalk';
+export class AzureStorage extends CustomResource {
+    static __pulumiType = 'buddy:action:AzureStorage';
 
-    static get(name: string, id: Input<ID>, state?: Partial<ElasticBeanstalkState>, opts?: CustomResourceOptions) {
-        return new ElasticBeanstalk(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<AzureStorageState>, opts?: CustomResourceOptions) {
+        return new AzureStorage(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is ElasticBeanstalk {
+    static isInstance(obj: any): obj is AzureStorage {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === ElasticBeanstalk.__pulumiType;
+        return obj['__pulumiType'] === AzureStorage.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    application_name!: Output<string>;
-    environment!: Output<string>;
+    bucket_name!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
-    region!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'ELASTIC_BEANSTALK'>;
+    type!: Output<'AZURE_STORAGE'>;
     after_action_id!: Output<number | undefined>;
+    application_display_name!: Output<string | undefined>;
+    application_name!: Output<string | undefined>;
+    deletion_disabled!: Output<boolean | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    input_type!: Output<'SCM_REPOSITORY' | 'BUILD_ARTIFACTS' | undefined>;
+    local_path!: Output<string | undefined>;
+    remote_path!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
     retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    skip_content_type_setting!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_condition!: Output<
         | 'ALWAYS'
@@ -258,34 +287,38 @@ export class ElasticBeanstalk extends CustomResource {
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
-    version_label!: Output<string | undefined>;
     zone_id!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: ElasticBeanstalkArgs | ElasticBeanstalkState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: AzureStorageArgs | AzureStorageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as ElasticBeanstalkState | undefined;
+            const state = argsOrState as AzureStorageState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['application_name'] = state?.application_name;
-            inputs['environment'] = state?.environment;
+            inputs['bucket_name'] = state?.bucket_name;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
-            inputs['region'] = state?.region;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
+            inputs['application_display_name'] = state?.application_display_name;
+            inputs['application_name'] = state?.application_name;
+            inputs['deletion_disabled'] = state?.deletion_disabled;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['input_type'] = state?.input_type;
+            inputs['local_path'] = state?.local_path;
+            inputs['remote_path'] = state?.remote_path;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['skip_content_type_setting'] = state?.skip_content_type_setting;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_condition'] = state?.trigger_condition;
             inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
@@ -296,10 +329,9 @@ export class ElasticBeanstalk extends CustomResource {
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
             inputs['variables'] = state?.variables;
-            inputs['version_label'] = state?.version_label;
             inputs['zone_id'] = state?.zone_id;
         } else {
-            const args = argsOrState as ElasticBeanstalkArgs | undefined;
+            const args = argsOrState as AzureStorageArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -308,12 +340,8 @@ export class ElasticBeanstalk extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.application_name) {
-                throw new Error('Missing required property "application_name"');
-            }
-
-            if (!args?.environment) {
-                throw new Error('Missing required property "environment"');
+            if (!args?.bucket_name) {
+                throw new Error('Missing required property "bucket_name"');
             }
 
             if (!args?.integration) {
@@ -324,31 +352,32 @@ export class ElasticBeanstalk extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.region) {
-                throw new Error('Missing required property "region"');
-            }
-
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            inputs['application_name'] = args.application_name;
-            inputs['environment'] = args.environment;
+            inputs['bucket_name'] = args.bucket_name;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
-            inputs['region'] = args.region;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
+            inputs['application_display_name'] = args.application_display_name;
+            inputs['application_name'] = args.application_name;
+            inputs['deletion_disabled'] = args.deletion_disabled;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['input_type'] = args.input_type;
+            inputs['local_path'] = args.local_path;
+            inputs['remote_path'] = args.remote_path;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['skip_content_type_setting'] = args.skip_content_type_setting;
             inputs['timeout'] = args.timeout;
             inputs['trigger_condition'] = args.trigger_condition;
             inputs['trigger_condition_paths'] = args.trigger_condition_paths;
@@ -359,7 +388,6 @@ export class ElasticBeanstalk extends CustomResource {
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
             inputs['variables'] = args.variables;
-            inputs['version_label'] = args.version_label;
             inputs['zone_id'] = args.zone_id;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
@@ -371,11 +399,11 @@ export class ElasticBeanstalk extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'ELASTIC_BEANSTALK';
+        inputs['type'] = 'AZURE_STORAGE';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(ElasticBeanstalk.__pulumiType, name, inputs, opts);
+        super(AzureStorage.__pulumiType, name, inputs, opts);
     }
 }

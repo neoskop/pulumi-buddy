@@ -67,6 +67,16 @@ export interface SSHCommandState {
     ignore_errors?: boolean;
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * If set to `true`, commands are executed as a regular script. If set to false, the commands will be executed one by one, in non-interactive mode.
      */
     run_as_script?: boolean;
@@ -175,6 +185,8 @@ export interface SSHCommandProps {
     disabled?: boolean;
     execute_every_command?: boolean;
     ignore_errors?: boolean;
+    retry_count?: number;
+    retry_delay?: number;
     run_as_script?: boolean;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
@@ -239,6 +251,8 @@ export class SSHCommand extends CustomResource {
     disabled!: Output<boolean | undefined>;
     execute_every_command!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_as_script!: Output<boolean | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
@@ -289,6 +303,8 @@ export class SSHCommand extends CustomResource {
             inputs['disabled'] = state?.disabled;
             inputs['execute_every_command'] = state?.execute_every_command;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_as_script'] = state?.run_as_script;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
@@ -359,6 +375,8 @@ export class SSHCommand extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['execute_every_command'] = args.execute_every_command;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_as_script'] = args.run_as_script;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;

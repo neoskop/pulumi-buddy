@@ -73,6 +73,16 @@ export interface DownloadS3State {
     recursive?: boolean;
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -167,6 +177,8 @@ export interface DownloadS3Props {
     ignore_errors?: boolean;
     overwrite?: boolean;
     recursive?: boolean;
+    retry_count?: number;
+    retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
@@ -229,6 +241,8 @@ export class DownloadS3 extends CustomResource {
     ignore_errors!: Output<boolean | undefined>;
     overwrite!: Output<boolean | undefined>;
     recursive!: Output<boolean | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
@@ -277,6 +291,8 @@ export class DownloadS3 extends CustomResource {
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['overwrite'] = state?.overwrite;
             inputs['recursive'] = state?.recursive;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -326,7 +342,7 @@ export class DownloadS3 extends CustomResource {
 
             inputs['bucket_name'] = args.bucket_name;
             inputs['destination_path'] = args.destination_path;
-            inputs['integration'] = output(args.integration).apply(integration =>
+            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
@@ -339,6 +355,8 @@ export class DownloadS3 extends CustomResource {
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['overwrite'] = args.overwrite;
             inputs['recursive'] = args.recursive;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
