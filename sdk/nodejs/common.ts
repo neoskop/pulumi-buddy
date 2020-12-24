@@ -57,3 +57,11 @@ export interface ExcludedArea {
     max_x: number;
     max_y: number;
 }
+
+export type SyncPathDirection = 'PIPELINE_TO_VM' | 'VM_TO_PIPELINE';
+
+export interface SyncPath {
+    pipeline_path: string;
+    vm_path: string;
+    direction: 'PIPELINE_TO_VM';
+}
