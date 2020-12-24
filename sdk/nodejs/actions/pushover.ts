@@ -63,6 +63,16 @@ export interface PushoverState {
     priority?: 'LOW' | 'NORMAL' | 'HIGH';
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -160,6 +170,8 @@ export interface PushoverProps {
     link?: string;
     link_title?: string;
     priority?: 'LOW' | 'NORMAL' | 'HIGH';
+    retry_count?: number;
+    retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
@@ -221,6 +233,8 @@ export class Pushover extends CustomResource {
     link!: Output<string | undefined>;
     link_title!: Output<string | undefined>;
     priority!: Output<'LOW' | 'NORMAL' | 'HIGH' | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
@@ -268,6 +282,8 @@ export class Pushover extends CustomResource {
             inputs['link'] = state?.link;
             inputs['link_title'] = state?.link_title;
             inputs['priority'] = state?.priority;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -321,6 +337,8 @@ export class Pushover extends CustomResource {
             inputs['link'] = args.link;
             inputs['link_title'] = args.link_title;
             inputs['priority'] = args.priority;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;

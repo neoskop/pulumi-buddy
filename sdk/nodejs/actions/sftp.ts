@@ -82,6 +82,16 @@ export interface SFTPState {
     remote_path?: string;
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -146,6 +156,11 @@ export interface SFTPState {
     trigger_variable_value?: string;
 
     /**
+     * The files will be uploaded with a "tmp" suffix that will be removed once the upload has finished.
+     */
+    use_temporary_files?: boolean;
+
+    /**
      * The list of variables you can use the action.
      */
     variables?: Variable[];
@@ -178,6 +193,8 @@ export interface SFTPProps {
     local_path?: string;
     password?: string;
     remote_path?: string;
+    retry_count?: number;
+    retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
@@ -198,6 +215,7 @@ export interface SFTPProps {
     trigger_project_name?: string;
     trigger_variable_key?: string;
     trigger_variable_value?: string;
+    use_temporary_files?: boolean;
     variables?: Variable[];
     zone_id?: string;
     pipeline: PipelineProps;
@@ -242,6 +260,8 @@ export class SFTP extends CustomResource {
     local_path!: Output<string | undefined>;
     password!: Output<string | undefined>;
     remote_path!: Output<string | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
@@ -264,6 +284,7 @@ export class SFTP extends CustomResource {
     trigger_project_name!: Output<string | undefined>;
     trigger_variable_key!: Output<string | undefined>;
     trigger_variable_value!: Output<string | undefined>;
+    use_temporary_files!: Output<boolean | undefined>;
     variables!: Output<Variable[] | undefined>;
     zone_id!: Output<string | undefined>;
 
@@ -292,6 +313,8 @@ export class SFTP extends CustomResource {
             inputs['local_path'] = state?.local_path;
             inputs['password'] = state?.password;
             inputs['remote_path'] = state?.remote_path;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -303,6 +326,7 @@ export class SFTP extends CustomResource {
             inputs['trigger_project_name'] = state?.trigger_project_name;
             inputs['trigger_variable_key'] = state?.trigger_variable_key;
             inputs['trigger_variable_value'] = state?.trigger_variable_value;
+            inputs['use_temporary_files'] = state?.use_temporary_files;
             inputs['variables'] = state?.variables;
             inputs['zone_id'] = state?.zone_id;
         } else {
@@ -354,6 +378,8 @@ export class SFTP extends CustomResource {
             inputs['local_path'] = args.local_path;
             inputs['password'] = args.password;
             inputs['remote_path'] = args.remote_path;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
@@ -365,6 +391,7 @@ export class SFTP extends CustomResource {
             inputs['trigger_project_name'] = args.trigger_project_name;
             inputs['trigger_variable_key'] = args.trigger_variable_key;
             inputs['trigger_variable_value'] = args.trigger_variable_value;
+            inputs['use_temporary_files'] = args.use_temporary_files;
             inputs['variables'] = args.variables;
             inputs['zone_id'] = args.zone_id;
             inputs['project_name'] = args.project_name;

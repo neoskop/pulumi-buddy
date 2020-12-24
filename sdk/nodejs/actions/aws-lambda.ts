@@ -73,6 +73,16 @@ export interface AWSLambdaState {
     qualifier?: string;
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -167,6 +177,8 @@ export interface AWSLambdaProps {
     log_type?: 'TAIL' | 'NONE';
     payload?: string;
     qualifier?: string;
+    retry_count?: number;
+    retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
@@ -229,6 +241,8 @@ export class AWSLambda extends CustomResource {
     log_type!: Output<'TAIL' | 'NONE' | undefined>;
     payload!: Output<string | undefined>;
     qualifier!: Output<string | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
@@ -277,6 +291,8 @@ export class AWSLambda extends CustomResource {
             inputs['log_type'] = state?.log_type;
             inputs['payload'] = state?.payload;
             inputs['qualifier'] = state?.qualifier;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -335,6 +351,8 @@ export class AWSLambda extends CustomResource {
             inputs['log_type'] = args.log_type;
             inputs['payload'] = args.payload;
             inputs['qualifier'] = args.qualifier;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;

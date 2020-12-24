@@ -117,6 +117,16 @@ export interface KubernetesApplyDeploymentConfigurationState {
     record_arg?: 'TRUE' | 'FALSE' | 'NOT_SET';
 
     /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
+
+    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -230,6 +240,8 @@ export interface KubernetesApplyDeploymentConfigurationProps {
     prune_arg?: boolean;
     prune_whitelist_arg?: string;
     record_arg?: 'TRUE' | 'FALSE' | 'NOT_SET';
+    retry_count?: number;
+    retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     save_config_arg?: boolean;
@@ -303,6 +315,8 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
     prune_arg!: Output<boolean | undefined>;
     prune_whitelist_arg!: Output<string | undefined>;
     record_arg!: Output<'TRUE' | 'FALSE' | 'NOT_SET' | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     save_config_arg!: Output<boolean | undefined>;
@@ -366,6 +380,8 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
             inputs['prune_arg'] = state?.prune_arg;
             inputs['prune_whitelist_arg'] = state?.prune_whitelist_arg;
             inputs['record_arg'] = state?.record_arg;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['save_config_arg'] = state?.save_config_arg;
@@ -433,6 +449,8 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
             inputs['prune_arg'] = args.prune_arg;
             inputs['prune_whitelist_arg'] = args.prune_whitelist_arg;
             inputs['record_arg'] = args.record_arg;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['save_config_arg'] = args.save_config_arg;

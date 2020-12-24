@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { ExcludedArea, Variable } from '../common';
+import { Screenshot, Header, Variable } from '../common';
 
 export interface VisualTestsState {
     project_name: string;
@@ -37,14 +37,14 @@ export interface VisualTestsState {
     resolution_width: number;
 
     /**
+     * Defines the URLs of the sites that will be tested. Contains information about baseline, headers and excluded areas.
+     */
+    screenshots: Screenshot[];
+
+    /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * URLs of the sites that should be tested.
-     */
-    urls: string[];
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -57,14 +57,24 @@ export interface VisualTestsState {
     disabled?: boolean;
 
     /**
-     * Defines the area to be excluded during the tests.
+     * The headers that will be sent with the request.
      */
-    excluded_areas?: ExcludedArea[];
+    headers?: Header[];
 
     /**
      * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
+
+    /**
+     * Number of retries if the action fails.
+     */
+    retry_count?: number;
+
+    /**
+     * Delay time between auto retries in minutes.
+     */
+    retry_delay?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -153,13 +163,15 @@ export interface VisualTestsProps {
     pixel_tolerance_level: number;
     resolution_height: number;
     resolution_width: number;
+    screenshots: Screenshot[];
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'VISUAL_TESTS';
-    urls: string[];
     after_action_id?: number;
     disabled?: boolean;
-    excluded_areas?: ExcludedArea[];
+    headers?: Header[];
     ignore_errors?: boolean;
+    retry_count?: number;
+    retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
@@ -214,13 +226,15 @@ export class VisualTests extends CustomResource {
     pixel_tolerance_level!: Output<number>;
     resolution_height!: Output<number>;
     resolution_width!: Output<number>;
+    screenshots!: Output<Screenshot[]>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'VISUAL_TESTS'>;
-    urls!: Output<string[]>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
-    excluded_areas!: Output<ExcludedArea[] | undefined>;
+    headers!: Output<Header[] | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    retry_count!: Output<number | undefined>;
+    retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
@@ -262,12 +276,14 @@ export class VisualTests extends CustomResource {
             inputs['pixel_tolerance_level'] = state?.pixel_tolerance_level;
             inputs['resolution_height'] = state?.resolution_height;
             inputs['resolution_width'] = state?.resolution_width;
+            inputs['screenshots'] = state?.screenshots;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['urls'] = state?.urls;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
-            inputs['excluded_areas'] = state?.excluded_areas;
+            inputs['headers'] = state?.headers;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['retry_count'] = state?.retry_count;
+            inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -315,12 +331,12 @@ export class VisualTests extends CustomResource {
                 throw new Error('Missing required property "resolution_width"');
             }
 
-            if (!args?.trigger_time) {
-                throw new Error('Missing required property "trigger_time"');
+            if (!args?.screenshots) {
+                throw new Error('Missing required property "screenshots"');
             }
 
-            if (!args?.urls) {
-                throw new Error('Missing required property "urls"');
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
             }
 
             inputs['browser_type'] = args.browser_type;
@@ -329,12 +345,14 @@ export class VisualTests extends CustomResource {
             inputs['pixel_tolerance_level'] = args.pixel_tolerance_level;
             inputs['resolution_height'] = args.resolution_height;
             inputs['resolution_width'] = args.resolution_width;
+            inputs['screenshots'] = args.screenshots;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['urls'] = args.urls;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
-            inputs['excluded_areas'] = args.excluded_areas;
+            inputs['headers'] = args.headers;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['retry_count'] = args.retry_count;
+            inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
