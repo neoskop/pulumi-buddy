@@ -6,14 +6,28 @@ import { BuddyWorkspaceApi } from './workspace';
 
 const debug = require('debug')('pulumi-buddy:api:pipeline');
 
+export interface TriggerConditionObject {
+    trigger_condition: TriggerCondition;
+    trigger_variable_value?: string;
+    trigger_variable_key?: string;
+}
+
+export type TriggerEventType = 'PUSH';
+export interface TriggerEvent {
+    type: TriggerEventType;
+    refs: string[];
+}
 export interface IBuddyPipeline {
     url: string;
     html_url: string;
     id: number;
     name: string;
-    trigger_mode: string;
-    ref_type: string;
-    ref_name: string;
+    on: TriggerOn;
+    refs?: string[];
+    events?: TriggerEvent[];
+    // trigger_mode: string;
+    // ref_type: string;
+    // ref_name: string;
     execution_message_template: string;
     last_execution_status: string;
     last_execution_revision: string | null;
@@ -23,15 +37,16 @@ export interface IBuddyPipeline {
     no_skip_to_most_recent: boolean;
     do_not_create_commit_status: boolean;
     ignore_fail_on_project_status: boolean;
-    trigger_condition?: TriggerCondition;
-    trigger_condition_paths?: string[];
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
-    trigger_hours?: number[];
-    trigger_days?: number[];
-    zone_id?: string;
-    trigger_project_name?: string;
-    trigger_pipeline_name?: string;
+    // trigger_condition?: TriggerCondition;
+    // trigger_condition_paths?: string[];
+    // trigger_variable_key?: string;
+    // trigger_variable_value?: string;
+    // trigger_hours?: number[];
+    // trigger_days?: number[];
+    // zone_id?: string;
+    // trigger_project_name?: string;
+    // trigger_pipeline_name?: string;
+    trigger_condition?: TriggerConditionObject[];
     project: {
         url: string;
         html_url: string;
@@ -50,8 +65,9 @@ export interface IBuddyPipeline {
     actions: unknown[];
 }
 
-export type TriggerMode = 'MANUAL' | 'SCHEDULED' | 'ON_EVERY_PUSH';
-export type RefType = 'BRANCH' | 'TAG' | 'WILDCARD' | 'PULL_REQUEST' | 'NONE';
+// export type TriggerMode = 'MANUAL' | 'SCHEDULED' | 'ON_EVERY_PUSH';
+export type TriggerOn = 'CLICK' | 'EVENT' | 'SCHEDULE';
+// export type RefType = 'BRANCH' | 'TAG' | 'WILDCARD' | 'PULL_REQUEST' | 'NONE';
 export type TriggerCondition =
     | 'ALWAYS'
     | 'ON_CHANGE'
@@ -66,9 +82,12 @@ export type TriggerCondition =
 export interface IBuddyPipelineInput {
     project_name: string;
     name: string;
-    ref_name: string;
-    trigger_mode: TriggerMode;
-    ref_type?: RefType;
+    on: TriggerOn;
+    refs?: string[];
+    events?: TriggerEvent[];
+    // trigger_mode: TriggerMode;
+    // ref_name: string;
+    // ref_type?: RefType;
     always_from_scratch?: boolean;
     auto_clear_cache?: boolean;
     no_skip_to_most_recent?: boolean;
@@ -80,15 +99,16 @@ export interface IBuddyPipelineInput {
     paused?: boolean;
     ignore_fail_on_project_status?: boolean;
     execution_message_template?: string;
-    trigger_condition?: TriggerCondition;
-    trigger_condition_paths?: string[];
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
-    trigger_hours?: number[];
-    trigger_days?: number[];
-    zone_id?: string;
-    trigger_project_name?: string;
-    trigger_pipeline_name?: string;
+    trigger_condition?: TriggerConditionObject[];
+    // trigger_condition?: TriggerCondition;
+    // trigger_condition_paths?: string[];
+    // trigger_variable_key?: string;
+    // trigger_variable_value?: string;
+    // trigger_hours?: number[];
+    // trigger_days?: number[];
+    // zone_id?: string;
+    // trigger_project_name?: string;
+    // trigger_pipeline_name?: string;
 }
 
 export class BuddyPipelineApi {

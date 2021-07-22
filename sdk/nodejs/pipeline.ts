@@ -1,29 +1,19 @@
 import { AsInputs, AsOutputs } from '@pulumi-utils/sdk';
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
+import { Event, TriggerCondition } from './common';
 import { ActionProps } from './actions';
 import { MemberProps } from './member';
 import { ProjectProps } from './project';
 
-export type TriggerMode = 'MANUAL' | 'SCHEDULED' | 'ON_EVERY_PUSH';
-export type RefType = 'BRANCH' | 'TAG' | 'WILDCARD' | 'PULL_REQUEST' | 'NONE';
-export type TriggerCondition =
-    | 'ALWAYS'
-    | 'ON_CHANGE'
-    | 'ON_CHANGE_AT_PATH'
-    | 'VAR_IS'
-    | 'VAR_IS_NOT'
-    | 'VAR_CONTAINS'
-    | 'VAR_NOT_CONTAINS'
-    | 'DATETIME'
-    | 'SUCCESS_PIPELINE';
+export type TriggerOn = 'CLICK' | 'EVENT' | 'SCHEDULE';
 
 export interface PipelineState {
     project_name: string;
     name: string;
-    ref_name: string;
-    trigger_mode: TriggerMode;
+    on: TriggerOn;
+    refs?: string[];
+    events?: Event[];
     folder?: string;
-    ref_type?: RefType;
     always_from_scratch?: boolean;
     auto_clear_cache?: boolean;
     no_skip_to_most_recent?: boolean;
@@ -35,15 +25,7 @@ export interface PipelineState {
     paused?: boolean;
     ignore_fail_on_project_status?: boolean;
     execution_message_template?: string;
-    trigger_condition?: TriggerCondition;
-    trigger_condition_paths?: string[];
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
-    trigger_hours?: number[];
-    trigger_days?: number[];
-    zone_id?: string;
-    trigger_project_name?: string;
-    trigger_pipeline_name?: string;
+    trigger_condition?: TriggerCondition[];
 }
 
 export type PipelineArgs = AsInputs<PipelineState>;
@@ -52,9 +34,9 @@ export interface PipelineProps {
     url: string;
     html_url: string;
     name: string;
-    trigger_mode: string;
-    ref_type: string;
-    ref_name: string;
+    on: TriggerOn;
+    refs?: string[];
+    events?: Event[];
     execution_message_template: string;
     last_execution_status: string;
     last_execution_revision: string | null;
@@ -70,15 +52,7 @@ export interface PipelineProps {
     cron?: string;
     run_always?: boolean;
     paused?: boolean;
-    trigger_condition?: TriggerCondition;
-    trigger_condition_paths?: string[];
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
-    trigger_hours?: number[];
-    trigger_days?: number[];
-    zone_id?: string;
-    trigger_project_name?: string;
-    trigger_pipeline_name?: string;
+    trigger_condition?: TriggerCondition[];
     project: ProjectProps;
     creator: MemberProps;
     actions: ActionProps[];
@@ -119,11 +93,11 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
     readonly paused!: Output<boolean | undefined>;
     readonly folder!: Output<string | undefined>;
     readonly project_name!: Output<string>;
-    readonly ref_name!: Output<string>;
-    readonly ref_type!: Output<RefType>;
+    readonly on!: Output<TriggerOn>;
+    readonly refs!: Output<string[] | undefined>;
+    readonly events!: Output<Event[] | undefined>;
     readonly run_always!: Output<boolean | undefined>;
     readonly start_date!: Output<string | undefined>;
-    readonly trigger_mode!: Output<TriggerMode>;
     readonly create_date!: Output<string>;
     readonly last_execution_status!: Output<string>;
     readonly last_execution_revision!: Output<string>;
@@ -140,9 +114,9 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             const state = argsOrState as PipelineState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['name'] = state?.name;
-            inputs['ref_name'] = state?.ref_name;
-            inputs['trigger_mode'] = state?.trigger_mode;
-            inputs['ref_type'] = state?.ref_type;
+            inputs['on'] = state?.on;
+            inputs['refs'] = state?.refs;
+            inputs['events'] = state?.events;
             inputs['folder'] = state?.folder;
             inputs['always_from_scratch'] = state?.always_from_scratch;
             inputs['auto_clear_cache'] = state?.auto_clear_cache;
@@ -156,14 +130,6 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['ignore_fail_on_project_status'] = state?.ignore_fail_on_project_status;
             inputs['execution_message_template'] = state?.execution_message_template;
             inputs['trigger_condition'] = state?.trigger_condition;
-            inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_variable_key'] = state?.trigger_variable_key;
-            inputs['trigger_variable_value'] = state?.trigger_variable_value;
-            inputs['trigger_hours'] = state?.trigger_hours;
-            inputs['trigger_days'] = state?.trigger_days;
-            inputs['zone_id'] = state?.zone_id;
-            inputs['trigger_project_name'] = state?.trigger_project_name;
-            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
         } else {
             const args = argsOrState as PipelineState | undefined;
             if (!args || !args.project_name) {
@@ -172,20 +138,17 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             if (!args.name) {
                 throw new Error('Missing required property "name"');
             }
-            if (!args.ref_name) {
-                throw new Error('Missing required property "ref_name"');
+            if (!args.on) {
+                throw new Error('Missing required property "on"');
             }
-            if (!args.trigger_mode) {
-                throw new Error('Missing required property "trigger_mode"');
-            }
-            if (args.trigger_mode === 'SCHEDULED' && !args.cron && (!args.start_date || !args.delay)) {
+            if (args.on === 'SCHEDULE' && !args.cron && (!args.start_date || !args.delay)) {
                 throw new Error('Missing required property "cron" or "start_date" and "delay"');
             }
             inputs['project_name'] = args?.project_name;
             inputs['name'] = args?.name;
-            inputs['ref_name'] = args?.ref_name;
-            inputs['trigger_mode'] = args?.trigger_mode;
-            inputs['ref_type'] = args?.ref_type;
+            inputs['on'] = args?.on;
+            inputs['refs'] = args?.refs;
+            inputs['events'] = args?.events;
             inputs['folder'] = args?.folder;
             inputs['always_from_scratch'] = args?.always_from_scratch;
             inputs['auto_clear_cache'] = args?.auto_clear_cache;
@@ -199,14 +162,6 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['ignore_fail_on_project_status'] = args?.ignore_fail_on_project_status;
             inputs['execution_message_template'] = args?.execution_message_template;
             inputs['trigger_condition'] = args?.trigger_condition;
-            inputs['trigger_condition_paths'] = args?.trigger_condition_paths;
-            inputs['trigger_variable_key'] = args?.trigger_variable_key;
-            inputs['trigger_variable_value'] = args?.trigger_variable_value;
-            inputs['trigger_hours'] = args?.trigger_hours;
-            inputs['trigger_days'] = args?.trigger_days;
-            inputs['zone_id'] = args?.zone_id;
-            inputs['trigger_project_name'] = args?.trigger_project_name;
-            inputs['trigger_pipeline_name'] = args?.trigger_pipeline_name;
         }
 
         if (!opts.version) {
