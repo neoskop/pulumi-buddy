@@ -24,6 +24,7 @@ export interface Action {
 
 export class BuddyScraper {
     static readonly ROOT_PAGE = '/docs/api/pipelines/create-manage-actions/add-action';
+    static readonly DEFAULT_ACTION_PARAMETERS_PAGE = '/docs/yaml/yaml-schema';
     static readonly DEFAULT_BASE_URL = 'https://buddy.works';
 
     protected defaultParameters?: ActionParameter[];
@@ -119,7 +120,7 @@ export class BuddyScraper {
     async getActionDetailUrls(): Promise<string[]> {
         const response = await Axios.get<string>(`${this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL}${BuddyScraper.ROOT_PAGE}`);
         const $ = cheerio.load(response.data);
-        return $('li.list__card-element a')
+        return $('a.nav-vertical-element[href*="/add-action/"]')
             .toArray()
             .map(el => this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL + $(el).attr('href')!.toString());
     }
@@ -129,12 +130,12 @@ export class BuddyScraper {
         if (isArray) {
             type = type.substr(0, type.length - 2);
         }
-        if ('ISO-8601 UTC date' === type) {
+        if ('ISO-8601 UTC date' === type || 'iso 8601 utc date' === type) {
             return { scalar: 'String' };
         } else if ('Integer' === type || 'Float' === type) {
             return { scalar: 'Number', isArray };
         } else if ('String' === type || 'Boolean' === type) {
-            const exact = /Should be set to ([\w-]+)/.exec(description);
+            const exact = /Should be set to\s([\w-]+)/.exec(description);
             const oneOf = /Can be one of ([\w-]+(?: \(default\))?(?:\s?,\s?[\w-]+)* or [\w-]+(?: \(default\))?)/.exec(description);
             if ('String' === type && exact) {
                 return { text: [exact[1]!], isArray };
@@ -182,9 +183,13 @@ export class BuddyScraper {
 
     async getDefaultParameters(): Promise<ActionParameter[]> {
         if (!this.defaultParameters) {
-            const response = await Axios.get(`${this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL}${BuddyScraper.ROOT_PAGE}`);
+            const response = await Axios.get(
+                `${this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL}${BuddyScraper.DEFAULT_ACTION_PARAMETERS_PAGE}`
+            );
             const $ = cheerio.load(response.data);
-            this.defaultParameters = $(`article.post-content > table:nth-of-type(2) tr:has(> td)`)
+            const tables = $('.article-content > div > div.table-responsive table').toArray();
+            const table = cheerio.load(tables[1]);
+            this.defaultParameters = table('tr:has(> td)')
                 .toArray()
                 .map(p => this.parseParameter(p));
         }
@@ -220,7 +225,9 @@ export class BuddyScraper {
         const response = await Axios.get(url);
         const $ = cheerio.load(response.data);
         const name = $('h1').text();
-        const parameters = $('article.post-content > table:nth-of-type(1) tr:has(> td)')
+        const tables = $('.article-content table').toArray();
+        const table = cheerio.load(tables[0]);
+        const parameters = table('tr:has(> td)')
             .toArray()
             .map(p => this.parseParameter(p));
         const type = (parameters.find(p => p.name === 'type')!.type as ParamaterTypeText).text[0];
