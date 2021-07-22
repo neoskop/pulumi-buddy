@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { TriggerCondition, Variable } from '../common';
 
 export interface GitPushState {
     project_name: string;
@@ -9,7 +9,7 @@ export interface GitPushState {
     /**
      * The authentication mode for GIT. Should be set to `HTTP`.
      */
-    git_auth_mode: string;
+    git_auth_mode: 'HTTP';
 
     /**
      * The name of the action.
@@ -20,16 +20,6 @@ export interface GitPushState {
      * The url to the repository.
      */
     push_url: string;
-
-    /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The numerical ID of the action, after which this action should be added.
-     */
-    after_action_id?: number;
 
     /**
      * Optional custom git commit message.
@@ -107,53 +97,9 @@ export interface GitPushState {
     timeout?: number;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
+     * The list of trigger conditions to meet so that the action can be triggered.
      */
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-
-    /**
-     * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
-     */
-    trigger_condition_paths?: string[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
-     */
-    trigger_days?: number[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
-     */
-    trigger_hours?: number[];
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
-     */
-    trigger_pipeline_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
-     */
-    trigger_project_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
-     */
-    trigger_variable_key?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS`. Defines the value of the desired variable which will be compared with its current value.
-     */
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
 
     /**
      * When set to `false` the push will ignore paths listed in .gitignore  file.
@@ -169,11 +115,6 @@ export interface GitPushState {
      * Defines whether the `--force` flag should be used when invoking  the git push command or not.
      */
     without_force?: boolean;
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
-     */
-    zone_id?: string;
 }
 
 export type GitPushArgs = AsInputs<GitPushState>;
@@ -182,12 +123,10 @@ export interface GitPushProps {
     url: string;
     html_url: string;
     action_id: number;
-    git_auth_mode: string;
+    git_auth_mode: 'HTTP';
     name: string;
     push_url: string;
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'PUSH';
-    after_action_id?: number;
     comment?: string;
     deployment_excludes?: string[];
     disabled?: boolean;
@@ -203,27 +142,10 @@ export interface GitPushProps {
     tag?: string;
     target_branch?: string;
     timeout?: number;
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-    trigger_condition_paths?: string[];
-    trigger_days?: number[];
-    trigger_hours?: number[];
-    trigger_pipeline_name?: string;
-    trigger_project_name?: string;
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
     use_custom_gitignore?: boolean;
     variables?: Variable[];
     without_force?: boolean;
-    zone_id?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -250,12 +172,10 @@ export class GitPush extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    git_auth_mode!: Output<string>;
+    git_auth_mode!: Output<'HTTP'>;
     name!: Output<string>;
     push_url!: Output<string>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'PUSH'>;
-    after_action_id!: Output<number | undefined>;
     comment!: Output<string | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -271,29 +191,10 @@ export class GitPush extends CustomResource {
     tag!: Output<string | undefined>;
     target_branch!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
-    trigger_condition!: Output<
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE'
-        | undefined
-    >;
-    trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_days!: Output<number[] | undefined>;
-    trigger_hours!: Output<number[] | undefined>;
-    trigger_pipeline_name!: Output<string | undefined>;
-    trigger_project_name!: Output<string | undefined>;
-    trigger_variable_key!: Output<string | undefined>;
-    trigger_variable_value!: Output<string | undefined>;
+    trigger_conditions!: Output<TriggerCondition[] | undefined>;
     use_custom_gitignore!: Output<boolean | undefined>;
     variables!: Output<Variable[] | undefined>;
     without_force!: Output<boolean | undefined>;
-    zone_id!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: GitPushArgs | GitPushState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -308,8 +209,6 @@ export class GitPush extends CustomResource {
             inputs['git_auth_mode'] = state?.git_auth_mode;
             inputs['name'] = state?.name;
             inputs['push_url'] = state?.push_url;
-            inputs['trigger_time'] = state?.trigger_time;
-            inputs['after_action_id'] = state?.after_action_id;
             inputs['comment'] = state?.comment;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['disabled'] = state?.disabled;
@@ -325,18 +224,10 @@ export class GitPush extends CustomResource {
             inputs['tag'] = state?.tag;
             inputs['target_branch'] = state?.target_branch;
             inputs['timeout'] = state?.timeout;
-            inputs['trigger_condition'] = state?.trigger_condition;
-            inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_days'] = state?.trigger_days;
-            inputs['trigger_hours'] = state?.trigger_hours;
-            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
-            inputs['trigger_project_name'] = state?.trigger_project_name;
-            inputs['trigger_variable_key'] = state?.trigger_variable_key;
-            inputs['trigger_variable_value'] = state?.trigger_variable_value;
+            inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['use_custom_gitignore'] = state?.use_custom_gitignore;
             inputs['variables'] = state?.variables;
             inputs['without_force'] = state?.without_force;
-            inputs['zone_id'] = state?.zone_id;
         } else {
             const args = argsOrState as GitPushArgs | undefined;
             if (!args?.project_name) {
@@ -359,15 +250,9 @@ export class GitPush extends CustomResource {
                 throw new Error('Missing required property "push_url"');
             }
 
-            if (!args?.trigger_time) {
-                throw new Error('Missing required property "trigger_time"');
-            }
-
             inputs['git_auth_mode'] = args.git_auth_mode;
             inputs['name'] = args.name;
             inputs['push_url'] = args.push_url;
-            inputs['trigger_time'] = args.trigger_time;
-            inputs['after_action_id'] = args.after_action_id;
             inputs['comment'] = args.comment;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['disabled'] = args.disabled;
@@ -383,18 +268,10 @@ export class GitPush extends CustomResource {
             inputs['tag'] = args.tag;
             inputs['target_branch'] = args.target_branch;
             inputs['timeout'] = args.timeout;
-            inputs['trigger_condition'] = args.trigger_condition;
-            inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_days'] = args.trigger_days;
-            inputs['trigger_hours'] = args.trigger_hours;
-            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
-            inputs['trigger_project_name'] = args.trigger_project_name;
-            inputs['trigger_variable_key'] = args.trigger_variable_key;
-            inputs['trigger_variable_value'] = args.trigger_variable_value;
+            inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['use_custom_gitignore'] = args.use_custom_gitignore;
             inputs['variables'] = args.variables;
             inputs['without_force'] = args.without_force;
-            inputs['zone_id'] = args.zone_id;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

@@ -4,9 +4,19 @@ import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, outpu
 import { IntegrationRef, TriggerCondition, Variable } from '../common';
 import { Integration } from '../integration';
 
-export interface LogglyState {
+export interface GoogleFunctionsState {
     project_name: string;
     pipeline_id: number;
+    /**
+     * The id of the Google Cloud project.
+     */
+    application_id: string;
+
+    /**
+     * The name of the Google function.
+     */
+    function_name: string;
+
     /**
      * The integration.
      */
@@ -18,16 +28,6 @@ export interface LogglyState {
     name: string;
 
     /**
-     * The list of Loggly tags used for segmentation and filtering.
-     */
-    tags: string[];
-
-    /**
-     * The content of the notification.
-     */
-    content?: string;
-
-    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
@@ -36,6 +36,16 @@ export interface LogglyState {
      * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
+
+    /**
+     * The JSON that will be provided as input to the Google function.
+     */
+    payload?: string;
+
+    /**
+     * Region in which function can be found or will be created.
+     */
+    region?: string;
 
     /**
      * Number of retries if the action fails.
@@ -73,19 +83,21 @@ export interface LogglyState {
     variables?: Variable[];
 }
 
-export type LogglyArgs = AsInputs<LogglyState>;
+export type GoogleFunctionsArgs = AsInputs<GoogleFunctionsState>;
 
-export interface LogglyProps {
+export interface GoogleFunctionsProps {
     url: string;
     html_url: string;
     action_id: number;
+    application_id: string;
+    function_name: string;
     integration: IntegrationRef | Integration;
     name: string;
-    tags: string[];
-    type: 'LOGGLY';
-    content?: string;
+    type: 'GOOGLE_FUNCTION_INVOKE';
     disabled?: boolean;
     ignore_errors?: boolean;
+    payload?: string;
+    region?: string;
     retry_count?: number;
     retry_delay?: number;
     run_next_parallel?: boolean;
@@ -101,31 +113,33 @@ export interface LogglyProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class Loggly extends CustomResource {
-    static __pulumiType = 'buddy:action:Loggly';
+export class GoogleFunctions extends CustomResource {
+    static __pulumiType = 'buddy:action:GoogleFunctions';
 
-    static get(name: string, id: Input<ID>, state?: Partial<LogglyState>, opts?: CustomResourceOptions) {
-        return new Loggly(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<GoogleFunctionsState>, opts?: CustomResourceOptions) {
+        return new GoogleFunctions(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is Loggly {
+    static isInstance(obj: any): obj is GoogleFunctions {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === Loggly.__pulumiType;
+        return obj['__pulumiType'] === GoogleFunctions.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
+    application_id!: Output<string>;
+    function_name!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
-    tags!: Output<string[]>;
-    type!: Output<'LOGGLY'>;
-    content!: Output<string | undefined>;
+    type!: Output<'GOOGLE_FUNCTION_INVOKE'>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    payload!: Output<string | undefined>;
+    region!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
     retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
@@ -134,22 +148,24 @@ export class Loggly extends CustomResource {
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
 
-    constructor(name: string, argsOrState: LogglyArgs | LogglyState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GoogleFunctionsArgs | GoogleFunctionsState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as LogglyState | undefined;
+            const state = argsOrState as GoogleFunctionsState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
+            inputs['application_id'] = state?.application_id;
+            inputs['function_name'] = state?.function_name;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
-            inputs['tags'] = state?.tags;
-            inputs['content'] = state?.content;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['payload'] = state?.payload;
+            inputs['region'] = state?.region;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
@@ -158,13 +174,21 @@ export class Loggly extends CustomResource {
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
         } else {
-            const args = argsOrState as LogglyArgs | undefined;
+            const args = argsOrState as GoogleFunctionsArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
 
             if (!args?.pipeline_id) {
                 throw new Error('Missing required property "pipeline_id"');
+            }
+
+            if (!args?.application_id) {
+                throw new Error('Missing required property "application_id"');
+            }
+
+            if (!args?.function_name) {
+                throw new Error('Missing required property "function_name"');
             }
 
             if (!args?.integration) {
@@ -175,18 +199,16 @@ export class Loggly extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.tags) {
-                throw new Error('Missing required property "tags"');
-            }
-
+            inputs['application_id'] = args.application_id;
+            inputs['function_name'] = args.function_name;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
-            inputs['tags'] = args.tags;
-            inputs['content'] = args.content;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['payload'] = args.payload;
+            inputs['region'] = args.region;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
@@ -204,11 +226,11 @@ export class Loggly extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'LOGGLY';
+        inputs['type'] = 'GOOGLE_FUNCTION_INVOKE';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(Loggly.__pulumiType, name, inputs, opts);
+        super(GoogleFunctions.__pulumiType, name, inputs, opts);
     }
 }

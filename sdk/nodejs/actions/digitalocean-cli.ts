@@ -4,9 +4,14 @@ import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, outpu
 import { IntegrationRef, TriggerCondition, Variable } from '../common';
 import { Integration } from '../integration';
 
-export interface LogglyState {
+export interface DigitalOceanCLIState {
     project_name: string;
     pipeline_id: number;
+    /**
+     * The commands that will be executed.
+     */
+    execute_commands: string[];
+
     /**
      * The integration.
      */
@@ -16,16 +21,6 @@ export interface LogglyState {
      * The name of the action.
      */
     name: string;
-
-    /**
-     * The list of Loggly tags used for segmentation and filtering.
-     */
-    tags: string[];
-
-    /**
-     * The content of the notification.
-     */
-    content?: string;
 
     /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
@@ -58,6 +53,16 @@ export interface LogglyState {
     run_only_on_first_failure?: boolean;
 
     /**
+     * The command that will be executed only on the first run.
+     */
+    setup_commands?: string[];
+
+    /**
+     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
+     */
+    shell?: 'SH' | 'BASH';
+
+    /**
      * The timeout in seconds.
      */
     timeout?: number;
@@ -73,23 +78,24 @@ export interface LogglyState {
     variables?: Variable[];
 }
 
-export type LogglyArgs = AsInputs<LogglyState>;
+export type DigitalOceanCLIArgs = AsInputs<DigitalOceanCLIState>;
 
-export interface LogglyProps {
+export interface DigitalOceanCLIProps {
     url: string;
     html_url: string;
     action_id: number;
+    execute_commands: string[];
     integration: IntegrationRef | Integration;
     name: string;
-    tags: string[];
-    type: 'LOGGLY';
-    content?: string;
+    type: 'DOCTL';
     disabled?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
     retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    setup_commands?: string[];
+    shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
@@ -101,70 +107,76 @@ export interface LogglyProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class Loggly extends CustomResource {
-    static __pulumiType = 'buddy:action:Loggly';
+export class DigitalOceanCLI extends CustomResource {
+    static __pulumiType = 'buddy:action:DigitalOceanCLI';
 
-    static get(name: string, id: Input<ID>, state?: Partial<LogglyState>, opts?: CustomResourceOptions) {
-        return new Loggly(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<DigitalOceanCLIState>, opts?: CustomResourceOptions) {
+        return new DigitalOceanCLI(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is Loggly {
+    static isInstance(obj: any): obj is DigitalOceanCLI {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === Loggly.__pulumiType;
+        return obj['__pulumiType'] === DigitalOceanCLI.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
+    execute_commands!: Output<string[]>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
-    tags!: Output<string[]>;
-    type!: Output<'LOGGLY'>;
-    content!: Output<string | undefined>;
+    type!: Output<'DOCTL'>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
     retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    setup_commands!: Output<string[] | undefined>;
+    shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
 
-    constructor(name: string, argsOrState: LogglyArgs | LogglyState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: DigitalOceanCLIArgs | DigitalOceanCLIState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as LogglyState | undefined;
+            const state = argsOrState as DigitalOceanCLIState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
+            inputs['execute_commands'] = state?.execute_commands;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
-            inputs['tags'] = state?.tags;
-            inputs['content'] = state?.content;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['setup_commands'] = state?.setup_commands;
+            inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
         } else {
-            const args = argsOrState as LogglyArgs | undefined;
+            const args = argsOrState as DigitalOceanCLIArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
 
             if (!args?.pipeline_id) {
                 throw new Error('Missing required property "pipeline_id"');
+            }
+
+            if (!args?.execute_commands) {
+                throw new Error('Missing required property "execute_commands"');
             }
 
             if (!args?.integration) {
@@ -175,22 +187,19 @@ export class Loggly extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.tags) {
-                throw new Error('Missing required property "tags"');
-            }
-
+            inputs['execute_commands'] = args.execute_commands;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
-            inputs['tags'] = args.tags;
-            inputs['content'] = args.content;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['setup_commands'] = args.setup_commands;
+            inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
@@ -204,11 +213,11 @@ export class Loggly extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'LOGGLY';
+        inputs['type'] = 'DOCTL';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(Loggly.__pulumiType, name, inputs, opts);
+        super(DigitalOceanCLI.__pulumiType, name, inputs, opts);
     }
 }

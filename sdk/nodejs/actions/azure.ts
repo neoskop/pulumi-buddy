@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable } from '../common';
+import { TriggerCondition, Variable } from '../common';
 
 export interface AzureState {
     project_name: string;
@@ -20,16 +20,6 @@ export interface AzureState {
      * The url to the repository.
      */
     push_url: string;
-
-    /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The numerical ID of the action, after which this action should be added.
-     */
-    after_action_id?: number;
 
     /**
      * The paths and/or files that will be left out during the push. Only works when `use_custom_gitignore` is set to `true`.
@@ -97,53 +87,9 @@ export interface AzureState {
     timeout?: number;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
+     * The list of trigger conditions to meet so that the action can be triggered.
      */
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-
-    /**
-     * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
-     */
-    trigger_condition_paths?: string[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
-     */
-    trigger_days?: number[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
-     */
-    trigger_hours?: number[];
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
-     */
-    trigger_pipeline_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
-     */
-    trigger_project_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
-     */
-    trigger_variable_key?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS`. Defines the value of the desired variable which will be compared with its current value.
-     */
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
 
     /**
      * When set to `false` the push will ignore paths listed in .gitignore file.
@@ -159,11 +105,6 @@ export interface AzureState {
      * Defines whether the `--force` flag should be used when invoking the git push command or not.
      */
     without_force?: boolean;
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
-     */
-    zone_id?: string;
 }
 
 export type AzureArgs = AsInputs<AzureState>;
@@ -175,9 +116,7 @@ export interface AzureProps {
     git_auth_mode: string;
     name: string;
     push_url: string;
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'AZURE';
-    after_action_id?: number;
     deployment_excludes?: string[];
     deployment_includes?: string[];
     disabled?: boolean;
@@ -191,27 +130,10 @@ export interface AzureProps {
     run_only_on_first_failure?: boolean;
     target_branch?: string;
     timeout?: number;
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-    trigger_condition_paths?: string[];
-    trigger_days?: number[];
-    trigger_hours?: number[];
-    trigger_pipeline_name?: string;
-    trigger_project_name?: string;
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
     use_custom_gitignore?: boolean;
     variables?: Variable[];
     without_force?: boolean;
-    zone_id?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -241,9 +163,7 @@ export class Azure extends CustomResource {
     git_auth_mode!: Output<string>;
     name!: Output<string>;
     push_url!: Output<string>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'AZURE'>;
-    after_action_id!: Output<number | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -257,29 +177,10 @@ export class Azure extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     target_branch!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
-    trigger_condition!: Output<
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE'
-        | undefined
-    >;
-    trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_days!: Output<number[] | undefined>;
-    trigger_hours!: Output<number[] | undefined>;
-    trigger_pipeline_name!: Output<string | undefined>;
-    trigger_project_name!: Output<string | undefined>;
-    trigger_variable_key!: Output<string | undefined>;
-    trigger_variable_value!: Output<string | undefined>;
+    trigger_conditions!: Output<TriggerCondition[] | undefined>;
     use_custom_gitignore!: Output<boolean | undefined>;
     variables!: Output<Variable[] | undefined>;
     without_force!: Output<boolean | undefined>;
-    zone_id!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: AzureArgs | AzureState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -294,8 +195,6 @@ export class Azure extends CustomResource {
             inputs['git_auth_mode'] = state?.git_auth_mode;
             inputs['name'] = state?.name;
             inputs['push_url'] = state?.push_url;
-            inputs['trigger_time'] = state?.trigger_time;
-            inputs['after_action_id'] = state?.after_action_id;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
             inputs['disabled'] = state?.disabled;
@@ -309,18 +208,10 @@ export class Azure extends CustomResource {
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['target_branch'] = state?.target_branch;
             inputs['timeout'] = state?.timeout;
-            inputs['trigger_condition'] = state?.trigger_condition;
-            inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_days'] = state?.trigger_days;
-            inputs['trigger_hours'] = state?.trigger_hours;
-            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
-            inputs['trigger_project_name'] = state?.trigger_project_name;
-            inputs['trigger_variable_key'] = state?.trigger_variable_key;
-            inputs['trigger_variable_value'] = state?.trigger_variable_value;
+            inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['use_custom_gitignore'] = state?.use_custom_gitignore;
             inputs['variables'] = state?.variables;
             inputs['without_force'] = state?.without_force;
-            inputs['zone_id'] = state?.zone_id;
         } else {
             const args = argsOrState as AzureArgs | undefined;
             if (!args?.project_name) {
@@ -343,15 +234,9 @@ export class Azure extends CustomResource {
                 throw new Error('Missing required property "push_url"');
             }
 
-            if (!args?.trigger_time) {
-                throw new Error('Missing required property "trigger_time"');
-            }
-
             inputs['git_auth_mode'] = args.git_auth_mode;
             inputs['name'] = args.name;
             inputs['push_url'] = args.push_url;
-            inputs['trigger_time'] = args.trigger_time;
-            inputs['after_action_id'] = args.after_action_id;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
             inputs['disabled'] = args.disabled;
@@ -365,18 +250,10 @@ export class Azure extends CustomResource {
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['target_branch'] = args.target_branch;
             inputs['timeout'] = args.timeout;
-            inputs['trigger_condition'] = args.trigger_condition;
-            inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_days'] = args.trigger_days;
-            inputs['trigger_hours'] = args.trigger_hours;
-            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
-            inputs['trigger_project_name'] = args.trigger_project_name;
-            inputs['trigger_variable_key'] = args.trigger_variable_key;
-            inputs['trigger_variable_value'] = args.trigger_variable_value;
+            inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['use_custom_gitignore'] = args.use_custom_gitignore;
             inputs['variables'] = args.variables;
             inputs['without_force'] = args.without_force;
-            inputs['zone_id'] = args.zone_id;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

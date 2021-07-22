@@ -1,14 +1,14 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, Variable } from '../common';
+import { IntegrationRef, TriggerCondition, Variable } from '../common';
 import { Integration } from '../integration';
 
-export interface BuildDockerfileState {
+export interface BuildDockerImageState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The path to the desired Dockerfile in the filesystem.
+     * The path to the desired Dockerfile in the repository.
      */
     dockerfile_path: string;
 
@@ -16,16 +16,6 @@ export interface BuildDockerfileState {
      * The name of the action.
      */
     name: string;
-
-    /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The numerical ID of the action, after which this action should be added.
-     */
-    after_action_id?: number;
 
     /**
      * The arguments used when building the image from the Dockerfile.
@@ -68,17 +58,17 @@ export interface BuildDockerfileState {
     insecure_registry?: boolean;
 
     /**
-     * The integration. Required for delivering the Dockerfile to the Amazon  ECR.
+     * The integration. Required for delivering the Dockerfile to the Amazon  ECR, Google GCR and Docker Hub.
      */
     integration?: IntegrationRef | Integration;
 
     /**
-     * The username required to connect to the server. Required for delivering  the Dockerfile to the Docker Hub or a private registry.
+     * The username required to connect to the server. Required for delivering the Dockerfile to a private registry.
      */
     login?: string;
 
     /**
-     * The password required to connect to the server. Required for delivering  the Dockerfile to the Docker Hub or a private registry.
+     * The password required to connect to the server. Required for delivering the Dockerfile to a private registry.
      */
     password?: string;
 
@@ -86,6 +76,11 @@ export interface BuildDockerfileState {
      * The name of the Amazon S3 region. Required for delivering the Dockerfile  to the Amazon ECR. The full list of regions is available here.
      */
     region?: string;
+
+    /**
+     * The url to GCR. Can be one of gcr.io, us.gcr.io, eu.gcr.io or asia.gcr.io. Required for Google GCR.
+     */
+    registry?: string;
 
     /**
      * The location of the Docker repository.
@@ -113,58 +108,24 @@ export interface BuildDockerfileState {
     run_only_on_first_failure?: boolean;
 
     /**
+     * The identifier to pass into the `docker build --secret`. This identifier is associated with the `RUN --mount` identifier to use in the Dockerfile.
+     */
+    secret_id?: string;
+
+    /**
+     * Renames the secret file to a specific file in the Dockerfile RUN command to use.
+     */
+    secret_src?: string;
+
+    /**
      * The timeout in seconds.
      */
     timeout?: number;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
+     * The list of trigger conditions to meet so that the action can be triggered.
      */
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-
-    /**
-     * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
-     */
-    trigger_condition_paths?: string[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
-     */
-    trigger_days?: number[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
-     */
-    trigger_hours?: number[];
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
-     */
-    trigger_pipeline_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
-     */
-    trigger_project_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
-     */
-    trigger_variable_key?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS`. Defines the value of the desired variable which will be compared with its current value.
-     */
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
 
     /**
      * The list of variables you can use the action.
@@ -172,27 +133,20 @@ export interface BuildDockerfileState {
     variables?: Variable[];
 
     /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
+     * If set to `true`, the output of the logs will be default. If set to `false`, the output of the logs will be displayed in the plain mode.
      */
-    zone_id?: string;
-
-    /**
-     * Docker Registry URL
-     */
-    registry?: string;
+    without_progress?: boolean;
 }
 
-export type BuildDockerfileArgs = AsInputs<BuildDockerfileState>;
+export type BuildDockerImageArgs = AsInputs<BuildDockerImageState>;
 
-export interface BuildDockerfileProps {
+export interface BuildDockerImageProps {
     url: string;
     html_url: string;
     action_id: number;
     dockerfile_path: string;
     name: string;
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'DOCKERFILE';
-    after_action_id?: number;
     build_args?: string[];
     buildkit?: boolean;
     context_path?: string;
@@ -205,32 +159,18 @@ export interface BuildDockerfileProps {
     login?: string;
     password?: string;
     region?: string;
+    registry?: string;
     repository?: string;
     retry_count?: number;
     retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    secret_id?: string;
+    secret_src?: string;
     timeout?: number;
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-    trigger_condition_paths?: string[];
-    trigger_days?: number[];
-    trigger_hours?: number[];
-    trigger_pipeline_name?: string;
-    trigger_project_name?: string;
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
-    zone_id?: string;
-    registry?: string;
+    without_progress?: boolean;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -239,19 +179,19 @@ export interface BuildDockerfileProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class BuildDockerfile extends CustomResource {
-    static __pulumiType = 'buddy:action:BuildDockerfile';
+export class BuildDockerImage extends CustomResource {
+    static __pulumiType = 'buddy:action:BuildDockerImage';
 
-    static get(name: string, id: Input<ID>, state?: Partial<BuildDockerfileState>, opts?: CustomResourceOptions) {
-        return new BuildDockerfile(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<BuildDockerImageState>, opts?: CustomResourceOptions) {
+        return new BuildDockerImage(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is BuildDockerfile {
+    static isInstance(obj: any): obj is BuildDockerImage {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === BuildDockerfile.__pulumiType;
+        return obj['__pulumiType'] === BuildDockerImage.__pulumiType;
     }
 
     project_name!: Output<string>;
@@ -259,9 +199,7 @@ export class BuildDockerfile extends CustomResource {
     action_id!: Output<number>;
     dockerfile_path!: Output<string>;
     name!: Output<string>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'DOCKERFILE'>;
-    after_action_id!: Output<number | undefined>;
     build_args!: Output<string[] | undefined>;
     buildkit!: Output<boolean | undefined>;
     context_path!: Output<string | undefined>;
@@ -274,49 +212,31 @@ export class BuildDockerfile extends CustomResource {
     login!: Output<string | undefined>;
     password!: Output<string | undefined>;
     region!: Output<string | undefined>;
+    registry!: Output<string | undefined>;
     repository!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
     retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    secret_id!: Output<string | undefined>;
+    secret_src!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
-    trigger_condition!: Output<
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE'
-        | undefined
-    >;
-    trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_days!: Output<number[] | undefined>;
-    trigger_hours!: Output<number[] | undefined>;
-    trigger_pipeline_name!: Output<string | undefined>;
-    trigger_project_name!: Output<string | undefined>;
-    trigger_variable_key!: Output<string | undefined>;
-    trigger_variable_value!: Output<string | undefined>;
+    trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
-    zone_id!: Output<string | undefined>;
-    registry!: Output<string | undefined>;
+    without_progress!: Output<boolean | undefined>;
 
-    constructor(name: string, argsOrState: BuildDockerfileArgs | BuildDockerfileState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: BuildDockerImageArgs | BuildDockerImageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as BuildDockerfileState | undefined;
+            const state = argsOrState as BuildDockerImageState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['dockerfile_path'] = state?.dockerfile_path;
             inputs['name'] = state?.name;
-            inputs['trigger_time'] = state?.trigger_time;
-            inputs['after_action_id'] = state?.after_action_id;
             inputs['build_args'] = state?.build_args;
             inputs['buildkit'] = state?.buildkit;
             inputs['context_path'] = state?.context_path;
@@ -329,25 +249,20 @@ export class BuildDockerfile extends CustomResource {
             inputs['login'] = state?.login;
             inputs['password'] = state?.password;
             inputs['region'] = state?.region;
+            inputs['registry'] = state?.registry;
             inputs['repository'] = state?.repository;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['secret_id'] = state?.secret_id;
+            inputs['secret_src'] = state?.secret_src;
             inputs['timeout'] = state?.timeout;
-            inputs['trigger_condition'] = state?.trigger_condition;
-            inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_days'] = state?.trigger_days;
-            inputs['trigger_hours'] = state?.trigger_hours;
-            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
-            inputs['trigger_project_name'] = state?.trigger_project_name;
-            inputs['trigger_variable_key'] = state?.trigger_variable_key;
-            inputs['trigger_variable_value'] = state?.trigger_variable_value;
+            inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
-            inputs['zone_id'] = state?.zone_id;
-            inputs['registry'] = state?.registry;
+            inputs['without_progress'] = state?.without_progress;
         } else {
-            const args = argsOrState as BuildDockerfileArgs | undefined;
+            const args = argsOrState as BuildDockerImageArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -364,14 +279,8 @@ export class BuildDockerfile extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.trigger_time) {
-                throw new Error('Missing required property "trigger_time"');
-            }
-
             inputs['dockerfile_path'] = args.dockerfile_path;
             inputs['name'] = args.name;
-            inputs['trigger_time'] = args.trigger_time;
-            inputs['after_action_id'] = args.after_action_id;
             inputs['build_args'] = args.build_args;
             inputs['buildkit'] = args.buildkit;
             inputs['context_path'] = args.context_path;
@@ -386,23 +295,18 @@ export class BuildDockerfile extends CustomResource {
             inputs['login'] = args.login;
             inputs['password'] = args.password;
             inputs['region'] = args.region;
+            inputs['registry'] = args.registry;
             inputs['repository'] = args.repository;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['secret_id'] = args.secret_id;
+            inputs['secret_src'] = args.secret_src;
             inputs['timeout'] = args.timeout;
-            inputs['trigger_condition'] = args.trigger_condition;
-            inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_days'] = args.trigger_days;
-            inputs['trigger_hours'] = args.trigger_hours;
-            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
-            inputs['trigger_project_name'] = args.trigger_project_name;
-            inputs['trigger_variable_key'] = args.trigger_variable_key;
-            inputs['trigger_variable_value'] = args.trigger_variable_value;
+            inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
-            inputs['zone_id'] = args.zone_id;
-            inputs['registry'] = args.registry;
+            inputs['without_progress'] = args.without_progress;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }
@@ -418,6 +322,6 @@ export class BuildDockerfile extends CustomResource {
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(BuildDockerfile.__pulumiType, name, inputs, opts);
+        super(BuildDockerImage.__pulumiType, name, inputs, opts);
     }
 }

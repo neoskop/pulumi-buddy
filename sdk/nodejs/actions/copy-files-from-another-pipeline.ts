@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { PipelineRef, Variable } from '../common';
+import { PipelineRef, TriggerCondition, Variable } from '../common';
 
 export interface CopyFilesFromAnotherPipelineState {
     project_name: string;
@@ -15,16 +15,6 @@ export interface CopyFilesFromAnotherPipelineState {
      * The object with the id of the pipeline from which files will be copied.
      */
     source_pipeline: PipelineRef;
-
-    /**
-     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
-     */
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The numerical ID of the action, after which this action should be added.
-     */
-    after_action_id?: number;
 
     /**
      * When set to `true` the hidden files and folders (the ones with the name beginning with a ".") are copied.
@@ -87,63 +77,14 @@ export interface CopyFilesFromAnotherPipelineState {
     timeout?: number;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
+     * The list of trigger conditions to meet so that the action can be triggered.
      */
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-
-    /**
-     * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
-     */
-    trigger_condition_paths?: string[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
-     */
-    trigger_days?: number[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
-     */
-    trigger_hours?: number[];
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
-     */
-    trigger_pipeline_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
-     */
-    trigger_project_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
-     */
-    trigger_variable_key?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS`. Defines the value of the desired variable which will be compared with its current value.
-     */
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
 
     /**
      * The list of variables you can use the action.
      */
     variables?: Variable[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
-     */
-    zone_id?: string;
 }
 
 export type CopyFilesFromAnotherPipelineArgs = AsInputs<CopyFilesFromAnotherPipelineState>;
@@ -154,9 +95,7 @@ export interface CopyFilesFromAnotherPipelineProps {
     action_id: number;
     name: string;
     source_pipeline: PipelineRef;
-    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'COPY_FILES';
-    after_action_id?: number;
     copy_hidden_files?: boolean;
     deployment_excludes?: string[];
     deployment_includes?: string[];
@@ -169,25 +108,8 @@ export interface CopyFilesFromAnotherPipelineProps {
     source_path?: string;
     target_path?: string;
     timeout?: number;
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-    trigger_condition_paths?: string[];
-    trigger_days?: number[];
-    trigger_hours?: number[];
-    trigger_pipeline_name?: string;
-    trigger_project_name?: string;
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
-    zone_id?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -216,9 +138,7 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
     action_id!: Output<number>;
     name!: Output<string>;
     source_pipeline!: Output<PipelineRef>;
-    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'COPY_FILES'>;
-    after_action_id!: Output<number | undefined>;
     copy_hidden_files!: Output<boolean | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
@@ -231,27 +151,8 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
     source_path!: Output<string | undefined>;
     target_path!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
-    trigger_condition!: Output<
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE'
-        | undefined
-    >;
-    trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_days!: Output<number[] | undefined>;
-    trigger_hours!: Output<number[] | undefined>;
-    trigger_pipeline_name!: Output<string | undefined>;
-    trigger_project_name!: Output<string | undefined>;
-    trigger_variable_key!: Output<string | undefined>;
-    trigger_variable_value!: Output<string | undefined>;
+    trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
-    zone_id!: Output<string | undefined>;
 
     constructor(
         name: string,
@@ -269,8 +170,6 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
             inputs['source_pipeline'] = state?.source_pipeline;
-            inputs['trigger_time'] = state?.trigger_time;
-            inputs['after_action_id'] = state?.after_action_id;
             inputs['copy_hidden_files'] = state?.copy_hidden_files;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
@@ -283,16 +182,8 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
             inputs['source_path'] = state?.source_path;
             inputs['target_path'] = state?.target_path;
             inputs['timeout'] = state?.timeout;
-            inputs['trigger_condition'] = state?.trigger_condition;
-            inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_days'] = state?.trigger_days;
-            inputs['trigger_hours'] = state?.trigger_hours;
-            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
-            inputs['trigger_project_name'] = state?.trigger_project_name;
-            inputs['trigger_variable_key'] = state?.trigger_variable_key;
-            inputs['trigger_variable_value'] = state?.trigger_variable_value;
+            inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
-            inputs['zone_id'] = state?.zone_id;
         } else {
             const args = argsOrState as CopyFilesFromAnotherPipelineArgs | undefined;
             if (!args?.project_name) {
@@ -311,14 +202,8 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
                 throw new Error('Missing required property "source_pipeline"');
             }
 
-            if (!args?.trigger_time) {
-                throw new Error('Missing required property "trigger_time"');
-            }
-
             inputs['name'] = args.name;
             inputs['source_pipeline'] = args.source_pipeline;
-            inputs['trigger_time'] = args.trigger_time;
-            inputs['after_action_id'] = args.after_action_id;
             inputs['copy_hidden_files'] = args.copy_hidden_files;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
@@ -331,16 +216,8 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
             inputs['source_path'] = args.source_path;
             inputs['target_path'] = args.target_path;
             inputs['timeout'] = args.timeout;
-            inputs['trigger_condition'] = args.trigger_condition;
-            inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_days'] = args.trigger_days;
-            inputs['trigger_hours'] = args.trigger_hours;
-            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
-            inputs['trigger_project_name'] = args.trigger_project_name;
-            inputs['trigger_variable_key'] = args.trigger_variable_key;
-            inputs['trigger_variable_value'] = args.trigger_variable_value;
+            inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
-            inputs['zone_id'] = args.zone_id;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

@@ -64,3 +64,39 @@ export interface Screenshot {
     headers: Header[];
     excluded_areas: ExcludedArea[];
 }
+
+export type EventType = 'PUSH';
+export interface Event {
+    type: EventType;
+    refs: string[];
+}
+
+export type TriggerType =
+    | 'ALWAYS'
+    | 'ON_CHANGE'
+    | 'ON_CHANGE_AT_PATH'
+    | 'VAR_IS'
+    | 'VAR_IS_NOT'
+    | 'VAR_CONTAINS'
+    | 'VAR_NOT_CONTAINS'
+    | 'DATETIME'
+    | 'SUCCESS_PIPELINE';
+
+export interface TriggerCondition {
+    trigger_condition: TriggerType;
+    trigger_condition_paths?: string[];
+    trigger_variable_key?: string;
+    trigger_variable_value?: string;
+    trigger_hours?: number[];
+    trigger_days?: number[];
+    zone_id?: string;
+    trigger_project_name?: string;
+    trigger_pipeline_name?: string;
+}
+
+export type SyncPathDirection = 'PIPELINE_TO_VM' | 'VM_TO_PIPELINE';
+export interface SyncPath {
+    pipeline_path: string;
+    vm_path: string;
+    direction: SyncPathDirection;
+}
