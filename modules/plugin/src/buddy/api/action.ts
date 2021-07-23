@@ -71,14 +71,11 @@ export class BuddyActionApi {
     async create(action: IBuddyActionCreate): Promise<IBuddyAction> {
         debug('create %O', action);
         try {
-            const result = await Axios.post<IBuddyAction>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipeline.getPipelineId()}/actions`,
+            const result = await this.api.client.post<IBuddyAction>(
+                `/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipeline.getPipelineId()}/actions`,
                 action,
                 {
-                    cancelToken: this.api.registerCanceler('action').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('action').token
                 }
             );
 
@@ -106,15 +103,12 @@ export class BuddyActionApi {
         }
 
         try {
-            const result = await Axios.get<IBuddyAction>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipeline.getPipelineId()}/actions/${
+            const result = await this.api.client.get<IBuddyAction>(
+                `/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipeline.getPipelineId()}/actions/${
                     this.actionId
                 }`,
                 {
-                    cancelToken: this.api.registerCanceler('pipeline').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('pipeline').token
                 }
             );
 
@@ -142,16 +136,13 @@ export class BuddyActionApi {
         }
 
         try {
-            const result = await Axios.patch<IBuddyAction>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipeline.getPipelineId()}/actions/${
+            const result = await this.api.client.patch<IBuddyAction>(
+                `/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipeline.getPipelineId()}/actions/${
                     this.actionId
                 }`,
                 update,
                 {
-                    cancelToken: this.api.registerCanceler('action').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('action').token
                 }
             );
 
@@ -179,15 +170,12 @@ export class BuddyActionApi {
         }
 
         try {
-            await Axios.delete(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipeline.getPipelineId()}/actions/${
+            await this.api.client.delete(
+                `/workspaces/${this.workspace.getDomain()}/projects/${this.project.getProjectName()}/pipelines/${this.pipeline.getPipelineId()}/actions/${
                     this.actionId
                 }`,
                 {
-                    cancelToken: this.api.registerCanceler('action').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('action').token
                 }
             );
         } catch (e) {

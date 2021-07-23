@@ -47,14 +47,11 @@ export class BuddyEnvironmentVariableApi {
     async create(variable: IBuddyEnvironmentVariableInput): Promise<IBuddyEnvironmentVariable> {
         debug('create %O', variable);
         try {
-            const result = await Axios.post<IBuddyEnvironmentVariable>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/variables`,
+            const result = await this.api.client.post<IBuddyEnvironmentVariable>(
+                `/workspaces/${this.workspace.getDomain()}/variables`,
                 variable,
                 {
-                    cancelToken: this.api.registerCanceler('environment-variable').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('environment-variable').token
                 }
             );
 
@@ -78,13 +75,10 @@ export class BuddyEnvironmentVariableApi {
         }
 
         try {
-            const result = await Axios.get<IBuddyEnvironmentVariable>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/variables/${this.environmentVariableId}`,
+            const result = await this.api.client.get<IBuddyEnvironmentVariable>(
+                `/workspaces/${this.workspace.getDomain()}/variables/${this.environmentVariableId}`,
                 {
-                    cancelToken: this.api.registerCanceler('environment-variable').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('environment-variable').token
                 }
             );
 
@@ -112,14 +106,11 @@ export class BuddyEnvironmentVariableApi {
         }
 
         try {
-            const result = await Axios.patch<IBuddyEnvironmentVariable>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/variables/${this.environmentVariableId}`,
+            const result = await this.api.client.patch<IBuddyEnvironmentVariable>(
+                `/workspaces/${this.workspace.getDomain()}/variables/${this.environmentVariableId}`,
                 update,
                 {
-                    cancelToken: this.api.registerCanceler('environment-variable').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('environment-variable').token
                 }
             );
 
@@ -147,11 +138,8 @@ export class BuddyEnvironmentVariableApi {
         }
 
         try {
-            await Axios.delete(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/variables/${this.environmentVariableId}`, {
-                cancelToken: this.api.registerCanceler('environment-variable').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
-                }
+            await this.api.client.delete(`/workspaces/${this.workspace.getDomain()}/variables/${this.environmentVariableId}`, {
+                cancelToken: this.api.registerCanceler('environment-variable').token
             });
         } catch (e) {
             if (Axios.isCancel(e)) {

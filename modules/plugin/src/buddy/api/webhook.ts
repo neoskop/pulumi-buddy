@@ -40,16 +40,9 @@ export class BuddyWebhookApi {
     async create(webhook: IBuddyWebhookInput): Promise<IBuddyWebhook> {
         debug('create %O', webhook);
         try {
-            const result = await Axios.post<IBuddyWebhook>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/webhooks`,
-                webhook,
-                {
-                    cancelToken: this.api.registerCanceler('webhook').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
-                }
-            );
+            const result = await this.api.client.post<IBuddyWebhook>(`/workspaces/${this.workspace.getDomain()}/webhooks`, webhook, {
+                cancelToken: this.api.registerCanceler('webhook').token
+            });
 
             return result.data;
         } catch (e) {
@@ -71,13 +64,10 @@ export class BuddyWebhookApi {
         }
 
         try {
-            const result = await Axios.get<IBuddyWebhook>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/webhooks/${this.webhookId}`,
+            const result = await this.api.client.get<IBuddyWebhook>(
+                `/workspaces/${this.workspace.getDomain()}/webhooks/${this.webhookId}`,
                 {
-                    cancelToken: this.api.registerCanceler('webhook').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('webhook').token
                 }
             );
 
@@ -105,14 +95,11 @@ export class BuddyWebhookApi {
         }
 
         try {
-            const result = await Axios.patch<IBuddyWebhook>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/webhooks/${this.webhookId}`,
+            const result = await this.api.client.patch<IBuddyWebhook>(
+                `/workspaces/${this.workspace.getDomain()}/webhooks/${this.webhookId}`,
                 update,
                 {
-                    cancelToken: this.api.registerCanceler('webhook').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('webhook').token
                 }
             );
 
@@ -140,7 +127,7 @@ export class BuddyWebhookApi {
         }
 
         try {
-            await Axios.delete(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/webhooks/${this.webhookId}`, {
+            await this.api.client.delete(`/workspaces/${this.workspace.getDomain()}/webhooks/${this.webhookId}`, {
                 cancelToken: this.api.registerCanceler('webhook').token,
                 headers: {
                     Authorization: `Bearer ${this.api.getToken()}`

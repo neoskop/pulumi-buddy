@@ -1,14 +1,27 @@
-import Axios, { CancelTokenSource, AxiosResponse } from 'axios';
+import Axios, { CancelTokenSource, AxiosResponse, AxiosInstance } from 'axios';
 import { BuddySshKeyApi } from './ssh-key';
 import { BuddyWorkspaceApi } from './workspace';
 
 export class BuddyApi {
     protected readonly cancelerMap = new Map<CancelTokenSource, string>();
+    public readonly client!: AxiosInstance;
 
-    constructor(protected token?: string, protected apiUrl: string = 'https://api.buddy.works') {}
+    constructor(protected token?: string, protected apiUrl: string = 'https://api.buddy.works') {
+        this.createClient();
+    }
+
+    protected createClient() {
+        (this as { client: AxiosInstance }).client = Axios.create({
+            baseURL: this.apiUrl,
+            headers: {
+                Authorization: `Bearer ${this.getToken()}`
+            }
+        });
+    }
 
     setToken(token: string) {
         this.token = token;
+        this.createClient();
     }
 
     getToken() {
@@ -17,6 +30,7 @@ export class BuddyApi {
 
     setApiUrl(apiUrl: string) {
         this.apiUrl = apiUrl;
+        this.createClient();
     }
 
     getApiUrl() {

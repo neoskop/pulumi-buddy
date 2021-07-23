@@ -30,11 +30,8 @@ export class BuddySshKeyApi {
     async create(sshKey: IBuddySshKeyInput): Promise<IBuddySshKey> {
         debug('create %O', sshKey);
         try {
-            const result = await Axios.post<IBuddySshKey>(`${this.api.getApiUrl()}/user/keys`, sshKey, {
-                cancelToken: this.api.registerCanceler('ssh-key').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
-                }
+            const result = await this.api.client.post<IBuddySshKey>(`/user/keys`, sshKey, {
+                cancelToken: this.api.registerCanceler('ssh-key').token
             });
 
             return result.data;
@@ -57,11 +54,8 @@ export class BuddySshKeyApi {
         }
 
         try {
-            const result = await Axios.get<IBuddySshKey>(`${this.api.getApiUrl()}/user/keys/${this.sshKeyId}`, {
-                cancelToken: this.api.registerCanceler('ssh-key').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
-                }
+            const result = await this.api.client.get<IBuddySshKey>(`/user/keys/${this.sshKeyId}`, {
+                cancelToken: this.api.registerCanceler('ssh-key').token
             });
 
             return result.data;
@@ -88,11 +82,8 @@ export class BuddySshKeyApi {
         }
 
         try {
-            await Axios.delete(`${this.api.getApiUrl()}/user/keys/${this.sshKeyId}`, {
-                cancelToken: this.api.registerCanceler('ssh-key').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
-                }
+            await this.api.client.delete(`/user/keys/${this.sshKeyId}`, {
+                cancelToken: this.api.registerCanceler('ssh-key').token
             });
         } catch (e) {
             if (Axios.isCancel(e)) {
