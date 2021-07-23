@@ -1,7 +1,7 @@
 {
     "name": "pulumi-buddy",
     "description": "A Pulumi integration for Buddy",
-    "version": "0.4.0-rc.4",
+    "version": "0.4.0-rc.5",
     "repository": "https://github.com/neoskop/pulumi-buddy",
     "author": "Mark Wecke <wecke@neoskop.de>",
     "keywords": [
