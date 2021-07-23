@@ -38,9 +38,19 @@ export interface GKERunHelmState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The ID of the GKE zone.
      */
     zone_id: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
@@ -130,8 +140,10 @@ export interface GKERunHelmProps {
     helm_version: string;
     integration_hash: IntegrationRef | Integration;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'HELM';
     zone_id: string;
+    after_action_id?: number;
     disabled?: boolean;
     helm_repository_integration?: IntegrationRef | Integration;
     helm_repository_key?: string;
@@ -179,8 +191,10 @@ export class GKERunHelm extends CustomResource {
     helm_version!: Output<string>;
     integration_hash!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'HELM'>;
     zone_id!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     helm_repository_integration!: Output<IntegrationRef | Integration | undefined>;
     helm_repository_key!: Output<string | undefined>;
@@ -214,7 +228,9 @@ export class GKERunHelm extends CustomResource {
             inputs['integration_hash'] =
                 state?.integration_hash instanceof Integration ? { hash_id: state.integration_hash.hash_id } : state?.integration_hash;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['zone_id'] = state?.zone_id;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['helm_repository_integration'] =
                 state?.helm_repository_integration instanceof Integration
@@ -267,6 +283,10 @@ export class GKERunHelm extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.zone_id) {
                 throw new Error('Missing required property "zone_id"');
             }
@@ -279,7 +299,9 @@ export class GKERunHelm extends CustomResource {
                 integration_hash instanceof Integration ? { hash_id: integration_hash.hash_id } : integration_hash
             );
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['zone_id'] = args.zone_id;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['helm_repository_integration'] = output(
                 args.helm_repository_integration as Output<IntegrationRef | Integration>

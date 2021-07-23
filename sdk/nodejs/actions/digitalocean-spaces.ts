@@ -27,6 +27,16 @@ export interface DigitalOceanSpacesState {
     region: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * Specifies how long objects stay in the cache.
      */
     cache_control?: string;
@@ -117,7 +127,9 @@ export interface DigitalOceanSpacesProps {
     integration_hash: string;
     name: string;
     region: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'DO_SPACES';
+    after_action_id?: number;
     cache_control?: string;
     deployment_excludes?: string[];
     deployment_includes?: string[];
@@ -164,7 +176,9 @@ export class DigitalOceanSpaces extends CustomResource {
     integration_hash!: Output<string>;
     name!: Output<string>;
     region!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'DO_SPACES'>;
+    after_action_id!: Output<number | undefined>;
     cache_control!: Output<string | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
@@ -196,6 +210,8 @@ export class DigitalOceanSpaces extends CustomResource {
             inputs['integration_hash'] = state?.integration_hash;
             inputs['name'] = state?.name;
             inputs['region'] = state?.region;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['cache_control'] = state?.cache_control;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
@@ -238,10 +254,16 @@ export class DigitalOceanSpaces extends CustomResource {
                 throw new Error('Missing required property "region"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['bucket_name'] = args.bucket_name;
             inputs['integration_hash'] = args.integration_hash;
             inputs['name'] = args.name;
             inputs['region'] = args.region;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['cache_control'] = args.cache_control;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;

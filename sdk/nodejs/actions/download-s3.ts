@@ -33,6 +33,16 @@ export interface DownloadS3State {
     source_path: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
@@ -109,7 +119,9 @@ export interface DownloadS3Props {
     integration: IntegrationRef | Integration;
     name: string;
     source_path: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'AMAZON_S3';
+    after_action_id?: number;
     disabled?: boolean;
     download_excludes?: string[];
     download_includes?: string[];
@@ -154,7 +166,9 @@ export class DownloadS3 extends CustomResource {
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     source_path!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'AMAZON_S3'>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     download_excludes!: Output<string[] | undefined>;
     download_includes!: Output<string[] | undefined>;
@@ -184,6 +198,8 @@ export class DownloadS3 extends CustomResource {
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['source_path'] = state?.source_path;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['download_excludes'] = state?.download_excludes;
             inputs['download_includes'] = state?.download_includes;
@@ -227,6 +243,10 @@ export class DownloadS3 extends CustomResource {
                 throw new Error('Missing required property "source_path"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['bucket_name'] = args.bucket_name;
             inputs['destination_path'] = args.destination_path;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
@@ -234,6 +254,8 @@ export class DownloadS3 extends CustomResource {
             );
             inputs['name'] = args.name;
             inputs['source_path'] = args.source_path;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['download_excludes'] = args.download_excludes;
             inputs['download_includes'] = args.download_includes;

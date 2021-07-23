@@ -28,6 +28,16 @@ export interface KubernetesKubectlState {
     server?: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The certificate authority required when `auth_type` is set to `CERTS`.
      */
     client_ca?: string;
@@ -143,7 +153,9 @@ export interface KubernetesKubectlProps {
     execute_commands: string[];
     name: string;
     server?: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'KUBERNETES_CLI';
+    after_action_id?: number;
     client_ca?: string;
     client_cert?: string;
     client_key?: string;
@@ -195,7 +207,9 @@ export class KubernetesKubectl extends CustomResource {
     execute_commands!: Output<string[]>;
     name!: Output<string>;
     server!: Output<string | undefined>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'KUBERNETES_CLI'>;
+    after_action_id!: Output<number | undefined>;
     client_ca!: Output<string | undefined>;
     client_cert!: Output<string | undefined>;
     client_key!: Output<string | undefined>;
@@ -232,6 +246,8 @@ export class KubernetesKubectl extends CustomResource {
             inputs['execute_commands'] = state?.execute_commands;
             inputs['name'] = state?.name;
             inputs['server'] = state?.server;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['client_ca'] = state?.client_ca;
             inputs['client_cert'] = state?.client_cert;
             inputs['client_key'] = state?.client_key;
@@ -271,10 +287,16 @@ export class KubernetesKubectl extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['auth_type'] = args.auth_type;
             inputs['execute_commands'] = args.execute_commands;
             inputs['name'] = args.name;
             inputs['server'] = args.server;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['client_ca'] = args.client_ca;
             inputs['client_cert'] = args.client_cert;
             inputs['client_key'] = args.client_key;

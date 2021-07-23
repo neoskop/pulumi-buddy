@@ -17,6 +17,16 @@ export interface CopyFilesFromAnotherPipelineState {
     source_pipeline: PipelineRef;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * When set to `true` the hidden files and folders (the ones with the name beginning with a ".") are copied.
      */
     copy_hidden_files?: boolean;
@@ -95,7 +105,9 @@ export interface CopyFilesFromAnotherPipelineProps {
     action_id: number;
     name: string;
     source_pipeline: PipelineRef;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'COPY_FILES';
+    after_action_id?: number;
     copy_hidden_files?: boolean;
     deployment_excludes?: string[];
     deployment_includes?: string[];
@@ -138,7 +150,9 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
     action_id!: Output<number>;
     name!: Output<string>;
     source_pipeline!: Output<PipelineRef>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'COPY_FILES'>;
+    after_action_id!: Output<number | undefined>;
     copy_hidden_files!: Output<boolean | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
@@ -170,6 +184,8 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
             inputs['source_pipeline'] = state?.source_pipeline;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['copy_hidden_files'] = state?.copy_hidden_files;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
@@ -202,8 +218,14 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
                 throw new Error('Missing required property "source_pipeline"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['name'] = args.name;
             inputs['source_pipeline'] = args.source_pipeline;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['copy_hidden_files'] = args.copy_hidden_files;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;

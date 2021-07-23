@@ -33,6 +33,16 @@ export interface DatadogNotificationState {
     title: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * An arbitrary string to use for aggregation, max length of 100 characters. If you specify a key, all events using that key will be grouped together in the Event Stream.
      */
     aggregation_key?: string;
@@ -109,7 +119,9 @@ export interface DatadogNotificationProps {
     integration: IntegrationRef | Integration;
     name: string;
     title: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'DATADOG';
+    after_action_id?: number;
     aggregation_key?: string;
     disabled?: boolean;
     host?: string;
@@ -154,7 +166,9 @@ export class DatadogNotification extends CustomResource {
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     title!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'DATADOG'>;
+    after_action_id!: Output<number | undefined>;
     aggregation_key!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     host!: Output<string | undefined>;
@@ -184,6 +198,8 @@ export class DatadogNotification extends CustomResource {
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['title'] = state?.title;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['aggregation_key'] = state?.aggregation_key;
             inputs['disabled'] = state?.disabled;
             inputs['host'] = state?.host;
@@ -227,6 +243,10 @@ export class DatadogNotification extends CustomResource {
                 throw new Error('Missing required property "title"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['alert_type'] = args.alert_type;
             inputs['content'] = args.content;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
@@ -234,6 +254,8 @@ export class DatadogNotification extends CustomResource {
             );
             inputs['name'] = args.name;
             inputs['title'] = args.title;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['aggregation_key'] = args.aggregation_key;
             inputs['disabled'] = args.disabled;
             inputs['host'] = args.host;

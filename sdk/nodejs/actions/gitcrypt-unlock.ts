@@ -17,6 +17,16 @@ export interface GitcryptUnlockState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
@@ -70,7 +80,9 @@ export interface GitcryptUnlockProps {
     action_id: number;
     keys: string;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'GIT_CRYPT_UNLOCK';
+    after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
@@ -108,7 +120,9 @@ export class GitcryptUnlock extends CustomResource {
     action_id!: Output<number>;
     keys!: Output<string>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'GIT_CRYPT_UNLOCK'>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
@@ -131,6 +145,8 @@ export class GitcryptUnlock extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['keys'] = state?.keys;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
@@ -158,8 +174,14 @@ export class GitcryptUnlock extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['keys'] = args.keys;
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;

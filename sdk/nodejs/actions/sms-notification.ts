@@ -17,6 +17,16 @@ export interface SmsNotificationState {
     recipients: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The content of the notification.
      */
     content?: string;
@@ -75,7 +85,9 @@ export interface SmsNotificationProps {
     action_id: number;
     name: string;
     recipients: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SMS';
+    after_action_id?: number;
     content?: string;
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -114,7 +126,9 @@ export class SmsNotification extends CustomResource {
     action_id!: Output<number>;
     name!: Output<string>;
     recipients!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SMS'>;
+    after_action_id!: Output<number | undefined>;
     content!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -138,6 +152,8 @@ export class SmsNotification extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
             inputs['recipients'] = state?.recipients;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['content'] = state?.content;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -166,8 +182,14 @@ export class SmsNotification extends CustomResource {
                 throw new Error('Missing required property "recipients"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['name'] = args.name;
             inputs['recipients'] = args.recipients;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['content'] = args.content;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;

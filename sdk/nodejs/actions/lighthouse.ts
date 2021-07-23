@@ -37,9 +37,19 @@ export interface LighthouseState {
     seo: number;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The address of the site on which the audit should run.
      */
     website: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
@@ -99,8 +109,10 @@ export interface LighthouseProps {
     name: string;
     performance: number;
     seo: number;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'LIGHTHOUSE';
     website: string;
+    after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
@@ -142,8 +154,10 @@ export class Lighthouse extends CustomResource {
     name!: Output<string>;
     performance!: Output<number>;
     seo!: Output<number>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'LIGHTHOUSE'>;
     website!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
@@ -170,7 +184,9 @@ export class Lighthouse extends CustomResource {
             inputs['name'] = state?.name;
             inputs['performance'] = state?.performance;
             inputs['seo'] = state?.seo;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['website'] = state?.website;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
@@ -214,6 +230,10 @@ export class Lighthouse extends CustomResource {
                 throw new Error('Missing required property "seo"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.website) {
                 throw new Error('Missing required property "website"');
             }
@@ -224,7 +244,9 @@ export class Lighthouse extends CustomResource {
             inputs['name'] = args.name;
             inputs['performance'] = args.performance;
             inputs['seo'] = args.seo;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['website'] = args.website;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;

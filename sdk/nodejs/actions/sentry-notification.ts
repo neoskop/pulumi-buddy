@@ -28,9 +28,19 @@ export interface SentryNotificationState {
     organization_slug: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The version identifier of the release.
      */
     version: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * The optional url that points to the deploy.
@@ -113,8 +123,10 @@ export interface SentryNotificationProps {
     integration: IntegrationRef | Integration;
     name: string;
     organization_slug: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SENTRY';
     version: string;
+    after_action_id?: number;
     deploy_url?: string;
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -159,8 +171,10 @@ export class SentryNotification extends CustomResource {
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     organization_slug!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SENTRY'>;
     version!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     deploy_url!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -190,7 +204,9 @@ export class SentryNotification extends CustomResource {
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['organization_slug'] = state?.organization_slug;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['version'] = state?.version;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['deploy_url'] = state?.deploy_url;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -231,6 +247,10 @@ export class SentryNotification extends CustomResource {
                 throw new Error('Missing required property "organization_slug"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.version) {
                 throw new Error('Missing required property "version"');
             }
@@ -241,7 +261,9 @@ export class SentryNotification extends CustomResource {
             );
             inputs['name'] = args.name;
             inputs['organization_slug'] = args.organization_slug;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['version'] = args.version;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['deploy_url'] = args.deploy_url;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;

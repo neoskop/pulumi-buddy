@@ -23,6 +23,16 @@ export interface LogglyState {
     tags: string[];
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The content of the notification.
      */
     content?: string;
@@ -82,7 +92,9 @@ export interface LogglyProps {
     integration: IntegrationRef | Integration;
     name: string;
     tags: string[];
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'LOGGLY';
+    after_action_id?: number;
     content?: string;
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -122,7 +134,9 @@ export class Loggly extends CustomResource {
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     tags!: Output<string[]>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'LOGGLY'>;
+    after_action_id!: Output<number | undefined>;
     content!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -147,6 +161,8 @@ export class Loggly extends CustomResource {
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['tags'] = state?.tags;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['content'] = state?.content;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -179,11 +195,17 @@ export class Loggly extends CustomResource {
                 throw new Error('Missing required property "tags"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
             inputs['tags'] = args.tags;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['content'] = args.content;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;

@@ -17,9 +17,19 @@ export interface LinkValidatorState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The address of the site to be checked by the validator.
      */
     website: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
@@ -80,8 +90,10 @@ export interface LinkValidatorProps {
     action_id: number;
     depth: number;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'LINK_VALIDATOR';
     website: string;
+    after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
     ignored_prefixes?: string[];
@@ -120,8 +132,10 @@ export class LinkValidator extends CustomResource {
     action_id!: Output<number>;
     depth!: Output<number>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'LINK_VALIDATOR'>;
     website!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     ignored_prefixes!: Output<string[] | undefined>;
@@ -145,7 +159,9 @@ export class LinkValidator extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['depth'] = state?.depth;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['website'] = state?.website;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['ignored_prefixes'] = state?.ignored_prefixes;
@@ -174,13 +190,19 @@ export class LinkValidator extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.website) {
                 throw new Error('Missing required property "website"');
             }
 
             inputs['depth'] = args.depth;
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['website'] = args.website;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['ignored_prefixes'] = args.ignored_prefixes;

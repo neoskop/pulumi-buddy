@@ -27,6 +27,16 @@ export interface KubernetesApplyDeploymentConfigurationState {
     server: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * Defines whether to select all the specified resources.
      */
     all_arg?: boolean;
@@ -162,7 +172,9 @@ export interface KubernetesApplyDeploymentConfigurationProps {
     config_path: string;
     name: string;
     server: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'KUBERNETES_APPLY';
+    after_action_id?: number;
     all_arg?: boolean;
     cascade_arg?: boolean;
     client_ca?: string;
@@ -218,7 +230,9 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
     config_path!: Output<string>;
     name!: Output<string>;
     server!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'KUBERNETES_APPLY'>;
+    after_action_id!: Output<number | undefined>;
     all_arg!: Output<boolean | undefined>;
     cascade_arg!: Output<boolean | undefined>;
     client_ca!: Output<string | undefined>;
@@ -263,6 +277,8 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
             inputs['config_path'] = state?.config_path;
             inputs['name'] = state?.name;
             inputs['server'] = state?.server;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['all_arg'] = state?.all_arg;
             inputs['cascade_arg'] = state?.cascade_arg;
             inputs['client_ca'] = state?.client_ca;
@@ -314,10 +330,16 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
                 throw new Error('Missing required property "server"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['auth_type'] = args.auth_type;
             inputs['config_path'] = args.config_path;
             inputs['name'] = args.name;
             inputs['server'] = args.server;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['all_arg'] = args.all_arg;
             inputs['cascade_arg'] = args.cascade_arg;
             inputs['client_ca'] = args.client_ca;

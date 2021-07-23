@@ -23,6 +23,16 @@ export interface SlackNotificationState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The array of the Slack message attachments. More info here.
      */
     attachments?: string[];
@@ -92,7 +102,9 @@ export interface SlackNotificationProps {
     channel: string;
     integration: IntegrationRef | Integration;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SLACK';
+    after_action_id?: number;
     attachments?: string[];
     content?: string;
     disabled?: boolean;
@@ -134,7 +146,9 @@ export class SlackNotification extends CustomResource {
     channel!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SLACK'>;
+    after_action_id!: Output<number | undefined>;
     attachments!: Output<string[] | undefined>;
     content!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -161,6 +175,8 @@ export class SlackNotification extends CustomResource {
             inputs['channel'] = state?.channel;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['attachments'] = state?.attachments;
             inputs['content'] = state?.content;
             inputs['disabled'] = state?.disabled;
@@ -195,11 +211,17 @@ export class SlackNotification extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['channel'] = args.channel;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['attachments'] = args.attachments;
             inputs['content'] = args.content;
             inputs['disabled'] = args.disabled;

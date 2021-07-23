@@ -27,6 +27,16 @@ export interface BuildFlutterAppState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The dependencies & directories to be cached and available to every execution in this pipeline.
      */
     cached_dirs?: string[];
@@ -107,7 +117,9 @@ export interface BuildFlutterAppProps {
     docker_image_tag: string;
     execute_commands: string[];
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'BUILD';
+    after_action_id?: number;
     cached_dirs?: string[];
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -152,7 +164,9 @@ export class BuildFlutterApp extends CustomResource {
     docker_image_tag!: Output<string>;
     execute_commands!: Output<string[]>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'BUILD'>;
+    after_action_id!: Output<number | undefined>;
     cached_dirs!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -182,6 +196,8 @@ export class BuildFlutterApp extends CustomResource {
             inputs['docker_image_tag'] = state?.docker_image_tag;
             inputs['execute_commands'] = state?.execute_commands;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['cached_dirs'] = state?.cached_dirs;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -222,10 +238,16 @@ export class BuildFlutterApp extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['docker_image_name'] = args.docker_image_name;
             inputs['docker_image_tag'] = args.docker_image_tag;
             inputs['execute_commands'] = args.execute_commands;
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['cached_dirs'] = args.cached_dirs;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;

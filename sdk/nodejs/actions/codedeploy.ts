@@ -28,6 +28,16 @@ export interface CodeDeployState {
     region: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The name of the CodeDeploy configuration.
      */
     config_name?: string;
@@ -133,7 +143,9 @@ export interface CodeDeployProps {
     integration: IntegrationRef | Integration;
     name: string;
     region: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'CODE_DEPLOY';
+    after_action_id?: number;
     config_name?: string;
     deployment_excludes?: string[];
     deployment_includes?: string[];
@@ -183,7 +195,9 @@ export class CodeDeploy extends CustomResource {
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     region!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'CODE_DEPLOY'>;
+    after_action_id!: Output<number | undefined>;
     config_name!: Output<string | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
@@ -218,6 +232,8 @@ export class CodeDeploy extends CustomResource {
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['region'] = state?.region;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['config_name'] = state?.config_name;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
@@ -263,12 +279,18 @@ export class CodeDeploy extends CustomResource {
                 throw new Error('Missing required property "region"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['application_name'] = args.application_name;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
             inputs['region'] = args.region;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['config_name'] = args.config_name;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;

@@ -47,6 +47,16 @@ export interface DownloadSFTPState {
     source_path: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
@@ -131,7 +141,9 @@ export interface DownloadSFTPProps {
     password: string;
     port: string;
     source_path: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'DOWNLOAD_SSH';
+    after_action_id?: number;
     disabled?: boolean;
     download_excludes?: string[];
     download_includes?: string[];
@@ -180,7 +192,9 @@ export class DownloadSFTP extends CustomResource {
     password!: Output<string>;
     port!: Output<string>;
     source_path!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'DOWNLOAD_SSH'>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     download_excludes!: Output<string[] | undefined>;
     download_includes!: Output<string[] | undefined>;
@@ -214,6 +228,8 @@ export class DownloadSFTP extends CustomResource {
             inputs['password'] = state?.password;
             inputs['port'] = state?.port;
             inputs['source_path'] = state?.source_path;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['download_excludes'] = state?.download_excludes;
             inputs['download_includes'] = state?.download_includes;
@@ -270,6 +286,10 @@ export class DownloadSFTP extends CustomResource {
                 throw new Error('Missing required property "source_path"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['authentication_mode'] = args.authentication_mode;
             inputs['destination_path'] = args.destination_path;
             inputs['host'] = args.host;
@@ -278,6 +298,8 @@ export class DownloadSFTP extends CustomResource {
             inputs['password'] = args.password;
             inputs['port'] = args.port;
             inputs['source_path'] = args.source_path;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['download_excludes'] = args.download_excludes;
             inputs['download_includes'] = args.download_includes;

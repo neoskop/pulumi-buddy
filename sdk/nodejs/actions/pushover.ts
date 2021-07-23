@@ -23,6 +23,16 @@ export interface PushoverState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The name of the device to whick notification will be sent.
      */
     device?: string;
@@ -102,7 +112,9 @@ export interface PushoverProps {
     content: string;
     integration: IntegrationRef | Integration;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'PUSHOVER';
+    after_action_id?: number;
     device?: string;
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -146,7 +158,9 @@ export class Pushover extends CustomResource {
     content!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'PUSHOVER'>;
+    after_action_id!: Output<number | undefined>;
     device!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -175,6 +189,8 @@ export class Pushover extends CustomResource {
             inputs['content'] = state?.content;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['device'] = state?.device;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -211,11 +227,17 @@ export class Pushover extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['content'] = args.content;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['device'] = args.device;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;

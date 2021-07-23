@@ -58,9 +58,19 @@ export interface GKESetImageState {
     namespace: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The ID of the GKE zone.
      */
     zone_id: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
@@ -129,8 +139,10 @@ export interface GKESetImageProps {
     integration: IntegrationRef | Integration;
     name: string;
     namespace: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'KUBERNETES_SET_IMAGE';
     zone_id: string;
+    after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
     record_arg?: 'TRUE' | 'FALSE' | 'NOT_SET';
@@ -177,8 +189,10 @@ export class GKESetImage extends CustomResource {
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     namespace!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'KUBERNETES_SET_IMAGE'>;
     zone_id!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     record_arg!: Output<'TRUE' | 'FALSE' | 'NOT_SET' | undefined>;
@@ -210,7 +224,9 @@ export class GKESetImage extends CustomResource {
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['namespace'] = state?.namespace;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['zone_id'] = state?.zone_id;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['record_arg'] = state?.record_arg;
@@ -271,6 +287,10 @@ export class GKESetImage extends CustomResource {
                 throw new Error('Missing required property "namespace"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.zone_id) {
                 throw new Error('Missing required property "zone_id"');
             }
@@ -287,7 +307,9 @@ export class GKESetImage extends CustomResource {
             );
             inputs['name'] = args.name;
             inputs['namespace'] = args.namespace;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['zone_id'] = args.zone_id;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['record_arg'] = args.record_arg;

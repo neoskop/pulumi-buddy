@@ -18,9 +18,19 @@ export interface CloudflareState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The ID of the Cloudflare zone.
      */
     zone_id: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * The URL address to the desired site.
@@ -106,8 +116,10 @@ export interface CloudflareProps {
     action_id: number;
     integration: IntegrationRef | Integration;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'CLOUDFLARE';
     zone_id: string;
+    after_action_id?: number;
     base_url?: string;
     deployment_excludes?: string[];
     deployment_includes?: string[];
@@ -151,8 +163,10 @@ export class Cloudflare extends CustomResource {
     action_id!: Output<number>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'CLOUDFLARE'>;
     zone_id!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     base_url!: Output<string | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
@@ -181,7 +195,9 @@ export class Cloudflare extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['zone_id'] = state?.zone_id;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['base_url'] = state?.base_url;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
@@ -215,6 +231,10 @@ export class Cloudflare extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.zone_id) {
                 throw new Error('Missing required property "zone_id"');
             }
@@ -223,7 +243,9 @@ export class Cloudflare extends CustomResource {
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['zone_id'] = args.zone_id;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['base_url'] = args.base_url;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;

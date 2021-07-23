@@ -33,9 +33,19 @@ export interface GKERunJobState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The ID of the GKE zone.
      */
     zone_id: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * The repository path to the configuration file. One of `config_path` or `content` must be specified.
@@ -119,8 +129,10 @@ export interface GKERunJobProps {
     gke_auth_type: string;
     integration: IntegrationRef | Integration;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'KUBERNETES_RUN_JOB';
     zone_id: string;
+    after_action_id?: number;
     config_path?: string;
     content?: string;
     disabled?: boolean;
@@ -166,8 +178,10 @@ export class GKERunJob extends CustomResource {
     gke_auth_type!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'KUBERNETES_RUN_JOB'>;
     zone_id!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     config_path!: Output<string | undefined>;
     content!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -198,7 +212,9 @@ export class GKERunJob extends CustomResource {
             inputs['gke_auth_type'] = state?.gke_auth_type;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['zone_id'] = state?.zone_id;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['config_path'] = state?.config_path;
             inputs['content'] = state?.content;
             inputs['disabled'] = state?.disabled;
@@ -243,6 +259,10 @@ export class GKERunJob extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.zone_id) {
                 throw new Error('Missing required property "zone_id"');
             }
@@ -254,7 +274,9 @@ export class GKERunJob extends CustomResource {
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['zone_id'] = args.zone_id;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['config_path'] = args.config_path;
             inputs['content'] = args.content;
             inputs['disabled'] = args.disabled;

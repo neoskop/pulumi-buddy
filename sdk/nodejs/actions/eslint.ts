@@ -17,9 +17,19 @@ export interface EslintState {
     style: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The version of the NodeJS.
      */
     version: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * Required if `style` is set to `custom`. Path to the style config file.
@@ -90,8 +100,10 @@ export interface EslintProps {
     action_id: number;
     name: string;
     style: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'ESLINT';
     version: string;
+    after_action_id?: number;
     config_path?: string;
     disabled?: boolean;
     fix?: boolean;
@@ -132,8 +144,10 @@ export class Eslint extends CustomResource {
     action_id!: Output<number>;
     name!: Output<string>;
     style!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'ESLINT'>;
     version!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     config_path!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     fix!: Output<boolean | undefined>;
@@ -159,7 +173,9 @@ export class Eslint extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
             inputs['style'] = state?.style;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['version'] = state?.version;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['config_path'] = state?.config_path;
             inputs['disabled'] = state?.disabled;
             inputs['fix'] = state?.fix;
@@ -190,13 +206,19 @@ export class Eslint extends CustomResource {
                 throw new Error('Missing required property "style"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.version) {
                 throw new Error('Missing required property "version"');
             }
 
             inputs['name'] = args.name;
             inputs['style'] = args.style;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['version'] = args.version;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['config_path'] = args.config_path;
             inputs['disabled'] = args.disabled;
             inputs['fix'] = args.fix;

@@ -22,6 +22,16 @@ export interface SplitTestsState {
     source_path: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
@@ -81,7 +91,9 @@ export interface SplitTestsProps {
     groups_count: number;
     name: string;
     source_path: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SPLIT_TESTS';
+    after_action_id?: number;
     disabled?: boolean;
     files_order?: 'BY_FILE_SIZE' | 'ALPHABETICALLY';
     ignore_errors?: boolean;
@@ -121,7 +133,9 @@ export class SplitTests extends CustomResource {
     groups_count!: Output<number>;
     name!: Output<string>;
     source_path!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SPLIT_TESTS'>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     files_order!: Output<'BY_FILE_SIZE' | 'ALPHABETICALLY' | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -146,6 +160,8 @@ export class SplitTests extends CustomResource {
             inputs['groups_count'] = state?.groups_count;
             inputs['name'] = state?.name;
             inputs['source_path'] = state?.source_path;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['files_order'] = state?.files_order;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -178,9 +194,15 @@ export class SplitTests extends CustomResource {
                 throw new Error('Missing required property "source_path"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['groups_count'] = args.groups_count;
             inputs['name'] = args.name;
             inputs['source_path'] = args.source_path;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['files_order'] = args.files_order;
             inputs['ignore_errors'] = args.ignore_errors;

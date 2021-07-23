@@ -17,6 +17,16 @@ export interface DiscordNotificationState {
     notification_url: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The embedded rich content. More info here.
      */
     attachments?: string;
@@ -85,7 +95,9 @@ export interface DiscordNotificationProps {
     action_id: number;
     name: string;
     notification_url: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'DISCORD';
+    after_action_id?: number;
     attachments?: string;
     content?: string;
     disabled?: boolean;
@@ -126,7 +138,9 @@ export class DiscordNotification extends CustomResource {
     action_id!: Output<number>;
     name!: Output<string>;
     notification_url!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'DISCORD'>;
+    after_action_id!: Output<number | undefined>;
     attachments!: Output<string | undefined>;
     content!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -152,6 +166,8 @@ export class DiscordNotification extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
             inputs['notification_url'] = state?.notification_url;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['attachments'] = state?.attachments;
             inputs['content'] = state?.content;
             inputs['disabled'] = state?.disabled;
@@ -182,8 +198,14 @@ export class DiscordNotification extends CustomResource {
                 throw new Error('Missing required property "notification_url"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['name'] = args.name;
             inputs['notification_url'] = args.notification_url;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['attachments'] = args.attachments;
             inputs['content'] = args.content;
             inputs['disabled'] = args.disabled;

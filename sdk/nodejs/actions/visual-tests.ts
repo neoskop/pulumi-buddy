@@ -42,6 +42,16 @@ export interface VisualTestsState {
     screenshots: Screenshot[];
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
@@ -105,7 +115,9 @@ export interface VisualTestsProps {
     resolution_height: number;
     resolution_width: number;
     screenshots: Screenshot[];
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'VISUAL_TESTS';
+    after_action_id?: number;
     disabled?: boolean;
     headers?: Header[];
     ignore_errors?: boolean;
@@ -149,7 +161,9 @@ export class VisualTests extends CustomResource {
     resolution_height!: Output<number>;
     resolution_width!: Output<number>;
     screenshots!: Output<Screenshot[]>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'VISUAL_TESTS'>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     headers!: Output<Header[] | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -178,6 +192,8 @@ export class VisualTests extends CustomResource {
             inputs['resolution_height'] = state?.resolution_height;
             inputs['resolution_width'] = state?.resolution_width;
             inputs['screenshots'] = state?.screenshots;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['headers'] = state?.headers;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -226,6 +242,10 @@ export class VisualTests extends CustomResource {
                 throw new Error('Missing required property "screenshots"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['browser_type'] = args.browser_type;
             inputs['images_history_limit'] = args.images_history_limit;
             inputs['name'] = args.name;
@@ -233,6 +253,8 @@ export class VisualTests extends CustomResource {
             inputs['resolution_height'] = args.resolution_height;
             inputs['resolution_width'] = args.resolution_width;
             inputs['screenshots'] = args.screenshots;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['headers'] = args.headers;
             inputs['ignore_errors'] = args.ignore_errors;

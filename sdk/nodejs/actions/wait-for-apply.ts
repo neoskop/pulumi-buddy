@@ -12,6 +12,16 @@ export interface WaitForApplyState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The question displayed before accepting to continue the execution.
      */
     comment?: string;
@@ -69,7 +79,9 @@ export interface WaitForApplyProps {
     html_url: string;
     action_id: number;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'WAIT_FOR_APPLY';
+    after_action_id?: number;
     comment?: string;
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -107,7 +119,9 @@ export class WaitForApply extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'WAIT_FOR_APPLY'>;
+    after_action_id!: Output<number | undefined>;
     comment!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -130,6 +144,8 @@ export class WaitForApply extends CustomResource {
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['comment'] = state?.comment;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -154,7 +170,13 @@ export class WaitForApply extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['comment'] = args.comment;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;

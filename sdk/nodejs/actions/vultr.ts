@@ -38,6 +38,16 @@ export interface VultrState {
     port: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The paths and/or files that will be left out during the deployment.
      */
     deployment_excludes?: string[];
@@ -125,7 +135,9 @@ export interface VultrProps {
     login: string;
     name: string;
     port: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'VULTR';
+    after_action_id?: number;
     deployment_excludes?: string[];
     deployment_includes?: string[];
     disabled?: boolean;
@@ -173,7 +185,9 @@ export class Vultr extends CustomResource {
     login!: Output<string>;
     name!: Output<string>;
     port!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'VULTR'>;
+    after_action_id!: Output<number | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -206,6 +220,8 @@ export class Vultr extends CustomResource {
             inputs['login'] = state?.login;
             inputs['name'] = state?.name;
             inputs['port'] = state?.port;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
             inputs['disabled'] = state?.disabled;
@@ -255,6 +271,10 @@ export class Vultr extends CustomResource {
                 throw new Error('Missing required property "port"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['authentication_mode'] = args.authentication_mode;
             inputs['host'] = args.host;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
@@ -263,6 +283,8 @@ export class Vultr extends CustomResource {
             inputs['login'] = args.login;
             inputs['name'] = args.name;
             inputs['port'] = args.port;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
             inputs['disabled'] = args.disabled;

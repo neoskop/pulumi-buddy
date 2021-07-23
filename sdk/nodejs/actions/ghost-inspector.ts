@@ -18,6 +18,16 @@ export interface GhostInspectorState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * Alternate browser to use for this execution. The following options are available: `firefox` (default), `firefox-` specific version of Firefox, for example `firefox-57`, `chrome` (paid plans only), `phantomjs`.
      */
     browser?: string;
@@ -141,7 +151,9 @@ export interface GhostInspectorProps {
     action_id: number;
     integration: IntegrationRef | Integration;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'GHOST_INSPECTOR';
+    after_action_id?: number;
     browser?: string;
     channel?: string;
     data_file?: string;
@@ -193,7 +205,9 @@ export class GhostInspector extends CustomResource {
     action_id!: Output<number>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'GHOST_INSPECTOR'>;
+    after_action_id!: Output<number | undefined>;
     browser!: Output<string | undefined>;
     channel!: Output<string | undefined>;
     data_file!: Output<string | undefined>;
@@ -230,6 +244,8 @@ export class GhostInspector extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['browser'] = state?.browser;
             inputs['channel'] = state?.channel;
             inputs['data_file'] = state?.data_file;
@@ -271,10 +287,16 @@ export class GhostInspector extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['browser'] = args.browser;
             inputs['channel'] = args.channel;
             inputs['data_file'] = args.data_file;

@@ -17,6 +17,16 @@ export interface WebMonitoringState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
@@ -105,7 +115,9 @@ export interface WebMonitoringProps {
     action_id: number;
     destination: string;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'WEB';
+    after_action_id?: number;
     disabled?: boolean;
     headers?: Header[];
     ignore_errors?: boolean;
@@ -150,7 +162,9 @@ export class WebMonitoring extends CustomResource {
     action_id!: Output<number>;
     destination!: Output<string>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'WEB'>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     headers!: Output<Header[] | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -180,6 +194,8 @@ export class WebMonitoring extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['destination'] = state?.destination;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['headers'] = state?.headers;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -214,8 +230,14 @@ export class WebMonitoring extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['destination'] = args.destination;
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['headers'] = args.headers;
             inputs['ignore_errors'] = args.ignore_errors;

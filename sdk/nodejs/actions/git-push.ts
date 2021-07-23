@@ -22,6 +22,16 @@ export interface GitPushState {
     push_url: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * Optional custom git commit message.
      */
     comment?: string;
@@ -126,7 +136,9 @@ export interface GitPushProps {
     git_auth_mode: 'HTTP';
     name: string;
     push_url: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'PUSH';
+    after_action_id?: number;
     comment?: string;
     deployment_excludes?: string[];
     disabled?: boolean;
@@ -175,7 +187,9 @@ export class GitPush extends CustomResource {
     git_auth_mode!: Output<'HTTP'>;
     name!: Output<string>;
     push_url!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'PUSH'>;
+    after_action_id!: Output<number | undefined>;
     comment!: Output<string | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -209,6 +223,8 @@ export class GitPush extends CustomResource {
             inputs['git_auth_mode'] = state?.git_auth_mode;
             inputs['name'] = state?.name;
             inputs['push_url'] = state?.push_url;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['comment'] = state?.comment;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['disabled'] = state?.disabled;
@@ -250,9 +266,15 @@ export class GitPush extends CustomResource {
                 throw new Error('Missing required property "push_url"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['git_auth_mode'] = args.git_auth_mode;
             inputs['name'] = args.name;
             inputs['push_url'] = args.push_url;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['comment'] = args.comment;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['disabled'] = args.disabled;

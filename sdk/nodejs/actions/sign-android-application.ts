@@ -37,6 +37,16 @@ export interface SignAndroidApplicationState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
@@ -109,7 +119,9 @@ export interface SignAndroidApplicationProps {
     keystore_password: string;
     local_path: string;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'ANDROID_SIGN';
+    after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
     key_alias?: string;
@@ -154,7 +166,9 @@ export class SignAndroidApplication extends CustomResource {
     keystore_password!: Output<string>;
     local_path!: Output<string>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'ANDROID_SIGN'>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     key_alias!: Output<string | undefined>;
@@ -184,6 +198,8 @@ export class SignAndroidApplication extends CustomResource {
             inputs['keystore_password'] = state?.keystore_password;
             inputs['local_path'] = state?.local_path;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['key_alias'] = state?.key_alias;
@@ -230,12 +246,18 @@ export class SignAndroidApplication extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['application_name'] = args.application_name;
             inputs['build_tool_version'] = args.build_tool_version;
             inputs['key_path'] = args.key_path;
             inputs['keystore_password'] = args.keystore_password;
             inputs['local_path'] = args.local_path;
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['key_alias'] = args.key_alias;

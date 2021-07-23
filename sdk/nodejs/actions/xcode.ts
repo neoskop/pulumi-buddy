@@ -22,9 +22,19 @@ export interface XCodeState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The directory in which the pipeline filesystem will be mounted.
      */
     working_directory: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
@@ -96,8 +106,10 @@ export interface XCodeProps {
     commands: string[];
     image: string;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'NATIVE_BUILD_MAC';
     working_directory: string;
+    after_action_id?: number;
     disabled?: boolean;
     execute_every_command?: boolean;
     ignore_errors?: boolean;
@@ -139,8 +151,10 @@ export class XCode extends CustomResource {
     commands!: Output<string[]>;
     image!: Output<string>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'NATIVE_BUILD_MAC'>;
     working_directory!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     execute_every_command!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -167,7 +181,9 @@ export class XCode extends CustomResource {
             inputs['commands'] = state?.commands;
             inputs['image'] = state?.image;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['working_directory'] = state?.working_directory;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['execute_every_command'] = state?.execute_every_command;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -202,6 +218,10 @@ export class XCode extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.working_directory) {
                 throw new Error('Missing required property "working_directory"');
             }
@@ -209,7 +229,9 @@ export class XCode extends CustomResource {
             inputs['commands'] = args.commands;
             inputs['image'] = args.image;
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['working_directory'] = args.working_directory;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['execute_every_command'] = args.execute_every_command;
             inputs['ignore_errors'] = args.ignore_errors;

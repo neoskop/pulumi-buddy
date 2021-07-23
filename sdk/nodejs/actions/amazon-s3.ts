@@ -23,6 +23,11 @@ export interface AmazonS3State {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * Access control lists (ACLs) enable you to manage access to buckets and objects. It defines which AWS accounts or groups are granted access and the type of access. Can be one of `PRIVATE` , `PUBLIC_READ`, `AWS-EXEC-READ`, `AUTHENTICATED_READ`, `BUCKET_ONWER_READ`, `BUCKET_OWNER_FULL_CONTROL` or `LOG_DELIVERY_WRITE`.
      */
     acl?:
@@ -33,6 +38,11 @@ export interface AmazonS3State {
         | 'BUCKET_ONWER_READ'
         | 'BUCKET_OWNER_FULL_CONTROL'
         | 'LOG_DELIVERY_WRITE';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * Specifies how long objects stay in the cache.
@@ -144,6 +154,7 @@ export interface AmazonS3Props {
     bucket_name: string;
     integration: IntegrationRef | Integration;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'AMAZON_S3';
     acl?:
         | 'PRIVATE'
@@ -153,6 +164,7 @@ export interface AmazonS3Props {
         | 'BUCKET_ONWER_READ'
         | 'BUCKET_OWNER_FULL_CONTROL'
         | 'LOG_DELIVERY_WRITE';
+    after_action_id?: number;
     cache_control?: string;
     deletion_disabled?: boolean;
     deploy_tags?: Tag[];
@@ -202,6 +214,7 @@ export class AmazonS3 extends CustomResource {
     bucket_name!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'AMAZON_S3'>;
     acl!: Output<
         | 'PRIVATE'
@@ -213,6 +226,7 @@ export class AmazonS3 extends CustomResource {
         | 'LOG_DELIVERY_WRITE'
         | undefined
     >;
+    after_action_id!: Output<number | undefined>;
     cache_control!: Output<string | undefined>;
     deletion_disabled!: Output<boolean | undefined>;
     deploy_tags!: Output<Tag[] | undefined>;
@@ -247,7 +261,9 @@ export class AmazonS3 extends CustomResource {
             inputs['bucket_name'] = state?.bucket_name;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['acl'] = state?.acl;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['cache_control'] = state?.cache_control;
             inputs['deletion_disabled'] = state?.deletion_disabled;
             inputs['deploy_tags'] = state?.deploy_tags;
@@ -290,12 +306,18 @@ export class AmazonS3 extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['bucket_name'] = args.bucket_name;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['acl'] = args.acl;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['cache_control'] = args.cache_control;
             inputs['deletion_disabled'] = args.deletion_disabled;
             inputs['deploy_tags'] = args.deploy_tags;

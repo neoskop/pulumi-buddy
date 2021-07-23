@@ -38,9 +38,19 @@ export interface GKEApplyDeploymentState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * The ID of the GKE zone.
      */
     zone_id: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * Defines whether to select all the specified resources.
@@ -150,8 +160,10 @@ export interface GKEApplyDeploymentProps {
     gke_auth_type: string;
     integration: IntegrationRef | Integration;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'KUBERNETES_APPLY';
     zone_id: string;
+    after_action_id?: number;
     all_arg?: boolean;
     cascade_arg?: boolean;
     disabled?: boolean;
@@ -203,8 +215,10 @@ export class GKEApplyDeployment extends CustomResource {
     gke_auth_type!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'KUBERNETES_APPLY'>;
     zone_id!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     all_arg!: Output<boolean | undefined>;
     cascade_arg!: Output<boolean | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -241,7 +255,9 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['gke_auth_type'] = state?.gke_auth_type;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['zone_id'] = state?.zone_id;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['all_arg'] = state?.all_arg;
             inputs['cascade_arg'] = state?.cascade_arg;
             inputs['disabled'] = state?.disabled;
@@ -295,6 +311,10 @@ export class GKEApplyDeployment extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.zone_id) {
                 throw new Error('Missing required property "zone_id"');
             }
@@ -307,7 +327,9 @@ export class GKEApplyDeployment extends CustomResource {
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['zone_id'] = args.zone_id;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['all_arg'] = args.all_arg;
             inputs['cascade_arg'] = args.cascade_arg;
             inputs['disabled'] = args.disabled;

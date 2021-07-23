@@ -38,6 +38,16 @@ export interface GoogleCloudRunState {
     service: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The ID of the cluster or fully qualified identifier for the cluster. Required when the platform is set to `GKE`.
      */
     cluster?: string;
@@ -125,7 +135,9 @@ export interface GoogleCloudRunProps {
     integration: IntegrationRef | Integration;
     name: string;
     service: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'GOOGLE_CLOUD_RUN_DEPLOY';
+    after_action_id?: number;
     cluster?: string;
     cluster_location?: string;
     config_path?: string;
@@ -173,7 +185,9 @@ export class GoogleCloudRun extends CustomResource {
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     service!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'GOOGLE_CLOUD_RUN_DEPLOY'>;
+    after_action_id!: Output<number | undefined>;
     cluster!: Output<string | undefined>;
     cluster_location!: Output<string | undefined>;
     config_path!: Output<string | undefined>;
@@ -206,6 +220,8 @@ export class GoogleCloudRun extends CustomResource {
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['service'] = state?.service;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['cluster'] = state?.cluster;
             inputs['cluster_location'] = state?.cluster_location;
             inputs['config_path'] = state?.config_path;
@@ -255,6 +271,10 @@ export class GoogleCloudRun extends CustomResource {
                 throw new Error('Missing required property "service"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['application_display_name'] = args.application_display_name;
             inputs['application_name'] = args.application_name;
             inputs['image'] = args.image;
@@ -263,6 +283,8 @@ export class GoogleCloudRun extends CustomResource {
             );
             inputs['name'] = args.name;
             inputs['service'] = args.service;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['cluster'] = args.cluster;
             inputs['cluster_location'] = args.cluster_location;
             inputs['config_path'] = args.config_path;

@@ -18,6 +18,16 @@ export interface BuildDockerImageState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The arguments used when building the image from the Dockerfile.
      */
     build_args?: string[];
@@ -146,7 +156,9 @@ export interface BuildDockerImageProps {
     action_id: number;
     dockerfile_path: string;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'DOCKERFILE';
+    after_action_id?: number;
     build_args?: string[];
     buildkit?: boolean;
     context_path?: string;
@@ -199,7 +211,9 @@ export class BuildDockerImage extends CustomResource {
     action_id!: Output<number>;
     dockerfile_path!: Output<string>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'DOCKERFILE'>;
+    after_action_id!: Output<number | undefined>;
     build_args!: Output<string[] | undefined>;
     buildkit!: Output<boolean | undefined>;
     context_path!: Output<string | undefined>;
@@ -237,6 +251,8 @@ export class BuildDockerImage extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['dockerfile_path'] = state?.dockerfile_path;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['build_args'] = state?.build_args;
             inputs['buildkit'] = state?.buildkit;
             inputs['context_path'] = state?.context_path;
@@ -279,8 +295,14 @@ export class BuildDockerImage extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['dockerfile_path'] = args.dockerfile_path;
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['build_args'] = args.build_args;
             inputs['buildkit'] = args.buildkit;
             inputs['context_path'] = args.context_path;

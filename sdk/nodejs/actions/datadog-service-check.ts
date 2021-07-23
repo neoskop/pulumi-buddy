@@ -12,6 +12,16 @@ export interface DatadogServiceCheckState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The text for the message.
      */
     check?: string;
@@ -89,7 +99,9 @@ export interface DatadogServiceCheckProps {
     html_url: string;
     action_id: number;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'DATADOG_STATUS_CHECK';
+    after_action_id?: number;
     check?: string;
     disabled?: boolean;
     host_name?: string;
@@ -131,7 +143,9 @@ export class DatadogServiceCheck extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'DATADOG_STATUS_CHECK'>;
+    after_action_id!: Output<number | undefined>;
     check!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     host_name!: Output<string | undefined>;
@@ -158,6 +172,8 @@ export class DatadogServiceCheck extends CustomResource {
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['check'] = state?.check;
             inputs['disabled'] = state?.disabled;
             inputs['host_name'] = state?.host_name;
@@ -186,7 +202,13 @@ export class DatadogServiceCheck extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['check'] = args.check;
             inputs['disabled'] = args.disabled;
             inputs['host_name'] = args.host_name;

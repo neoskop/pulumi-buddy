@@ -12,6 +12,11 @@ export interface SSLVerifyState {
     name: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * Validation period for SSL certificate.
      */
     valid_for_days: number;
@@ -20,6 +25,11 @@ export interface SSLVerifyState {
      * The URL of the website to be monitored.
      */
     website: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
@@ -79,9 +89,11 @@ export interface SSLVerifyProps {
     html_url: string;
     action_id: number;
     name: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SSL_VERIFY';
     valid_for_days: number;
     website: string;
+    after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
     port?: string;
@@ -119,9 +131,11 @@ export class SSLVerify extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     name!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SSL_VERIFY'>;
     valid_for_days!: Output<number>;
     website!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     port!: Output<string | undefined>;
@@ -144,8 +158,10 @@ export class SSLVerify extends CustomResource {
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['valid_for_days'] = state?.valid_for_days;
             inputs['website'] = state?.website;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['port'] = state?.port;
@@ -170,6 +186,10 @@ export class SSLVerify extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.valid_for_days) {
                 throw new Error('Missing required property "valid_for_days"');
             }
@@ -179,8 +199,10 @@ export class SSLVerify extends CustomResource {
             }
 
             inputs['name'] = args.name;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['valid_for_days'] = args.valid_for_days;
             inputs['website'] = args.website;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['port'] = args.port;

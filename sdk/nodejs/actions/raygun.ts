@@ -22,6 +22,16 @@ export interface RaygunState {
     token: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * See `comment` here.
      */
     comment?: string;
@@ -96,7 +106,9 @@ export interface RaygunProps {
     device: string;
     name: string;
     token: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'RAYGUN';
+    after_action_id?: number;
     comment?: string;
     disabled?: boolean;
     email?: string;
@@ -139,7 +151,9 @@ export class Raygun extends CustomResource {
     device!: Output<string>;
     name!: Output<string>;
     token!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'RAYGUN'>;
+    after_action_id!: Output<number | undefined>;
     comment!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     email!: Output<string | undefined>;
@@ -167,6 +181,8 @@ export class Raygun extends CustomResource {
             inputs['device'] = state?.device;
             inputs['name'] = state?.name;
             inputs['token'] = state?.token;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['comment'] = state?.comment;
             inputs['disabled'] = state?.disabled;
             inputs['email'] = state?.email;
@@ -202,9 +218,15 @@ export class Raygun extends CustomResource {
                 throw new Error('Missing required property "token"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['device'] = args.device;
             inputs['name'] = args.name;
             inputs['token'] = args.token;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['comment'] = args.comment;
             inputs['disabled'] = args.disabled;
             inputs['email'] = args.email;

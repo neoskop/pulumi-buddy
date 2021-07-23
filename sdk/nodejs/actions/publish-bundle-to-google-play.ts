@@ -32,6 +32,16 @@ export interface PublishBundleToGooglePlayState {
     track: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * The path to the changelog file.
      */
     changes_path?: string;
@@ -108,7 +118,9 @@ export interface PublishBundleToGooglePlayProps {
     integration_hash: string;
     name: string;
     track: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'ANDROID_PUBLISH_APP_BUNDLE';
+    after_action_id?: number;
     changes_path?: string;
     disabled?: boolean;
     draft?: boolean;
@@ -153,7 +165,9 @@ export class PublishBundleToGooglePlay extends CustomResource {
     integration_hash!: Output<string>;
     name!: Output<string>;
     track!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'ANDROID_PUBLISH_APP_BUNDLE'>;
+    after_action_id!: Output<number | undefined>;
     changes_path!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     draft!: Output<boolean | undefined>;
@@ -183,6 +197,8 @@ export class PublishBundleToGooglePlay extends CustomResource {
             inputs['integration_hash'] = state?.integration_hash;
             inputs['name'] = state?.name;
             inputs['track'] = state?.track;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['changes_path'] = state?.changes_path;
             inputs['disabled'] = state?.disabled;
             inputs['draft'] = state?.draft;
@@ -226,11 +242,17 @@ export class PublishBundleToGooglePlay extends CustomResource {
                 throw new Error('Missing required property "track"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['apk_files'] = args.apk_files;
             inputs['application_id'] = args.application_id;
             inputs['integration_hash'] = args.integration_hash;
             inputs['name'] = args.name;
             inputs['track'] = args.track;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['changes_path'] = args.changes_path;
             inputs['disabled'] = args.disabled;
             inputs['draft'] = args.draft;

@@ -37,6 +37,16 @@ export interface RsyncState {
     port: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
+
+    /**
      * An equivalent for `rsync -a` option. See here.
      */
     archive?: boolean;
@@ -144,7 +154,9 @@ export interface RsyncProps {
     name: string;
     password: string;
     port: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'RSYNC';
+    after_action_id?: number;
     archive?: boolean;
     compress?: boolean;
     delete_extra_files?: boolean;
@@ -196,7 +208,9 @@ export class Rsync extends CustomResource {
     name!: Output<string>;
     password!: Output<string>;
     port!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'RSYNC'>;
+    after_action_id!: Output<number | undefined>;
     archive!: Output<boolean | undefined>;
     compress!: Output<boolean | undefined>;
     delete_extra_files!: Output<boolean | undefined>;
@@ -233,6 +247,8 @@ export class Rsync extends CustomResource {
             inputs['name'] = state?.name;
             inputs['password'] = state?.password;
             inputs['port'] = state?.port;
+            inputs['trigger_time'] = state?.trigger_time;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['archive'] = state?.archive;
             inputs['compress'] = state?.compress;
             inputs['delete_extra_files'] = state?.delete_extra_files;
@@ -286,12 +302,18 @@ export class Rsync extends CustomResource {
                 throw new Error('Missing required property "port"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             inputs['authentication_mode'] = args.authentication_mode;
             inputs['host'] = args.host;
             inputs['login'] = args.login;
             inputs['name'] = args.name;
             inputs['password'] = args.password;
             inputs['port'] = args.port;
+            inputs['trigger_time'] = args.trigger_time;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['archive'] = args.archive;
             inputs['compress'] = args.compress;
             inputs['delete_extra_files'] = args.delete_extra_files;

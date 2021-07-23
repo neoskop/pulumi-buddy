@@ -22,9 +22,19 @@ export interface BugsnagState {
     token: string;
 
     /**
+     * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
+     */
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
      * See `appVersion` here.
      */
     version: string;
+
+    /**
+     * The numerical ID of the action, after which this action should be added.
+     */
+    after_action_id?: number;
 
     /**
      * See `autoAssignRelease` here.
@@ -96,8 +106,10 @@ export interface BugsnagProps {
     name: string;
     release_stage: string;
     token: string;
+    trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'BUGSNAG';
     version: string;
+    after_action_id?: number;
     auto_assign_release?: boolean;
     builder_name?: string;
     disabled?: boolean;
@@ -139,8 +151,10 @@ export class Bugsnag extends CustomResource {
     name!: Output<string>;
     release_stage!: Output<string>;
     token!: Output<string>;
+    trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'BUGSNAG'>;
     version!: Output<string>;
+    after_action_id!: Output<number | undefined>;
     auto_assign_release!: Output<boolean | undefined>;
     builder_name!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -167,7 +181,9 @@ export class Bugsnag extends CustomResource {
             inputs['name'] = state?.name;
             inputs['release_stage'] = state?.release_stage;
             inputs['token'] = state?.token;
+            inputs['trigger_time'] = state?.trigger_time;
             inputs['version'] = state?.version;
+            inputs['after_action_id'] = state?.after_action_id;
             inputs['auto_assign_release'] = state?.auto_assign_release;
             inputs['builder_name'] = state?.builder_name;
             inputs['disabled'] = state?.disabled;
@@ -202,6 +218,10 @@ export class Bugsnag extends CustomResource {
                 throw new Error('Missing required property "token"');
             }
 
+            if (!args?.trigger_time) {
+                throw new Error('Missing required property "trigger_time"');
+            }
+
             if (!args?.version) {
                 throw new Error('Missing required property "version"');
             }
@@ -209,7 +229,9 @@ export class Bugsnag extends CustomResource {
             inputs['name'] = args.name;
             inputs['release_stage'] = args.release_stage;
             inputs['token'] = args.token;
+            inputs['trigger_time'] = args.trigger_time;
             inputs['version'] = args.version;
+            inputs['after_action_id'] = args.after_action_id;
             inputs['auto_assign_release'] = args.auto_assign_release;
             inputs['builder_name'] = args.builder_name;
             inputs['disabled'] = args.disabled;
