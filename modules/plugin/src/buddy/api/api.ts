@@ -14,6 +14,7 @@ export class BuddyApi {
         (this as { client: AxiosInstance }).client = Axios.create({
             baseURL: this.apiUrl,
             headers: {
+                'X-Buddy-Media-Type': 'buddy.v1.1.0',
                 Authorization: `Bearer ${this.getToken()}`
             }
         });
