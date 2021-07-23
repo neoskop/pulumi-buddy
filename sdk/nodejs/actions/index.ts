@@ -8,10 +8,10 @@ import { AzureCLIState, AzureCLIProps, AzureCLIArgs, AzureCLI } from './azure-cl
 import { AzureStorageState, AzureStorageProps, AzureStorageArgs, AzureStorage } from './azure-storage';
 import { AzureState, AzureProps, AzureArgs, Azure } from './azure';
 import { BugsnagState, BugsnagProps, BugsnagArgs, Bugsnag } from './bugsnag';
-import { BuildActionState, BuildActionProps, BuildActionArgs, BuildAction } from './build-action';
 import { BuildAndroidAppState, BuildAndroidAppProps, BuildAndroidAppArgs, BuildAndroidApp } from './build-android-app';
 import { BuildDockerImageState, BuildDockerImageProps, BuildDockerImageArgs, BuildDockerImage } from './build-docker-image';
 import { BuildFlutterAppState, BuildFlutterAppProps, BuildFlutterAppArgs, BuildFlutterApp } from './build-flutter-app';
+import { BuildState, BuildProps, BuildArgs, Build } from './build';
 import { CloudflareState, CloudflareProps, CloudflareArgs, Cloudflare } from './cloudflare';
 import { CloudFrontState, CloudFrontProps, CloudFrontArgs, CloudFront } from './cloudfront';
 import { CodeDeployState, CodeDeployProps, CodeDeployArgs, CodeDeploy } from './codedeploy';
@@ -166,10 +166,10 @@ export * from './azure-cli';
 export * from './azure-storage';
 export * from './azure';
 export * from './bugsnag';
-export * from './build-action';
 export * from './build-android-app';
 export * from './build-docker-image';
 export * from './build-flutter-app';
+export * from './build';
 export * from './cloudflare';
 export * from './cloudfront';
 export * from './codedeploy';
@@ -276,10 +276,10 @@ export type ActionState =
     | AzureStorageState
     | AzureState
     | BugsnagState
-    | BuildActionState
     | BuildAndroidAppState
     | BuildDockerImageState
     | BuildFlutterAppState
+    | BuildState
     | CloudflareState
     | CloudFrontState
     | CodeDeployState
@@ -384,10 +384,10 @@ export type ActionArgs =
     | AzureStorageArgs
     | AzureArgs
     | BugsnagArgs
-    | BuildActionArgs
     | BuildAndroidAppArgs
     | BuildDockerImageArgs
     | BuildFlutterAppArgs
+    | BuildArgs
     | CloudflareArgs
     | CloudFrontArgs
     | CodeDeployArgs
@@ -492,10 +492,10 @@ export type ActionProps =
     | AzureStorageProps
     | AzureProps
     | BugsnagProps
-    | BuildActionProps
     | BuildAndroidAppProps
     | BuildDockerImageProps
     | BuildFlutterAppProps
+    | BuildProps
     | CloudflareProps
     | CloudFrontProps
     | CodeDeployProps
@@ -600,10 +600,10 @@ export type Action =
     | AzureStorage
     | Azure
     | Bugsnag
-    | BuildAction
     | BuildAndroidApp
     | BuildDockerImage
     | BuildFlutterApp
+    | Build
     | Cloudflare
     | CloudFront
     | CodeDeploy

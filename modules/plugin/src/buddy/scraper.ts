@@ -224,7 +224,7 @@ export class BuddyScraper {
     async getActionDetails(url: string): Promise<Action> {
         const response = await Axios.get(url);
         const $ = cheerio.load(response.data);
-        const name = $('h1').text();
+        const name = $('h1').first().text();
         const tables = $('.article-content table').toArray();
         const table = cheerio.load(tables[0]);
         const parameters = table('tr:has(> td)')

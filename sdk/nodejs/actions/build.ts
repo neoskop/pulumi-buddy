@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Service, TriggerCondition, Variable } from '../common';
 
-export interface BuildActionState {
+export interface BuildState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -117,9 +117,9 @@ export interface BuildActionState {
     working_directory?: string;
 }
 
-export type BuildActionArgs = AsInputs<BuildActionState>;
+export type BuildArgs = AsInputs<BuildState>;
 
-export interface BuildActionProps {
+export interface BuildProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -154,19 +154,19 @@ export interface BuildActionProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class BuildAction extends CustomResource {
-    static __pulumiType = 'buddy:action:BuildAction';
+export class Build extends CustomResource {
+    static __pulumiType = 'buddy:action:Build';
 
-    static get(name: string, id: Input<ID>, state?: Partial<BuildActionState>, opts?: CustomResourceOptions) {
-        return new BuildAction(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<BuildState>, opts?: CustomResourceOptions) {
+        return new Build(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is BuildAction {
+    static isInstance(obj: any): obj is Build {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === BuildAction.__pulumiType;
+        return obj['__pulumiType'] === Build.__pulumiType;
     }
 
     project_name!: Output<string>;
@@ -196,14 +196,14 @@ export class BuildAction extends CustomResource {
     volume_mappings!: Output<string[] | undefined>;
     working_directory!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: BuildActionArgs | BuildActionState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: BuildArgs | BuildState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as BuildActionState | undefined;
+            const state = argsOrState as BuildState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['docker_image_name'] = state?.docker_image_name;
@@ -229,7 +229,7 @@ export class BuildAction extends CustomResource {
             inputs['volume_mappings'] = state?.volume_mappings;
             inputs['working_directory'] = state?.working_directory;
         } else {
-            const args = argsOrState as BuildActionArgs | undefined;
+            const args = argsOrState as BuildArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -291,6 +291,6 @@ export class BuildAction extends CustomResource {
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(BuildAction.__pulumiType, name, inputs, opts);
+        super(Build.__pulumiType, name, inputs, opts);
     }
 }
