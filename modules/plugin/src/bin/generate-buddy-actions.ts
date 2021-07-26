@@ -39,6 +39,10 @@ async function main() {
                         return;
                     },
                     patchAction(action) {
+                        action = {
+                            ...action,
+                            parameters: action.parameters.filter(p => p.name !== 'action')
+                        };
                         if (
                             ['Build Dockerfile', 'Push Docker Image'].includes(action.name) &&
                             !action.parameters.some(p => p.name === 'registry')
@@ -110,7 +114,7 @@ async function main() {
                                 ]
                             };
                         }
-                        return;
+                        return action;
                     }
                 });
                 const stream = scraper.getActionsAsStream().pipe(share());

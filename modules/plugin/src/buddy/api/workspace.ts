@@ -5,6 +5,7 @@ import { BuddyGroupApi } from './group';
 import { BuddyPermissionApi } from './permission';
 import { BuddyWebhookApi } from './webhook';
 import { BuddyEnvironmentVariableApi } from './environment-variable';
+import { BuddyIntegrationApi } from './integration';
 
 export class BuddyWorkspaceApi {
     constructor(protected readonly api: BuddyApi, protected readonly domain?: string) {}
@@ -25,6 +26,10 @@ export class BuddyWorkspaceApi {
             throw new WorkspaceDomainRequired();
         }
         throw 'not_implemeted';
+    }
+
+    integration(integrationId?: number | string) {
+        return new BuddyIntegrationApi(this.api, this, integrationId);
     }
 
     project(name?: string) {

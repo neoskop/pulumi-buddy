@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, Variable } from '../common';
+import { IntegrationRef, TriggerCondition, Variable } from '../common';
 import { Integration } from '../integration';
 
 export interface GKEApplyDeploymentState {
@@ -23,9 +23,9 @@ export interface GKEApplyDeploymentState {
     config_path: string;
 
     /**
-     * Authorization type. Can be one of `BASIC`, `SERVICE_ACCOUNT` or `CERTS`.
+     * Authorization type. Set to `SERVICE_ACCOUNT`.
      */
-    gke_auth_type: 'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS';
+    gke_auth_type: string;
 
     /**
      * The integration.
@@ -83,6 +83,11 @@ export interface GKEApplyDeploymentState {
     ignore_errors?: boolean;
 
     /**
+     * Version of the kubectl used in the action. Default is <latest<.
+     */
+    kubectl_version?: string;
+
+    /**
      * Automatically resolve conflicts between the modified and live configuration by using values from the modified configuration.
      */
     overwrite_arg?: boolean;
@@ -128,63 +133,14 @@ export interface GKEApplyDeploymentState {
     save_config_arg?: boolean;
 
     /**
-     * The server key required when `gke_auth_type` is set to `SERVICE_ACCOUNT`.
-     */
-    server_key?: string;
-
-    /**
      * The timeout in seconds.
      */
     timeout?: number;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
+     * The list of trigger conditions to meet so that the action can be triggered.
      */
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-
-    /**
-     * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
-     */
-    trigger_condition_paths?: string[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
-     */
-    trigger_days?: number[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
-     */
-    trigger_hours?: number[];
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
-     */
-    trigger_pipeline_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
-     */
-    trigger_project_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
-     */
-    trigger_variable_key?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS`. Defines the value of the desired variable which will be compared with its current value.
-     */
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
 
     /**
      * The list of variables you can use the action.
@@ -201,7 +157,7 @@ export interface GKEApplyDeploymentProps {
     application_id: string;
     cluster: string;
     config_path: string;
-    gke_auth_type: 'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS';
+    gke_auth_type: string;
     integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -214,6 +170,7 @@ export interface GKEApplyDeploymentProps {
     force_arg?: boolean;
     grace_period_arg?: number;
     ignore_errors?: boolean;
+    kubectl_version?: string;
     overwrite_arg?: boolean;
     prune_arg?: boolean;
     prune_whitelist_arg?: string;
@@ -223,25 +180,8 @@ export interface GKEApplyDeploymentProps {
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     save_config_arg?: boolean;
-    server_key?: string;
     timeout?: number;
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-    trigger_condition_paths?: string[];
-    trigger_days?: number[];
-    trigger_hours?: number[];
-    trigger_pipeline_name?: string;
-    trigger_project_name?: string;
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
@@ -272,7 +212,7 @@ export class GKEApplyDeployment extends CustomResource {
     application_id!: Output<string>;
     cluster!: Output<string>;
     config_path!: Output<string>;
-    gke_auth_type!: Output<'BASIC' | 'SERVICE_ACCOUNT' | 'CERTS'>;
+    gke_auth_type!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -285,6 +225,7 @@ export class GKEApplyDeployment extends CustomResource {
     force_arg!: Output<boolean | undefined>;
     grace_period_arg!: Output<number | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    kubectl_version!: Output<string | undefined>;
     overwrite_arg!: Output<boolean | undefined>;
     prune_arg!: Output<boolean | undefined>;
     prune_whitelist_arg!: Output<string | undefined>;
@@ -294,27 +235,8 @@ export class GKEApplyDeployment extends CustomResource {
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     save_config_arg!: Output<boolean | undefined>;
-    server_key!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
-    trigger_condition!: Output<
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE'
-        | undefined
-    >;
-    trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_days!: Output<number[] | undefined>;
-    trigger_hours!: Output<number[] | undefined>;
-    trigger_pipeline_name!: Output<string | undefined>;
-    trigger_project_name!: Output<string | undefined>;
-    trigger_variable_key!: Output<string | undefined>;
-    trigger_variable_value!: Output<string | undefined>;
+    trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: GKEApplyDeploymentArgs | GKEApplyDeploymentState, opts?: CustomResourceOptions) {
@@ -342,6 +264,7 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['force_arg'] = state?.force_arg;
             inputs['grace_period_arg'] = state?.grace_period_arg;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['kubectl_version'] = state?.kubectl_version;
             inputs['overwrite_arg'] = state?.overwrite_arg;
             inputs['prune_arg'] = state?.prune_arg;
             inputs['prune_whitelist_arg'] = state?.prune_whitelist_arg;
@@ -351,16 +274,8 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['save_config_arg'] = state?.save_config_arg;
-            inputs['server_key'] = state?.server_key;
             inputs['timeout'] = state?.timeout;
-            inputs['trigger_condition'] = state?.trigger_condition;
-            inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_days'] = state?.trigger_days;
-            inputs['trigger_hours'] = state?.trigger_hours;
-            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
-            inputs['trigger_project_name'] = state?.trigger_project_name;
-            inputs['trigger_variable_key'] = state?.trigger_variable_key;
-            inputs['trigger_variable_value'] = state?.trigger_variable_value;
+            inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as GKEApplyDeploymentArgs | undefined;
@@ -408,7 +323,7 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['cluster'] = args.cluster;
             inputs['config_path'] = args.config_path;
             inputs['gke_auth_type'] = args.gke_auth_type;
-            inputs['integration'] = output(args.integration).apply(integration =>
+            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
@@ -421,6 +336,7 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['force_arg'] = args.force_arg;
             inputs['grace_period_arg'] = args.grace_period_arg;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['kubectl_version'] = args.kubectl_version;
             inputs['overwrite_arg'] = args.overwrite_arg;
             inputs['prune_arg'] = args.prune_arg;
             inputs['prune_whitelist_arg'] = args.prune_whitelist_arg;
@@ -430,16 +346,8 @@ export class GKEApplyDeployment extends CustomResource {
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['save_config_arg'] = args.save_config_arg;
-            inputs['server_key'] = args.server_key;
             inputs['timeout'] = args.timeout;
-            inputs['trigger_condition'] = args.trigger_condition;
-            inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_days'] = args.trigger_days;
-            inputs['trigger_hours'] = args.trigger_hours;
-            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
-            inputs['trigger_project_name'] = args.trigger_project_name;
-            inputs['trigger_variable_key'] = args.trigger_variable_key;
-            inputs['trigger_variable_value'] = args.trigger_variable_value;
+            inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;

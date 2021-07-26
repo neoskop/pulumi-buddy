@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { Variable, IntegrationRef } from '../common';
+import { TriggerCondition, Variable, IntegrationRef } from '../common';
 import { Integration } from '../integration';
 
 export interface KubernetesKubectlState {
@@ -63,7 +63,7 @@ export interface KubernetesKubectlState {
     ignore_errors?: boolean;
 
     /**
-     * Version of the kubectl used in the action. Default is “latest”.
+     * Version of the kubectl used in the action. Default is &#x201C;latest&#x201D;.
      */
     kubectl_version?: string;
 
@@ -113,63 +113,14 @@ export interface KubernetesKubectlState {
     token?: string;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
+     * The list of trigger conditions to meet so that the action can be triggered.
      */
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-
-    /**
-     * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
-     */
-    trigger_condition_paths?: string[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
-     */
-    trigger_days?: number[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
-     */
-    trigger_hours?: number[];
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
-     */
-    trigger_pipeline_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
-     */
-    trigger_project_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
-     */
-    trigger_variable_key?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS`. Defines the value of the desired variable which will be compared with its current value.
-     */
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
 
     /**
      * The list of variables you can use the action.
      */
     variables?: Variable[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
-     */
-    zone_id?: string;
 
     /**
      * Integration
@@ -220,25 +171,8 @@ export interface KubernetesKubectlProps {
     shell?: 'SH' | 'BASH';
     timeout?: number;
     token?: string;
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-    trigger_condition_paths?: string[];
-    trigger_days?: number[];
-    trigger_hours?: number[];
-    trigger_pipeline_name?: string;
-    trigger_project_name?: string;
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
-    zone_id?: string;
     integration?: IntegrationRef | Integration;
     resource_group_name?: string;
     resource_name?: string;
@@ -291,27 +225,8 @@ export class KubernetesKubectl extends CustomResource {
     shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     token!: Output<string | undefined>;
-    trigger_condition!: Output<
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE'
-        | undefined
-    >;
-    trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_days!: Output<number[] | undefined>;
-    trigger_hours!: Output<number[] | undefined>;
-    trigger_pipeline_name!: Output<string | undefined>;
-    trigger_project_name!: Output<string | undefined>;
-    trigger_variable_key!: Output<string | undefined>;
-    trigger_variable_value!: Output<string | undefined>;
+    trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
-    zone_id!: Output<string | undefined>;
     integration!: Output<IntegrationRef | Integration | undefined>;
     resource_group_name!: Output<string | undefined>;
     resource_name!: Output<string | undefined>;
@@ -348,16 +263,8 @@ export class KubernetesKubectl extends CustomResource {
             inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['token'] = state?.token;
-            inputs['trigger_condition'] = state?.trigger_condition;
-            inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_days'] = state?.trigger_days;
-            inputs['trigger_hours'] = state?.trigger_hours;
-            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
-            inputs['trigger_project_name'] = state?.trigger_project_name;
-            inputs['trigger_variable_key'] = state?.trigger_variable_key;
-            inputs['trigger_variable_value'] = state?.trigger_variable_value;
+            inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
-            inputs['zone_id'] = state?.zone_id;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['resource_group_name'] = state?.resource_group_name;
             inputs['resource_name'] = state?.resource_name;
@@ -405,17 +312,9 @@ export class KubernetesKubectl extends CustomResource {
             inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['token'] = args.token;
-            inputs['trigger_condition'] = args.trigger_condition;
-            inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_days'] = args.trigger_days;
-            inputs['trigger_hours'] = args.trigger_hours;
-            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
-            inputs['trigger_project_name'] = args.trigger_project_name;
-            inputs['trigger_variable_key'] = args.trigger_variable_key;
-            inputs['trigger_variable_value'] = args.trigger_variable_value;
+            inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
-            inputs['zone_id'] = args.zone_id;
-            inputs['integration'] = output(args.integration).apply(integration =>
+            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['resource_group_name'] = args.resource_group_name;

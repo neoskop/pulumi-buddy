@@ -32,16 +32,9 @@ export class BuddyMemberApi {
     async create(member: IBuddyMemberCreate): Promise<IBuddyMember> {
         debug('create %O', member);
         try {
-            const result = await Axios.post<IBuddyMember>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/members`,
-                member,
-                {
-                    cancelToken: this.api.registerCanceler('member').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
-                }
-            );
+            const result = await this.api.client.post<IBuddyMember>(`/workspaces/${this.workspace.getDomain()}/members`, member, {
+                cancelToken: this.api.registerCanceler('member').token
+            });
 
             return result.data;
         } catch (e) {
@@ -63,15 +56,9 @@ export class BuddyMemberApi {
         }
 
         try {
-            const result = await Axios.get<IBuddyMember>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/members/${this.memberId}`,
-                {
-                    cancelToken: this.api.registerCanceler('member').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
-                }
-            );
+            const result = await this.api.client.get<IBuddyMember>(`/workspaces/${this.workspace.getDomain()}/members/${this.memberId}`, {
+                cancelToken: this.api.registerCanceler('member').token
+            });
 
             return result.data;
         } catch (e) {
@@ -97,11 +84,8 @@ export class BuddyMemberApi {
         }
 
         try {
-            await Axios.delete(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/members/${this.memberId}`, {
-                cancelToken: this.api.registerCanceler('member').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
-                }
+            await this.api.client.delete(`/workspaces/${this.workspace.getDomain()}/members/${this.memberId}`, {
+                cancelToken: this.api.registerCanceler('member').token
             });
         } catch (e) {
             if (Axios.isCancel(e)) {
@@ -126,14 +110,11 @@ export class BuddyMemberApi {
         }
 
         try {
-            const result = await Axios.patch<IBuddyMember>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/members/${this.memberId}`,
+            const result = await this.api.client.patch<IBuddyMember>(
+                `/workspaces/${this.workspace.getDomain()}/members/${this.memberId}`,
                 { admin },
                 {
-                    cancelToken: this.api.registerCanceler('member').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('member').token
                 }
             );
 

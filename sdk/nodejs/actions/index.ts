@@ -9,7 +9,7 @@ import { AzureStorageState, AzureStorageProps, AzureStorageArgs, AzureStorage } 
 import { AzureState, AzureProps, AzureArgs, Azure } from './azure';
 import { BugsnagState, BugsnagProps, BugsnagArgs, Bugsnag } from './bugsnag';
 import { BuildAndroidAppState, BuildAndroidAppProps, BuildAndroidAppArgs, BuildAndroidApp } from './build-android-app';
-import { BuildDockerfileState, BuildDockerfileProps, BuildDockerfileArgs, BuildDockerfile } from './build-dockerfile';
+import { BuildDockerImageState, BuildDockerImageProps, BuildDockerImageArgs, BuildDockerImage } from './build-docker-image';
 import { BuildFlutterAppState, BuildFlutterAppProps, BuildFlutterAppArgs, BuildFlutterApp } from './build-flutter-app';
 import { BuildState, BuildProps, BuildArgs, Build } from './build';
 import { CloudflareState, CloudflareProps, CloudflareArgs, Cloudflare } from './cloudflare';
@@ -52,6 +52,7 @@ import { GitcryptLockState, GitcryptLockProps, GitcryptLockArgs, GitcryptLock } 
 import { GitcryptUnlockState, GitcryptUnlockProps, GitcryptUnlockArgs, GitcryptUnlock } from './gitcrypt-unlock';
 import { GKEApplyDeploymentState, GKEApplyDeploymentProps, GKEApplyDeploymentArgs, GKEApplyDeployment } from './gke-apply-deployment';
 import { GKEKubectlState, GKEKubectlProps, GKEKubectlArgs, GKEKubectl } from './gke-kubectl';
+import { GKERunHelmState, GKERunHelmProps, GKERunHelmArgs, GKERunHelm } from './gke-run-helm';
 import { GKERunJobState, GKERunJobProps, GKERunJobArgs, GKERunJob } from './gke-run-job';
 import { GKERunPodState, GKERunPodProps, GKERunPodArgs, GKERunPod } from './gke-run-pod';
 import { GKESetImageState, GKESetImageProps, GKESetImageArgs, GKESetImage } from './gke-set-image';
@@ -66,6 +67,7 @@ import {
     GoogleFunctionsDeployArgs,
     GoogleFunctionsDeploy
 } from './google-functions-deploy';
+import { GoogleFunctionsState, GoogleFunctionsProps, GoogleFunctionsArgs, GoogleFunctions } from './google-functions';
 import { HerokuCLIState, HerokuCLIProps, HerokuCLIArgs, HerokuCLI } from './heroku-cli';
 import { HerokuState, HerokuProps, HerokuArgs, Heroku } from './heroku';
 import { HoneybadgerState, HoneybadgerProps, HoneybadgerArgs, Honeybadger } from './honeybadger';
@@ -144,12 +146,6 @@ import {
     TelegramNotificationArgs,
     TelegramNotification
 } from './telegram-notification';
-import {
-    TriggerGoogleFunctionsState,
-    TriggerGoogleFunctionsProps,
-    TriggerGoogleFunctionsArgs,
-    TriggerGoogleFunctions
-} from './trigger-google-functions';
 import { UpcloudState, UpcloudProps, UpcloudArgs, Upcloud } from './upcloud';
 import { VisualTestsState, VisualTestsProps, VisualTestsArgs, VisualTests } from './visual-tests';
 import { VultrState, VultrProps, VultrArgs, Vultr } from './vultr';
@@ -157,6 +153,7 @@ import { WaitForApplyState, WaitForApplyProps, WaitForApplyArgs, WaitForApply } 
 import { WebMonitoringState, WebMonitoringProps, WebMonitoringArgs, WebMonitoring } from './web-monitoring';
 import { WebDAVState, WebDAVProps, WebDAVArgs, WebDAV } from './webdav';
 import { WindowsState, WindowsProps, WindowsArgs, Windows } from './windows';
+import { XCodeState, XCodeProps, XCodeArgs, XCode } from './xcode';
 import { ZIPState, ZIPProps, ZIPArgs, ZIP } from './zip';
 
 export * from './amazon-s3';
@@ -170,7 +167,7 @@ export * from './azure-storage';
 export * from './azure';
 export * from './bugsnag';
 export * from './build-android-app';
-export * from './build-dockerfile';
+export * from './build-docker-image';
 export * from './build-flutter-app';
 export * from './build';
 export * from './cloudflare';
@@ -203,6 +200,7 @@ export * from './gitcrypt-lock';
 export * from './gitcrypt-unlock';
 export * from './gke-apply-deployment';
 export * from './gke-kubectl';
+export * from './gke-run-helm';
 export * from './gke-run-job';
 export * from './gke-run-pod';
 export * from './gke-set-image';
@@ -212,6 +210,7 @@ export * from './google-cloud-run';
 export * from './google-cloud-storage';
 export * from './google-compute-engine';
 export * from './google-functions-deploy';
+export * from './google-functions';
 export * from './heroku-cli';
 export * from './heroku';
 export * from './honeybadger';
@@ -256,7 +255,6 @@ export * from './ssh-command';
 export * from './ssl-verify';
 export * from './tcp-monitoring';
 export * from './telegram-notification';
-export * from './trigger-google-functions';
 export * from './upcloud';
 export * from './visual-tests';
 export * from './vultr';
@@ -264,6 +262,7 @@ export * from './wait-for-apply';
 export * from './web-monitoring';
 export * from './webdav';
 export * from './windows';
+export * from './xcode';
 export * from './zip';
 
 export type ActionState =
@@ -278,7 +277,7 @@ export type ActionState =
     | AzureState
     | BugsnagState
     | BuildAndroidAppState
-    | BuildDockerfileState
+    | BuildDockerImageState
     | BuildFlutterAppState
     | BuildState
     | CloudflareState
@@ -311,6 +310,7 @@ export type ActionState =
     | GitcryptUnlockState
     | GKEApplyDeploymentState
     | GKEKubectlState
+    | GKERunHelmState
     | GKERunJobState
     | GKERunPodState
     | GKESetImageState
@@ -320,6 +320,7 @@ export type ActionState =
     | GoogleCloudStorageState
     | GoogleComputeEngineState
     | GoogleFunctionsDeployState
+    | GoogleFunctionsState
     | HerokuCLIState
     | HerokuState
     | HoneybadgerState
@@ -363,7 +364,6 @@ export type ActionState =
     | SSLVerifyState
     | TCPMonitoringState
     | TelegramNotificationState
-    | TriggerGoogleFunctionsState
     | UpcloudState
     | VisualTestsState
     | VultrState
@@ -371,6 +371,7 @@ export type ActionState =
     | WebMonitoringState
     | WebDAVState
     | WindowsState
+    | XCodeState
     | ZIPState;
 export type ActionArgs =
     | AmazonS3Args
@@ -384,7 +385,7 @@ export type ActionArgs =
     | AzureArgs
     | BugsnagArgs
     | BuildAndroidAppArgs
-    | BuildDockerfileArgs
+    | BuildDockerImageArgs
     | BuildFlutterAppArgs
     | BuildArgs
     | CloudflareArgs
@@ -417,6 +418,7 @@ export type ActionArgs =
     | GitcryptUnlockArgs
     | GKEApplyDeploymentArgs
     | GKEKubectlArgs
+    | GKERunHelmArgs
     | GKERunJobArgs
     | GKERunPodArgs
     | GKESetImageArgs
@@ -426,6 +428,7 @@ export type ActionArgs =
     | GoogleCloudStorageArgs
     | GoogleComputeEngineArgs
     | GoogleFunctionsDeployArgs
+    | GoogleFunctionsArgs
     | HerokuCLIArgs
     | HerokuArgs
     | HoneybadgerArgs
@@ -469,7 +472,6 @@ export type ActionArgs =
     | SSLVerifyArgs
     | TCPMonitoringArgs
     | TelegramNotificationArgs
-    | TriggerGoogleFunctionsArgs
     | UpcloudArgs
     | VisualTestsArgs
     | VultrArgs
@@ -477,6 +479,7 @@ export type ActionArgs =
     | WebMonitoringArgs
     | WebDAVArgs
     | WindowsArgs
+    | XCodeArgs
     | ZIPArgs;
 export type ActionProps =
     | AmazonS3Props
@@ -490,7 +493,7 @@ export type ActionProps =
     | AzureProps
     | BugsnagProps
     | BuildAndroidAppProps
-    | BuildDockerfileProps
+    | BuildDockerImageProps
     | BuildFlutterAppProps
     | BuildProps
     | CloudflareProps
@@ -523,6 +526,7 @@ export type ActionProps =
     | GitcryptUnlockProps
     | GKEApplyDeploymentProps
     | GKEKubectlProps
+    | GKERunHelmProps
     | GKERunJobProps
     | GKERunPodProps
     | GKESetImageProps
@@ -532,6 +536,7 @@ export type ActionProps =
     | GoogleCloudStorageProps
     | GoogleComputeEngineProps
     | GoogleFunctionsDeployProps
+    | GoogleFunctionsProps
     | HerokuCLIProps
     | HerokuProps
     | HoneybadgerProps
@@ -575,7 +580,6 @@ export type ActionProps =
     | SSLVerifyProps
     | TCPMonitoringProps
     | TelegramNotificationProps
-    | TriggerGoogleFunctionsProps
     | UpcloudProps
     | VisualTestsProps
     | VultrProps
@@ -583,6 +587,7 @@ export type ActionProps =
     | WebMonitoringProps
     | WebDAVProps
     | WindowsProps
+    | XCodeProps
     | ZIPProps;
 export type Action =
     | AmazonS3
@@ -596,7 +601,7 @@ export type Action =
     | Azure
     | Bugsnag
     | BuildAndroidApp
-    | BuildDockerfile
+    | BuildDockerImage
     | BuildFlutterApp
     | Build
     | Cloudflare
@@ -629,6 +634,7 @@ export type Action =
     | GitcryptUnlock
     | GKEApplyDeployment
     | GKEKubectl
+    | GKERunHelm
     | GKERunJob
     | GKERunPod
     | GKESetImage
@@ -638,6 +644,7 @@ export type Action =
     | GoogleCloudStorage
     | GoogleComputeEngine
     | GoogleFunctionsDeploy
+    | GoogleFunctions
     | HerokuCLI
     | Heroku
     | Honeybadger
@@ -681,7 +688,6 @@ export type Action =
     | SSLVerify
     | TCPMonitoring
     | TelegramNotification
-    | TriggerGoogleFunctions
     | Upcloud
     | VisualTests
     | Vultr
@@ -689,4 +695,5 @@ export type Action =
     | WebMonitoring
     | WebDAV
     | Windows
+    | XCode
     | ZIP;

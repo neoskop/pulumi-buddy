@@ -85,16 +85,9 @@ export class BuddyProjectApi {
     async create(project: BuddyProjectCreate): Promise<IBuddyProject> {
         debug('create %O', project);
         try {
-            const result = await Axios.post<IBuddyProject>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects`,
-                project,
-                {
-                    cancelToken: this.api.registerCanceler('project').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
-                }
-            );
+            const result = await this.api.client.post<IBuddyProject>(`/workspaces/${this.workspace.getDomain()}/projects`, project, {
+                cancelToken: this.api.registerCanceler('project').token
+            });
 
             return result.data;
         } catch (e) {
@@ -116,13 +109,10 @@ export class BuddyProjectApi {
         }
 
         try {
-            const result = await Axios.get<IBuddyProject>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}`,
+            const result = await this.api.client.get<IBuddyProject>(
+                `/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}`,
                 {
-                    cancelToken: this.api.registerCanceler('project').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('project').token
                 }
             );
 
@@ -150,14 +140,11 @@ export class BuddyProjectApi {
         }
 
         try {
-            const result = await Axios.patch<IBuddyProject>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}`,
+            const result = await this.api.client.patch<IBuddyProject>(
+                `/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}`,
                 update,
                 {
-                    cancelToken: this.api.registerCanceler('project').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('project').token
                 }
             );
 
@@ -187,11 +174,8 @@ export class BuddyProjectApi {
         }
 
         try {
-            await Axios.delete(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}`, {
-                cancelToken: this.api.registerCanceler('project').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
-                }
+            await this.api.client.delete(`/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}`, {
+                cancelToken: this.api.registerCanceler('project').token
             });
         } catch (e) {
             if (Axios.isCancel(e)) {
@@ -216,13 +200,10 @@ export class BuddyProjectApi {
         }
 
         try {
-            const result = await Axios.get<IBuddyMemberWithPermissionSet>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}/members/${id}`,
+            const result = await this.api.client.get<IBuddyMemberWithPermissionSet>(
+                `/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}/members/${id}`,
                 {
-                    cancelToken: this.api.registerCanceler('project').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('project').token
                 }
             );
 
@@ -250,14 +231,11 @@ export class BuddyProjectApi {
         }
 
         try {
-            const result = await Axios.post<IBuddyMemberWithPermissionSet>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}/members`,
+            const result = await this.api.client.post<IBuddyMemberWithPermissionSet>(
+                `/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}/members`,
                 { id, permission_set: { id: permissionId } },
                 {
-                    cancelToken: this.api.registerCanceler('group').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('group').token
                 }
             );
 
@@ -285,13 +263,10 @@ export class BuddyProjectApi {
         }
 
         try {
-            const result = await Axios.delete<void>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}/members/${id}`,
+            const result = await this.api.client.delete<void>(
+                `/workspaces/${this.workspace.getDomain()}/projects/${this.projectName}/members/${id}`,
                 {
-                    cancelToken: this.api.registerCanceler('project').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('project').token
                 }
             );
 

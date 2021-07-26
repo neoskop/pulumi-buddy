@@ -1,30 +1,20 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { TriggerCondition, Variable } from '../common';
+import { SyncPath, TriggerCondition, Variable } from '../common';
 
-export interface SSHCommandState {
+export interface XCodeState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The authentication mode for SSH. Should be set to `PASS`.
+     * The commands that will be executed.
      */
-    authentication_mode: 'PASS';
+    commands: string[];
 
     /**
-     * The array of commands invoked on the remote server.
+     * The XCode version for the action. Available values: `11.7`, `10.3`, `12.1`, `12.2`, `12`.
      */
-    commands: string;
-
-    /**
-     * The host for the connection.
-     */
-    host: string;
-
-    /**
-     * The username required to connect to the server.
-     */
-    login: string;
+    image: string;
 
     /**
      * The name of the action.
@@ -32,19 +22,14 @@ export interface SSHCommandState {
     name: string;
 
     /**
-     * The password required to connect to the server.
-     */
-    password: string;
-
-    /**
-     * The port for the connection.
-     */
-    port: string;
-
-    /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The directory in which the pipeline filesystem will be mounted.
+     */
+    working_directory: string;
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -57,7 +42,7 @@ export interface SSHCommandState {
     disabled?: boolean;
 
     /**
-     * If set to `true` all commands will be executed regardless of the result of the previous command.
+     * If set to `true` all commands will be executed regardless of the result of the previous command.
      */
     execute_every_command?: boolean;
 
@@ -65,6 +50,11 @@ export interface SSHCommandState {
      * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
+
+    /**
+     * A series of simulators to be launched before the action starts. Available values: `iPhone SE (2nd generation)`, `Apple Watch Series 4 - 44mm`, `Apple Watch Series 5 - 44mm`, `iPhone 11`, `iPhone 8`, `Apple TV`, `iPhone 11 Pro`, `iPhone 11 Pro Max`, `Apple TV 4K (at 1080p)`, `Apple TV 4K`, `iPad Pro (11-inch) (2nd generation)`, `iPad Air (3rd generation)`, `iPad (7th generation)`, `iPad Pro (12.9-inch) (4th generation)`, `iPhone 8 Plus`, `Apple Watch Series 4 - 40mm`, `Apple Watch Series 5 - 40mm`, `iPad Pro (9.7-inch)`
+     */
+    preStartSimulators?: string[];
 
     /**
      * Number of retries if the action fails.
@@ -77,11 +67,6 @@ export interface SSHCommandState {
     retry_delay?: number;
 
     /**
-     * If set to `true`, commands are executed as a regular script. If set to false, the commands will be executed one by one, in non-interactive mode.
-     */
-    run_as_script?: boolean;
-
-    /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
@@ -92,9 +77,9 @@ export interface SSHCommandState {
     run_only_on_first_failure?: boolean;
 
     /**
-     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
+     * Define file paths that should be copied before `PIPELINE_TO_VM` and after the execution `VM_TO_PIPELINE`.
      */
-    shell?: 'SH' | 'BASH';
+    sync_paths?: SyncPath[];
 
     /**
      * The timeout in seconds.
@@ -110,42 +95,33 @@ export interface SSHCommandState {
      * The list of variables you can use the action.
      */
     variables?: Variable[];
-
-    /**
-     * The absolute or relative path on the remote server.
-     */
-    working_directory?: string;
 }
 
-export type SSHCommandArgs = AsInputs<SSHCommandState>;
+export type XCodeArgs = AsInputs<XCodeState>;
 
-export interface SSHCommandProps {
+export interface XCodeProps {
     url: string;
     html_url: string;
     action_id: number;
-    authentication_mode: 'PASS';
-    commands: string;
-    host: string;
-    login: string;
+    commands: string[];
+    image: string;
     name: string;
-    password: string;
-    port: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'SSH_COMMAND';
+    type: 'NATIVE_BUILD_MAC';
+    working_directory: string;
     after_action_id?: number;
     disabled?: boolean;
     execute_every_command?: boolean;
     ignore_errors?: boolean;
+    preStartSimulators?: string[];
     retry_count?: number;
     retry_delay?: number;
-    run_as_script?: boolean;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    shell?: 'SH' | 'BASH';
+    sync_paths?: SyncPath[];
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
-    working_directory?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -154,82 +130,74 @@ export interface SSHCommandProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class SSHCommand extends CustomResource {
-    static __pulumiType = 'buddy:action:SSHCommand';
+export class XCode extends CustomResource {
+    static __pulumiType = 'buddy:action:XCode';
 
-    static get(name: string, id: Input<ID>, state?: Partial<SSHCommandState>, opts?: CustomResourceOptions) {
-        return new SSHCommand(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<XCodeState>, opts?: CustomResourceOptions) {
+        return new XCode(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is SSHCommand {
+    static isInstance(obj: any): obj is XCode {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === SSHCommand.__pulumiType;
+        return obj['__pulumiType'] === XCode.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    authentication_mode!: Output<'PASS'>;
-    commands!: Output<string>;
-    host!: Output<string>;
-    login!: Output<string>;
+    commands!: Output<string[]>;
+    image!: Output<string>;
     name!: Output<string>;
-    password!: Output<string>;
-    port!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'SSH_COMMAND'>;
+    type!: Output<'NATIVE_BUILD_MAC'>;
+    working_directory!: Output<string>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     execute_every_command!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    preStartSimulators!: Output<string[] | undefined>;
     retry_count!: Output<number | undefined>;
     retry_delay!: Output<number | undefined>;
-    run_as_script!: Output<boolean | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
-    shell!: Output<'SH' | 'BASH' | undefined>;
+    sync_paths!: Output<SyncPath[] | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
-    working_directory!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: SSHCommandArgs | SSHCommandState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: XCodeArgs | XCodeState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as SSHCommandState | undefined;
+            const state = argsOrState as XCodeState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['authentication_mode'] = state?.authentication_mode;
             inputs['commands'] = state?.commands;
-            inputs['host'] = state?.host;
-            inputs['login'] = state?.login;
+            inputs['image'] = state?.image;
             inputs['name'] = state?.name;
-            inputs['password'] = state?.password;
-            inputs['port'] = state?.port;
             inputs['trigger_time'] = state?.trigger_time;
+            inputs['working_directory'] = state?.working_directory;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['execute_every_command'] = state?.execute_every_command;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['preStartSimulators'] = state?.preStartSimulators;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_delay'] = state?.retry_delay;
-            inputs['run_as_script'] = state?.run_as_script;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
-            inputs['shell'] = state?.shell;
+            inputs['sync_paths'] = state?.sync_paths;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
-            inputs['working_directory'] = state?.working_directory;
         } else {
-            const args = argsOrState as SSHCommandArgs | undefined;
+            const args = argsOrState as XCodeArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -238,60 +206,44 @@ export class SSHCommand extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.authentication_mode) {
-                throw new Error('Missing required property "authentication_mode"');
-            }
-
             if (!args?.commands) {
                 throw new Error('Missing required property "commands"');
             }
 
-            if (!args?.host) {
-                throw new Error('Missing required property "host"');
-            }
-
-            if (!args?.login) {
-                throw new Error('Missing required property "login"');
+            if (!args?.image) {
+                throw new Error('Missing required property "image"');
             }
 
             if (!args?.name) {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.password) {
-                throw new Error('Missing required property "password"');
-            }
-
-            if (!args?.port) {
-                throw new Error('Missing required property "port"');
-            }
-
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            inputs['authentication_mode'] = args.authentication_mode;
+            if (!args?.working_directory) {
+                throw new Error('Missing required property "working_directory"');
+            }
+
             inputs['commands'] = args.commands;
-            inputs['host'] = args.host;
-            inputs['login'] = args.login;
+            inputs['image'] = args.image;
             inputs['name'] = args.name;
-            inputs['password'] = args.password;
-            inputs['port'] = args.port;
             inputs['trigger_time'] = args.trigger_time;
+            inputs['working_directory'] = args.working_directory;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['execute_every_command'] = args.execute_every_command;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['preStartSimulators'] = args.preStartSimulators;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_delay'] = args.retry_delay;
-            inputs['run_as_script'] = args.run_as_script;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
-            inputs['shell'] = args.shell;
+            inputs['sync_paths'] = args.sync_paths;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
-            inputs['working_directory'] = args.working_directory;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }
@@ -302,11 +254,11 @@ export class SSHCommand extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'SSH_COMMAND';
+        inputs['type'] = 'NATIVE_BUILD_MAC';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(SSHCommand.__pulumiType, name, inputs, opts);
+        super(XCode.__pulumiType, name, inputs, opts);
     }
 }

@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, Variable } from '../common';
+import { IntegrationRef, TriggerCondition, Variable } from '../common';
 import { Integration } from '../integration';
 
 export interface GoogleCDNState {
@@ -11,6 +11,11 @@ export interface GoogleCDNState {
      * The ID of the Google web distribution.
      */
     distribution_id: string;
+
+    /**
+     * The name of the Google CDN web distribution.
+     */
+    distribution_name: string;
 
     /**
      * The integration.
@@ -98,53 +103,9 @@ export interface GoogleCDNState {
     timeout?: number;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
+     * The list of trigger conditions to meet so that the action can be triggered.
      */
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-
-    /**
-     * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
-     */
-    trigger_condition_paths?: string[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
-     */
-    trigger_days?: number[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
-     */
-    trigger_hours?: number[];
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
-     */
-    trigger_pipeline_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
-     */
-    trigger_project_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
-     */
-    trigger_variable_key?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS`. Defines the value of the desired variable which will be compared with its current value.
-     */
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
 
     /**
      * The name of the mapping rules.
@@ -155,11 +116,6 @@ export interface GoogleCDNState {
      * The list of variables you can use the action.
      */
     variables?: Variable[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
-     */
-    zone_id?: string;
 }
 
 export type GoogleCDNArgs = AsInputs<GoogleCDNState>;
@@ -169,10 +125,11 @@ export interface GoogleCDNProps {
     html_url: string;
     action_id: number;
     distribution_id: string;
+    distribution_name: string;
     integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'GOOGLE_CDN';
+    type: 'GOOGLE_CDN_INVALIDATE';
     after_action_id?: number;
     deployment_excludes?: string[];
     deployment_includes?: string[];
@@ -187,26 +144,9 @@ export interface GoogleCDNProps {
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-    trigger_condition_paths?: string[];
-    trigger_days?: number[];
-    trigger_hours?: number[];
-    trigger_pipeline_name?: string;
-    trigger_project_name?: string;
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
     url_map?: string;
     variables?: Variable[];
-    zone_id?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -234,10 +174,11 @@ export class GoogleCDN extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     distribution_id!: Output<string>;
+    distribution_name!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'GOOGLE_CDN'>;
+    type!: Output<'GOOGLE_CDN_INVALIDATE'>;
     after_action_id!: Output<number | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
@@ -252,28 +193,9 @@ export class GoogleCDN extends CustomResource {
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
-    trigger_condition!: Output<
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE'
-        | undefined
-    >;
-    trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_days!: Output<number[] | undefined>;
-    trigger_hours!: Output<number[] | undefined>;
-    trigger_pipeline_name!: Output<string | undefined>;
-    trigger_project_name!: Output<string | undefined>;
-    trigger_variable_key!: Output<string | undefined>;
-    trigger_variable_value!: Output<string | undefined>;
+    trigger_conditions!: Output<TriggerCondition[] | undefined>;
     url_map!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
-    zone_id!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: GoogleCDNArgs | GoogleCDNState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -286,6 +208,7 @@ export class GoogleCDN extends CustomResource {
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['distribution_id'] = state?.distribution_id;
+            inputs['distribution_name'] = state?.distribution_name;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
@@ -303,17 +226,9 @@ export class GoogleCDN extends CustomResource {
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
-            inputs['trigger_condition'] = state?.trigger_condition;
-            inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_days'] = state?.trigger_days;
-            inputs['trigger_hours'] = state?.trigger_hours;
-            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
-            inputs['trigger_project_name'] = state?.trigger_project_name;
-            inputs['trigger_variable_key'] = state?.trigger_variable_key;
-            inputs['trigger_variable_value'] = state?.trigger_variable_value;
+            inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['url_map'] = state?.url_map;
             inputs['variables'] = state?.variables;
-            inputs['zone_id'] = state?.zone_id;
         } else {
             const args = argsOrState as GoogleCDNArgs | undefined;
             if (!args?.project_name) {
@@ -326,6 +241,10 @@ export class GoogleCDN extends CustomResource {
 
             if (!args?.distribution_id) {
                 throw new Error('Missing required property "distribution_id"');
+            }
+
+            if (!args?.distribution_name) {
+                throw new Error('Missing required property "distribution_name"');
             }
 
             if (!args?.integration) {
@@ -341,7 +260,8 @@ export class GoogleCDN extends CustomResource {
             }
 
             inputs['distribution_id'] = args.distribution_id;
-            inputs['integration'] = output(args.integration).apply(integration =>
+            inputs['distribution_name'] = args.distribution_name;
+            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
@@ -360,17 +280,9 @@ export class GoogleCDN extends CustomResource {
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
-            inputs['trigger_condition'] = args.trigger_condition;
-            inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_days'] = args.trigger_days;
-            inputs['trigger_hours'] = args.trigger_hours;
-            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
-            inputs['trigger_project_name'] = args.trigger_project_name;
-            inputs['trigger_variable_key'] = args.trigger_variable_key;
-            inputs['trigger_variable_value'] = args.trigger_variable_value;
+            inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['url_map'] = args.url_map;
             inputs['variables'] = args.variables;
-            inputs['zone_id'] = args.zone_id;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }
@@ -381,7 +293,7 @@ export class GoogleCDN extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'GOOGLE_CDN';
+        inputs['type'] = 'GOOGLE_CDN_INVALIDATE';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;

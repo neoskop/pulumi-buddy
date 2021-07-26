@@ -40,14 +40,11 @@ export class BuddyPermissionApi {
     async create(permission: IBuddyPermissionInput): Promise<IBuddyPermission> {
         debug('create %O', permission);
         try {
-            const result = await Axios.post<IBuddyPermission>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/permissions`,
+            const result = await this.api.client.post<IBuddyPermission>(
+                `/workspaces/${this.workspace.getDomain()}/permissions`,
                 permission,
                 {
-                    cancelToken: this.api.registerCanceler('permission').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('permission').token
                 }
             );
 
@@ -71,13 +68,10 @@ export class BuddyPermissionApi {
         }
 
         try {
-            const result = await Axios.get<IBuddyPermission>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/permissions/${this.permissionId}`,
+            const result = await this.api.client.get<IBuddyPermission>(
+                `/workspaces/${this.workspace.getDomain()}/permissions/${this.permissionId}`,
                 {
-                    cancelToken: this.api.registerCanceler('permission').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('permission').token
                 }
             );
 
@@ -105,14 +99,11 @@ export class BuddyPermissionApi {
         }
 
         try {
-            const result = await Axios.patch<IBuddyPermission>(
-                `${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/permissions/${this.permissionId}`,
+            const result = await this.api.client.patch<IBuddyPermission>(
+                `/workspaces/${this.workspace.getDomain()}/permissions/${this.permissionId}`,
                 update,
                 {
-                    cancelToken: this.api.registerCanceler('permission').token,
-                    headers: {
-                        Authorization: `Bearer ${this.api.getToken()}`
-                    }
+                    cancelToken: this.api.registerCanceler('permission').token
                 }
             );
 
@@ -140,11 +131,8 @@ export class BuddyPermissionApi {
         }
 
         try {
-            await Axios.delete(`${this.api.getApiUrl()}/workspaces/${this.workspace.getDomain()}/permissions/${this.permissionId}`, {
-                cancelToken: this.api.registerCanceler('permission').token,
-                headers: {
-                    Authorization: `Bearer ${this.api.getToken()}`
-                }
+            await this.api.client.delete(`/workspaces/${this.workspace.getDomain()}/permissions/${this.permissionId}`, {
+                cancelToken: this.api.registerCanceler('permission').token
             });
         } catch (e) {
             if (Axios.isCancel(e)) {

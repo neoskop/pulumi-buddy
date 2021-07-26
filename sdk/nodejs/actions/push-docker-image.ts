@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, Variable } from '../common';
+import { IntegrationRef, TriggerCondition, Variable } from '../common';
 import { Integration } from '../integration';
 
 export interface PushDockerImageState {
@@ -28,9 +28,14 @@ export interface PushDockerImageState {
     disabled?: boolean;
 
     /**
-     * The numerical ID of the action, from which the image should be taken. If not set, the image will be taken from the preceding action.
+     * The ID of the action which built the desired Docker image. If set to 0, the image will be taken from previous pipeline action. Can be used instead of `docker_build_action_name.`
      */
     docker_build_action_id?: number;
+
+    /**
+     * The name of the action which built the desired Docker image. Can be used instead of `docker_build_action_id`.
+     */
+    docker_build_action_name?: string;
 
     /**
      * The tag of the Docker image.
@@ -43,17 +48,17 @@ export interface PushDockerImageState {
     ignore_errors?: boolean;
 
     /**
-     * The integration. Required for delivering the Dockerfile to the Amazon ECR.
+     * The integration. Required for delivering the Dockerfile to the Amazon ECR, Google GCR and Docker Hub.
      */
     integration?: IntegrationRef | Integration;
 
     /**
-     * The username required to connect to the server. Required for delivering the Dockerfile to the Docker Hub or a private registry.
+     * The username required to connect to the server. Required for delivering the Dockerfile to a private registry.
      */
     login?: string;
 
     /**
-     * The password required to connect to the server. Required for delivering the Dockerfile to the Docker Hub or a private registry.
+     * The password required to connect to the server. Required for delivering the Dockerfile to a private registry.
      */
     password?: string;
 
@@ -61,6 +66,11 @@ export interface PushDockerImageState {
      * The name of the Amazon S3 region. Required for delivering the Dockerfile to the Amazon ECR. The full list of regions is available here.
      */
     region?: string;
+
+    /**
+     * The url to the GCR. Can be one of gcr.io, us.gcr.io , eu.gcr.io or asia.gcr.io. Required for Google GCR.
+     */
+    registry?: string;
 
     /**
      * The location of the Docker repository.
@@ -93,68 +103,14 @@ export interface PushDockerImageState {
     timeout?: number;
 
     /**
-     * Defines when the build action should be run. Can be one of `ALWAYS`, `ON_CHANGE`, `ON_CHANGE_AT_PATH`, `VAR_IS`, `VAR_IS_NOT`, `VAR_CONTAINS`, `VAR_NOT_CONTAINS`, `DATETIME` or `SUCCESS_PIPELINE`. Can't be used in deployment actions.
+     * The list of trigger conditions to meet so that the action can be triggered.
      */
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-
-    /**
-     * Required when `trigger_condition` is set to `ON_CHANGE_AT_PATH`.
-     */
-    trigger_condition_paths?: string[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the days running from 1 to 7 where 1 is for Monday.
-     */
-    trigger_days?: number[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the time – by default running from 1 to 24.
-     */
-    trigger_hours?: number[];
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the pipeline.
-     */
-    trigger_pipeline_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `SUCCESS_PIPELINE`. Defines the name of the project in which the `trigger_pipeline_name` is.
-     */
-    trigger_project_name?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS` or `VAR_NOT_CONTAINS`. Defines the name of the desired variable.
-     */
-    trigger_variable_key?: string;
-
-    /**
-     * Required when `trigger_condition` is set to `VAR_IS`, `VAR_IS_NOT` or `VAR_CONTAINS`. Defines the value of the desired variable which will be compared with its current value.
-     */
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
 
     /**
      * The list of variables you can use the action.
      */
     variables?: Variable[];
-
-    /**
-     * Available when `trigger_condition` is set to `DATETIME`. Defines the timezone (by default it is UTC) and takes values from here.
-     */
-    zone_id?: string;
-
-    /**
-     * Docker Registry URL
-     */
-    registry?: string;
 }
 
 export type PushDockerImageArgs = AsInputs<PushDockerImageState>;
@@ -169,38 +125,22 @@ export interface PushDockerImageProps {
     after_action_id?: number;
     disabled?: boolean;
     docker_build_action_id?: number;
+    docker_build_action_name?: string;
     docker_image_tag?: string;
     ignore_errors?: boolean;
     integration?: IntegrationRef | Integration;
     login?: string;
     password?: string;
     region?: string;
+    registry?: string;
     repository?: string;
     retry_count?: number;
     retry_delay?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
-    trigger_condition?:
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE';
-    trigger_condition_paths?: string[];
-    trigger_days?: number[];
-    trigger_hours?: number[];
-    trigger_pipeline_name?: string;
-    trigger_project_name?: string;
-    trigger_variable_key?: string;
-    trigger_variable_value?: string;
+    trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
-    zone_id?: string;
-    registry?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -233,40 +173,22 @@ export class PushDockerImage extends CustomResource {
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     docker_build_action_id!: Output<number | undefined>;
+    docker_build_action_name!: Output<string | undefined>;
     docker_image_tag!: Output<string | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     integration!: Output<IntegrationRef | Integration | undefined>;
     login!: Output<string | undefined>;
     password!: Output<string | undefined>;
     region!: Output<string | undefined>;
+    registry!: Output<string | undefined>;
     repository!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
     retry_delay!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
-    trigger_condition!: Output<
-        | 'ALWAYS'
-        | 'ON_CHANGE'
-        | 'ON_CHANGE_AT_PATH'
-        | 'VAR_IS'
-        | 'VAR_IS_NOT'
-        | 'VAR_CONTAINS'
-        | 'VAR_NOT_CONTAINS'
-        | 'DATETIME'
-        | 'SUCCESS_PIPELINE'
-        | undefined
-    >;
-    trigger_condition_paths!: Output<string[] | undefined>;
-    trigger_days!: Output<number[] | undefined>;
-    trigger_hours!: Output<number[] | undefined>;
-    trigger_pipeline_name!: Output<string | undefined>;
-    trigger_project_name!: Output<string | undefined>;
-    trigger_variable_key!: Output<string | undefined>;
-    trigger_variable_value!: Output<string | undefined>;
+    trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
-    zone_id!: Output<string | undefined>;
-    registry!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: PushDockerImageArgs | PushDockerImageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -283,29 +205,22 @@ export class PushDockerImage extends CustomResource {
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['docker_build_action_id'] = state?.docker_build_action_id;
+            inputs['docker_build_action_name'] = state?.docker_build_action_name;
             inputs['docker_image_tag'] = state?.docker_image_tag;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['login'] = state?.login;
             inputs['password'] = state?.password;
             inputs['region'] = state?.region;
+            inputs['registry'] = state?.registry;
             inputs['repository'] = state?.repository;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_delay'] = state?.retry_delay;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
-            inputs['trigger_condition'] = state?.trigger_condition;
-            inputs['trigger_condition_paths'] = state?.trigger_condition_paths;
-            inputs['trigger_days'] = state?.trigger_days;
-            inputs['trigger_hours'] = state?.trigger_hours;
-            inputs['trigger_pipeline_name'] = state?.trigger_pipeline_name;
-            inputs['trigger_project_name'] = state?.trigger_project_name;
-            inputs['trigger_variable_key'] = state?.trigger_variable_key;
-            inputs['trigger_variable_value'] = state?.trigger_variable_value;
+            inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
-            inputs['zone_id'] = state?.zone_id;
-            inputs['registry'] = state?.registry;
         } else {
             const args = argsOrState as PushDockerImageArgs | undefined;
             if (!args?.project_name) {
@@ -329,31 +244,24 @@ export class PushDockerImage extends CustomResource {
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['docker_build_action_id'] = args.docker_build_action_id;
+            inputs['docker_build_action_name'] = args.docker_build_action_name;
             inputs['docker_image_tag'] = args.docker_image_tag;
             inputs['ignore_errors'] = args.ignore_errors;
-            inputs['integration'] = output(args.integration).apply(integration =>
+            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['login'] = args.login;
             inputs['password'] = args.password;
             inputs['region'] = args.region;
+            inputs['registry'] = args.registry;
             inputs['repository'] = args.repository;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_delay'] = args.retry_delay;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
-            inputs['trigger_condition'] = args.trigger_condition;
-            inputs['trigger_condition_paths'] = args.trigger_condition_paths;
-            inputs['trigger_days'] = args.trigger_days;
-            inputs['trigger_hours'] = args.trigger_hours;
-            inputs['trigger_pipeline_name'] = args.trigger_pipeline_name;
-            inputs['trigger_project_name'] = args.trigger_project_name;
-            inputs['trigger_variable_key'] = args.trigger_variable_key;
-            inputs['trigger_variable_value'] = args.trigger_variable_value;
+            inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
-            inputs['zone_id'] = args.zone_id;
-            inputs['registry'] = args.registry;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }
