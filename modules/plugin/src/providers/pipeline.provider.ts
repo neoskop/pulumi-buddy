@@ -53,6 +53,7 @@ export class PipelineProvider implements IProvider {
             .diff('on', 'on')
             .diff('refs', 'refs')
             .diff('events', 'events')
+            .diff('trigger_conditions', 'trigger_conditions')
             .diff('folder', 'folder')
             .diff('always_from_scratch', 'always_from_scratch')
             .diff('auto_clear_cache', 'auto_clear_cache')

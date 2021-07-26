@@ -34,7 +34,7 @@ export interface IBuddyPipeline {
     no_skip_to_most_recent: boolean;
     do_not_create_commit_status: boolean;
     ignore_fail_on_project_status: boolean;
-    trigger_condition?: TriggerConditionObject[];
+    trigger_conditions?: TriggerConditionObject[];
     project: {
         url: string;
         html_url: string;
@@ -82,7 +82,7 @@ export interface IBuddyPipelineInput {
     paused?: boolean;
     ignore_fail_on_project_status?: boolean;
     execution_message_template?: string;
-    trigger_condition?: TriggerConditionObject[];
+    trigger_conditions?: TriggerConditionObject[];
 }
 
 export class BuddyPipelineApi {

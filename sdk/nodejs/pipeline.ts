@@ -25,7 +25,7 @@ export interface PipelineState {
     paused?: boolean;
     ignore_fail_on_project_status?: boolean;
     execution_message_template?: string;
-    trigger_condition?: TriggerCondition[];
+    trigger_conditions?: TriggerCondition[];
 }
 
 export type PipelineArgs = AsInputs<PipelineState>;
@@ -52,7 +52,7 @@ export interface PipelineProps {
     cron?: string;
     run_always?: boolean;
     paused?: boolean;
-    trigger_condition?: TriggerCondition[];
+    trigger_conditions?: TriggerCondition[];
     project: ProjectProps;
     creator: MemberProps;
     actions: ActionProps[];
@@ -129,7 +129,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['paused'] = state?.paused;
             inputs['ignore_fail_on_project_status'] = state?.ignore_fail_on_project_status;
             inputs['execution_message_template'] = state?.execution_message_template;
-            inputs['trigger_condition'] = state?.trigger_condition;
+            inputs['trigger_conditions'] = state?.trigger_conditions;
         } else {
             const args = argsOrState as PipelineState | undefined;
             if (!args || !args.project_name) {
@@ -161,7 +161,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['paused'] = args?.paused;
             inputs['ignore_fail_on_project_status'] = args?.ignore_fail_on_project_status;
             inputs['execution_message_template'] = args?.execution_message_template;
-            inputs['trigger_condition'] = args?.trigger_condition;
+            inputs['trigger_conditions'] = args?.trigger_conditions;
         }
 
         if (!opts.version) {
