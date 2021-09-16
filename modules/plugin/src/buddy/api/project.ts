@@ -156,7 +156,9 @@ export class BuddyProjectApi {
                 InvalidResponseType.checkResponseType(e.response, 'application/json');
                 if (e.response.status === 404) {
                     throw new ProjectNotFound(this.projectName);
-                } else if (e.response.data.errors[0].message === 'Operation not permitted until all jobs and deployments are completed.') {
+                } else if (
+                    e.response.data.errors[0].message?.match?.(/Operation not permitted until all jobs and deployments are completed/)
+                ) {
                     throw new ProjectNotReady(this.projectName);
                 } else {
                     throw new ProjectError(e.response.data.errors[0].message);
