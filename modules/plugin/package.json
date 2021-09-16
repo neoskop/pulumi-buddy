@@ -1,7 +1,7 @@
 {
     "name": "pulumi-buddy-plugin",
     "description": "A Pulumi integration for Buddy",
-    "version": "0.4.1-rc.0",
+    "version": "0.4.1",
     "repository": "https://github.com/neoskop/pulumi-buddy",
     "author": "Mark Wecke <wecke@neoskop.de>",
     "license": "MIT",
@@ -27,7 +27,7 @@
         "injection-js": "2.3.0",
         "minimist": "1.2.5",
         "protobufjs": "6.9.0",
-        "pulumi-buddy": "0.4.1-rc.0",
+        "pulumi-buddy": "0.4.1",
         "reflect-metadata": "0.1.13",
         "tslib": "1.11.1",
         "yargs": "15.3.1"
