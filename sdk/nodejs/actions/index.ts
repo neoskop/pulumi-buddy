@@ -8,12 +8,38 @@ import { AzureCLIState, AzureCLIProps, AzureCLIArgs, AzureCLI } from './azure-cl
 import { AzureStorageState, AzureStorageProps, AzureStorageArgs, AzureStorage } from './azure-storage';
 import { AzureState, AzureProps, AzureArgs, Azure } from './azure';
 import { BugsnagState, BugsnagProps, BugsnagArgs, Bugsnag } from './bugsnag';
+import { BuildACordovaAppState, BuildACordovaAppProps, BuildACordovaAppArgs, BuildACordovaApp } from './build-a-cordova-app';
+import {
+    BuildAFastlaneAppiOSState,
+    BuildAFastlaneAppiOSProps,
+    BuildAFastlaneAppiOSArgs,
+    BuildAFastlaneAppiOS
+} from './build-a-fastlane-app-ios';
+import {
+    BuildAFlutterAppiOSState,
+    BuildAFlutterAppiOSProps,
+    BuildAFlutterAppiOSArgs,
+    BuildAFlutterAppiOS
+} from './build-a-flutter-app-ios';
+import {
+    BuildAReactNativeAppState,
+    BuildAReactNativeAppProps,
+    BuildAReactNativeAppArgs,
+    BuildAReactNativeApp
+} from './build-a-react-native-app';
 import { BuildAndroidAppState, BuildAndroidAppProps, BuildAndroidAppArgs, BuildAndroidApp } from './build-android-app';
 import { BuildDockerImageState, BuildDockerImageProps, BuildDockerImageArgs, BuildDockerImage } from './build-docker-image';
 import { BuildFlutterAppState, BuildFlutterAppProps, BuildFlutterAppArgs, BuildFlutterApp } from './build-flutter-app';
 import { BuildState, BuildProps, BuildArgs, Build } from './build';
+import { ClearCacheState, ClearCacheProps, ClearCacheArgs, ClearCache } from './clear-cache';
 import { CloudflareState, CloudflareProps, CloudflareArgs, Cloudflare } from './cloudflare';
 import { CloudFrontState, CloudFrontProps, CloudFrontArgs, CloudFront } from './cloudfront';
+import {
+    CodeSignAndExportAnIOSAppState,
+    CodeSignAndExportAnIOSAppProps,
+    CodeSignAndExportAnIOSAppArgs,
+    CodeSignAndExportAnIOSApp
+} from './code-sign-and-export-an-ios-app';
 import { CodeDeployState, CodeDeployProps, CodeDeployArgs, CodeDeploy } from './codedeploy';
 import { CompressImagesState, CompressImagesProps, CompressImagesArgs, CompressImages } from './compress-images';
 import {
@@ -22,13 +48,21 @@ import {
     CopyFilesFromAnotherPipelineArgs,
     CopyFilesFromAnotherPipeline
 } from './copy-files-from-another-pipeline';
+import { CreateNewSandboxState, CreateNewSandboxProps, CreateNewSandboxArgs, CreateNewSandbox } from './create-new-sandbox';
 import { DatadogNotificationState, DatadogNotificationProps, DatadogNotificationArgs, DatadogNotification } from './datadog-notification';
 import { DatadogServiceCheckState, DatadogServiceCheckProps, DatadogServiceCheckArgs, DatadogServiceCheck } from './datadog-service-check';
+import {
+    DeployToAppStoreConnectState,
+    DeployToAppStoreConnectProps,
+    DeployToAppStoreConnectArgs,
+    DeployToAppStoreConnect
+} from './deploy-to-app-store-connect';
 import { DigitalOceanCDNState, DigitalOceanCDNProps, DigitalOceanCDNArgs, DigitalOceanCDN } from './digitalocean-cdn';
 import { DigitalOceanCLIState, DigitalOceanCLIProps, DigitalOceanCLIArgs, DigitalOceanCLI } from './digitalocean-cli';
 import { DigitalOceanSpacesState, DigitalOceanSpacesProps, DigitalOceanSpacesArgs, DigitalOceanSpaces } from './digitalocean-spaces';
 import { DigitalOceanState, DigitalOceanProps, DigitalOceanArgs, DigitalOcean } from './digitalocean';
 import { DiscordNotificationState, DiscordNotificationProps, DiscordNotificationArgs, DiscordNotification } from './discord-notification';
+import { DockerCLIState, DockerCLIProps, DockerCLIArgs, DockerCLI } from './docker-cli';
 import { DockerfileLinterState, DockerfileLinterProps, DockerfileLinterArgs, DockerfileLinter } from './dockerfile-linter';
 import { DownloadFTPState, DownloadFTPProps, DownloadFTPArgs, DownloadFTP } from './download-ftp';
 import { DownloadS3State, DownloadS3Props, DownloadS3Args, DownloadS3 } from './download-s3';
@@ -46,10 +80,12 @@ import { FirebaseState, FirebaseProps, FirebaseArgs, Firebase } from './firebase
 import { FTPState, FTPProps, FTPArgs, FTP } from './ftp';
 import { FTPSState, FTPSProps, FTPSArgs, FTPS } from './ftps';
 import { GCloudCLIState, GCloudCLIProps, GCloudCLIArgs, GCloudCLI } from './gcloud-cli';
+import { GenerateVariablesState, GenerateVariablesProps, GenerateVariablesArgs, GenerateVariables } from './generate-variables';
 import { GhostInspectorState, GhostInspectorProps, GhostInspectorArgs, GhostInspector } from './ghost-inspector';
 import { GitPushState, GitPushProps, GitPushArgs, GitPush } from './git-push';
 import { GitcryptLockState, GitcryptLockProps, GitcryptLockArgs, GitcryptLock } from './gitcrypt-lock';
 import { GitcryptUnlockState, GitcryptUnlockProps, GitcryptUnlockArgs, GitcryptUnlock } from './gitcrypt-unlock';
+import { GitHubCLIState, GitHubCLIProps, GitHubCLIArgs, GitHubCLI } from './github-cli';
 import { GKEApplyDeploymentState, GKEApplyDeploymentProps, GKEApplyDeploymentArgs, GKEApplyDeployment } from './gke-apply-deployment';
 import { GKEKubectlState, GKEKubectlProps, GKEKubectlArgs, GKEKubectl } from './gke-kubectl';
 import { GKERunHelmState, GKERunHelmProps, GKERunHelmArgs, GKERunHelm } from './gke-run-helm';
@@ -89,7 +125,9 @@ import { KubernetesRunPodState, KubernetesRunPodProps, KubernetesRunPodArgs, Kub
 import { KubernetesSetImageState, KubernetesSetImageProps, KubernetesSetImageArgs, KubernetesSetImage } from './kubernetes-set-image';
 import { LighthouseState, LighthouseProps, LighthouseArgs, Lighthouse } from './lighthouse';
 import { LinkValidatorState, LinkValidatorProps, LinkValidatorArgs, LinkValidator } from './link-validator';
+import { LinuxState, LinuxProps, LinuxArgs, Linux } from './linux';
 import { LogglyState, LogglyProps, LogglyArgs, Loggly } from './loggly';
+import { MacOSState, MacOSProps, MacOSArgs, MacOS } from './macos';
 import { MicrosoftTeamsState, MicrosoftTeamsProps, MicrosoftTeamsArgs, MicrosoftTeams } from './microsoft-teams';
 import { NetlifyState, NetlifyProps, NetlifyArgs, Netlify } from './netlify';
 import {
@@ -98,6 +136,7 @@ import {
     NewRelicNotificationArgs,
     NewRelicNotification
 } from './new-relic-notification';
+import { OperateSandboxState, OperateSandboxProps, OperateSandboxArgs, OperateSandbox } from './operate-sandbox';
 import { PassArgumentsState, PassArgumentsProps, PassArgumentsArgs, PassArguments } from './pass-arguments';
 import { PingMonitoringState, PingMonitoringProps, PingMonitoringArgs, PingMonitoring } from './ping-monitoring';
 import {
@@ -138,6 +177,7 @@ import { SleepState, SleepProps, SleepArgs, Sleep } from './sleep';
 import { SmsNotificationState, SmsNotificationProps, SmsNotificationArgs, SmsNotification } from './sms-notification';
 import { SplitTestsState, SplitTestsProps, SplitTestsArgs, SplitTests } from './split-tests';
 import { SSHCommandState, SSHCommandProps, SSHCommandArgs, SSHCommand } from './ssh-command';
+import { SSHToSandboxState, SSHToSandboxProps, SSHToSandboxArgs, SSHToSandbox } from './ssh-to-sandbox';
 import { SSLVerifyState, SSLVerifyProps, SSLVerifyArgs, SSLVerify } from './ssl-verify';
 import { TCPMonitoringState, TCPMonitoringProps, TCPMonitoringArgs, TCPMonitoring } from './tcp-monitoring';
 import {
@@ -146,6 +186,7 @@ import {
     TelegramNotificationArgs,
     TelegramNotification
 } from './telegram-notification';
+import { TransferToASandboxState, TransferToASandboxProps, TransferToASandboxArgs, TransferToASandbox } from './transfer-to-a-sandbox';
 import { UpcloudState, UpcloudProps, UpcloudArgs, Upcloud } from './upcloud';
 import { VisualTestsState, VisualTestsProps, VisualTestsArgs, VisualTests } from './visual-tests';
 import { VultrState, VultrProps, VultrArgs, Vultr } from './vultr';
@@ -166,22 +207,31 @@ export * from './azure-cli';
 export * from './azure-storage';
 export * from './azure';
 export * from './bugsnag';
+export * from './build-a-cordova-app';
+export * from './build-a-fastlane-app-ios';
+export * from './build-a-flutter-app-ios';
+export * from './build-a-react-native-app';
 export * from './build-android-app';
 export * from './build-docker-image';
 export * from './build-flutter-app';
 export * from './build';
+export * from './clear-cache';
 export * from './cloudflare';
 export * from './cloudfront';
+export * from './code-sign-and-export-an-ios-app';
 export * from './codedeploy';
 export * from './compress-images';
 export * from './copy-files-from-another-pipeline';
+export * from './create-new-sandbox';
 export * from './datadog-notification';
 export * from './datadog-service-check';
+export * from './deploy-to-app-store-connect';
 export * from './digitalocean-cdn';
 export * from './digitalocean-cli';
 export * from './digitalocean-spaces';
 export * from './digitalocean';
 export * from './discord-notification';
+export * from './docker-cli';
 export * from './dockerfile-linter';
 export * from './download-ftp';
 export * from './download-s3';
@@ -194,10 +244,12 @@ export * from './firebase';
 export * from './ftp';
 export * from './ftps';
 export * from './gcloud-cli';
+export * from './generate-variables';
 export * from './ghost-inspector';
 export * from './git-push';
 export * from './gitcrypt-lock';
 export * from './gitcrypt-unlock';
+export * from './github-cli';
 export * from './gke-apply-deployment';
 export * from './gke-kubectl';
 export * from './gke-run-helm';
@@ -223,10 +275,13 @@ export * from './kubernetes-run-pod';
 export * from './kubernetes-set-image';
 export * from './lighthouse';
 export * from './link-validator';
+export * from './linux';
 export * from './loggly';
+export * from './macos';
 export * from './microsoft-teams';
 export * from './netlify';
 export * from './new-relic-notification';
+export * from './operate-sandbox';
 export * from './pass-arguments';
 export * from './ping-monitoring';
 export * from './publish-android-application';
@@ -252,9 +307,11 @@ export * from './sleep';
 export * from './sms-notification';
 export * from './split-tests';
 export * from './ssh-command';
+export * from './ssh-to-sandbox';
 export * from './ssl-verify';
 export * from './tcp-monitoring';
 export * from './telegram-notification';
+export * from './transfer-to-a-sandbox';
 export * from './upcloud';
 export * from './visual-tests';
 export * from './vultr';
@@ -276,22 +333,31 @@ export type ActionState =
     | AzureStorageState
     | AzureState
     | BugsnagState
+    | BuildACordovaAppState
+    | BuildAFastlaneAppiOSState
+    | BuildAFlutterAppiOSState
+    | BuildAReactNativeAppState
     | BuildAndroidAppState
     | BuildDockerImageState
     | BuildFlutterAppState
     | BuildState
+    | ClearCacheState
     | CloudflareState
     | CloudFrontState
+    | CodeSignAndExportAnIOSAppState
     | CodeDeployState
     | CompressImagesState
     | CopyFilesFromAnotherPipelineState
+    | CreateNewSandboxState
     | DatadogNotificationState
     | DatadogServiceCheckState
+    | DeployToAppStoreConnectState
     | DigitalOceanCDNState
     | DigitalOceanCLIState
     | DigitalOceanSpacesState
     | DigitalOceanState
     | DiscordNotificationState
+    | DockerCLIState
     | DockerfileLinterState
     | DownloadFTPState
     | DownloadS3State
@@ -304,10 +370,12 @@ export type ActionState =
     | FTPState
     | FTPSState
     | GCloudCLIState
+    | GenerateVariablesState
     | GhostInspectorState
     | GitPushState
     | GitcryptLockState
     | GitcryptUnlockState
+    | GitHubCLIState
     | GKEApplyDeploymentState
     | GKEKubectlState
     | GKERunHelmState
@@ -332,10 +400,13 @@ export type ActionState =
     | KubernetesSetImageState
     | LighthouseState
     | LinkValidatorState
+    | LinuxState
     | LogglyState
+    | MacOSState
     | MicrosoftTeamsState
     | NetlifyState
     | NewRelicNotificationState
+    | OperateSandboxState
     | PassArgumentsState
     | PingMonitoringState
     | PublishAndroidApplicationState
@@ -361,9 +432,11 @@ export type ActionState =
     | SmsNotificationState
     | SplitTestsState
     | SSHCommandState
+    | SSHToSandboxState
     | SSLVerifyState
     | TCPMonitoringState
     | TelegramNotificationState
+    | TransferToASandboxState
     | UpcloudState
     | VisualTestsState
     | VultrState
@@ -384,22 +457,31 @@ export type ActionArgs =
     | AzureStorageArgs
     | AzureArgs
     | BugsnagArgs
+    | BuildACordovaAppArgs
+    | BuildAFastlaneAppiOSArgs
+    | BuildAFlutterAppiOSArgs
+    | BuildAReactNativeAppArgs
     | BuildAndroidAppArgs
     | BuildDockerImageArgs
     | BuildFlutterAppArgs
     | BuildArgs
+    | ClearCacheArgs
     | CloudflareArgs
     | CloudFrontArgs
+    | CodeSignAndExportAnIOSAppArgs
     | CodeDeployArgs
     | CompressImagesArgs
     | CopyFilesFromAnotherPipelineArgs
+    | CreateNewSandboxArgs
     | DatadogNotificationArgs
     | DatadogServiceCheckArgs
+    | DeployToAppStoreConnectArgs
     | DigitalOceanCDNArgs
     | DigitalOceanCLIArgs
     | DigitalOceanSpacesArgs
     | DigitalOceanArgs
     | DiscordNotificationArgs
+    | DockerCLIArgs
     | DockerfileLinterArgs
     | DownloadFTPArgs
     | DownloadS3Args
@@ -412,10 +494,12 @@ export type ActionArgs =
     | FTPArgs
     | FTPSArgs
     | GCloudCLIArgs
+    | GenerateVariablesArgs
     | GhostInspectorArgs
     | GitPushArgs
     | GitcryptLockArgs
     | GitcryptUnlockArgs
+    | GitHubCLIArgs
     | GKEApplyDeploymentArgs
     | GKEKubectlArgs
     | GKERunHelmArgs
@@ -440,10 +524,13 @@ export type ActionArgs =
     | KubernetesSetImageArgs
     | LighthouseArgs
     | LinkValidatorArgs
+    | LinuxArgs
     | LogglyArgs
+    | MacOSArgs
     | MicrosoftTeamsArgs
     | NetlifyArgs
     | NewRelicNotificationArgs
+    | OperateSandboxArgs
     | PassArgumentsArgs
     | PingMonitoringArgs
     | PublishAndroidApplicationArgs
@@ -469,9 +556,11 @@ export type ActionArgs =
     | SmsNotificationArgs
     | SplitTestsArgs
     | SSHCommandArgs
+    | SSHToSandboxArgs
     | SSLVerifyArgs
     | TCPMonitoringArgs
     | TelegramNotificationArgs
+    | TransferToASandboxArgs
     | UpcloudArgs
     | VisualTestsArgs
     | VultrArgs
@@ -492,22 +581,31 @@ export type ActionProps =
     | AzureStorageProps
     | AzureProps
     | BugsnagProps
+    | BuildACordovaAppProps
+    | BuildAFastlaneAppiOSProps
+    | BuildAFlutterAppiOSProps
+    | BuildAReactNativeAppProps
     | BuildAndroidAppProps
     | BuildDockerImageProps
     | BuildFlutterAppProps
     | BuildProps
+    | ClearCacheProps
     | CloudflareProps
     | CloudFrontProps
+    | CodeSignAndExportAnIOSAppProps
     | CodeDeployProps
     | CompressImagesProps
     | CopyFilesFromAnotherPipelineProps
+    | CreateNewSandboxProps
     | DatadogNotificationProps
     | DatadogServiceCheckProps
+    | DeployToAppStoreConnectProps
     | DigitalOceanCDNProps
     | DigitalOceanCLIProps
     | DigitalOceanSpacesProps
     | DigitalOceanProps
     | DiscordNotificationProps
+    | DockerCLIProps
     | DockerfileLinterProps
     | DownloadFTPProps
     | DownloadS3Props
@@ -520,10 +618,12 @@ export type ActionProps =
     | FTPProps
     | FTPSProps
     | GCloudCLIProps
+    | GenerateVariablesProps
     | GhostInspectorProps
     | GitPushProps
     | GitcryptLockProps
     | GitcryptUnlockProps
+    | GitHubCLIProps
     | GKEApplyDeploymentProps
     | GKEKubectlProps
     | GKERunHelmProps
@@ -548,10 +648,13 @@ export type ActionProps =
     | KubernetesSetImageProps
     | LighthouseProps
     | LinkValidatorProps
+    | LinuxProps
     | LogglyProps
+    | MacOSProps
     | MicrosoftTeamsProps
     | NetlifyProps
     | NewRelicNotificationProps
+    | OperateSandboxProps
     | PassArgumentsProps
     | PingMonitoringProps
     | PublishAndroidApplicationProps
@@ -577,9 +680,11 @@ export type ActionProps =
     | SmsNotificationProps
     | SplitTestsProps
     | SSHCommandProps
+    | SSHToSandboxProps
     | SSLVerifyProps
     | TCPMonitoringProps
     | TelegramNotificationProps
+    | TransferToASandboxProps
     | UpcloudProps
     | VisualTestsProps
     | VultrProps
@@ -600,22 +705,31 @@ export type Action =
     | AzureStorage
     | Azure
     | Bugsnag
+    | BuildACordovaApp
+    | BuildAFastlaneAppiOS
+    | BuildAFlutterAppiOS
+    | BuildAReactNativeApp
     | BuildAndroidApp
     | BuildDockerImage
     | BuildFlutterApp
     | Build
+    | ClearCache
     | Cloudflare
     | CloudFront
+    | CodeSignAndExportAnIOSApp
     | CodeDeploy
     | CompressImages
     | CopyFilesFromAnotherPipeline
+    | CreateNewSandbox
     | DatadogNotification
     | DatadogServiceCheck
+    | DeployToAppStoreConnect
     | DigitalOceanCDN
     | DigitalOceanCLI
     | DigitalOceanSpaces
     | DigitalOcean
     | DiscordNotification
+    | DockerCLI
     | DockerfileLinter
     | DownloadFTP
     | DownloadS3
@@ -628,10 +742,12 @@ export type Action =
     | FTP
     | FTPS
     | GCloudCLI
+    | GenerateVariables
     | GhostInspector
     | GitPush
     | GitcryptLock
     | GitcryptUnlock
+    | GitHubCLI
     | GKEApplyDeployment
     | GKEKubectl
     | GKERunHelm
@@ -656,10 +772,13 @@ export type Action =
     | KubernetesSetImage
     | Lighthouse
     | LinkValidator
+    | Linux
     | Loggly
+    | MacOS
     | MicrosoftTeams
     | Netlify
     | NewRelicNotification
+    | OperateSandbox
     | PassArguments
     | PingMonitoring
     | PublishAndroidApplication
@@ -685,9 +804,11 @@ export type Action =
     | SmsNotification
     | SplitTests
     | SSHCommand
+    | SSHToSandbox
     | SSLVerify
     | TCPMonitoring
     | TelegramNotification
+    | TransferToASandbox
     | Upcloud
     | VisualTests
     | Vultr

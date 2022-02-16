@@ -100,3 +100,10 @@ export interface SyncPath {
     vm_path: string;
     direction: SyncPathDirection;
 }
+
+export interface Mapping {
+    application_port: number;
+    subdomain: string;
+    username?: string;
+    password?: string;
+}

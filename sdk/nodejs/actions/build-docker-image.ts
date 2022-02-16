@@ -128,6 +128,11 @@ export interface BuildDockerImageState {
     secret_src?: string;
 
     /**
+     * Specifies the target platform for the build output. By default, it is set to `linux/amd64`. If the setting is other than default, the `buildkit` field is set to `true`. Available options: `linux/amd64`, `linux/arm64`, `linux/riscv64`, `linux/ppc64le`, `linux/s390x`, `linux/386`, `linux/arm/v7`, `linux/arm/v`.
+     */
+    target_platform?: string;
+
+    /**
      * The timeout in seconds.
      */
     timeout?: number;
@@ -179,6 +184,7 @@ export interface BuildDockerImageProps {
     run_only_on_first_failure?: boolean;
     secret_id?: string;
     secret_src?: string;
+    target_platform?: string;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
@@ -234,6 +240,7 @@ export class BuildDockerImage extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     secret_id!: Output<string | undefined>;
     secret_src!: Output<string | undefined>;
+    target_platform!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
@@ -273,6 +280,7 @@ export class BuildDockerImage extends CustomResource {
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['secret_id'] = state?.secret_id;
             inputs['secret_src'] = state?.secret_src;
+            inputs['target_platform'] = state?.target_platform;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
@@ -325,6 +333,7 @@ export class BuildDockerImage extends CustomResource {
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['secret_id'] = args.secret_id;
             inputs['secret_src'] = args.secret_src;
+            inputs['target_platform'] = args.target_platform;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
