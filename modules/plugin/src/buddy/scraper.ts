@@ -122,7 +122,11 @@ export class BuddyScraper {
         const $ = cheerio.load(response.data);
         return $('a.nav-vertical-element[href*="/add-action/"]')
             .toArray()
-            .map(el => this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL + $(el).attr('href')!.toString());
+            .map(el => {
+                const href = $(el).attr('href')!.toString();
+                if (href.startsWith('http')) return href;
+                return (this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL) + href;
+            });
     }
 
     parseType(name: string, type: string, description: string): ParameterType {
@@ -132,10 +136,10 @@ export class BuddyScraper {
         }
         if ('ISO-8601 UTC date' === type || 'iso 8601 utc date' === type) {
             return { scalar: 'String' };
-        } else if ('Integer' === type || 'Float' === type) {
+        } else if ('Integer' === type || 'Int' === type || 'Float' === type) {
             return { scalar: 'Number', isArray };
         } else if ('String' === type || 'Boolean' === type) {
-            const exact = /Should be set to\s([\w-]+)/.exec(description);
+            const exact = /(?:Should|Must) be set to\s([\w-]+)/.exec(description);
             const oneOf = /Can be one of ([\w-]+(?: \(default\))?(?:\s?,\s?[\w-]+)* or [\w-]+(?: \(default\))?)/.exec(description);
             if ('String' === type && exact) {
                 return { text: [exact[1]!], isArray };
