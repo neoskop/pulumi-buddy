@@ -1,7 +1,7 @@
 {
     "name": "neoskop-pulumi-buddy",
     "author": "Mark Wecke <wecke@neoskop.de>",
-    "version": "0.5.0-rc.1",
+    "version": "0.5.0",
     "license": "MIT",
     "private": true,
     "workspaces": [
