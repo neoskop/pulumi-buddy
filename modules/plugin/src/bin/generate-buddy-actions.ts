@@ -36,6 +36,12 @@ async function main() {
                                 required: true
                             };
                         }
+                        if (param.name === 'cacheBaseImage') {
+                            return {
+                                ...param,
+                                name: 'cache_base_image'
+                            };
+                        }
                         return;
                     },
                     patchAction(action) {

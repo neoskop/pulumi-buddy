@@ -39,7 +39,7 @@ export interface BuildState {
     /**
      * If set to `true`, the cached version of the image is used, instead of being pulled each time.
      */
-    cacheBaseImage?: boolean;
+    cache_base_image?: boolean;
 
     /**
      * The dependencies & directories to be cached and available to every execution in this pipeline.
@@ -145,7 +145,7 @@ export interface BuildProps {
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'BUILD';
     after_action_id?: number;
-    cacheBaseImage?: boolean;
+    cache_base_image?: boolean;
     cached_dirs?: string[];
     disabled?: boolean;
     execute_every_command?: boolean;
@@ -197,7 +197,7 @@ export class Build extends CustomResource {
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'BUILD'>;
     after_action_id!: Output<number | undefined>;
-    cacheBaseImage!: Output<boolean | undefined>;
+    cache_base_image!: Output<boolean | undefined>;
     cached_dirs!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
     execute_every_command!: Output<boolean | undefined>;
@@ -233,7 +233,7 @@ export class Build extends CustomResource {
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
-            inputs['cacheBaseImage'] = state?.cacheBaseImage;
+            inputs['cache_base_image'] = state?.cache_base_image;
             inputs['cached_dirs'] = state?.cached_dirs;
             inputs['disabled'] = state?.disabled;
             inputs['execute_every_command'] = state?.execute_every_command;
@@ -288,7 +288,7 @@ export class Build extends CustomResource {
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
-            inputs['cacheBaseImage'] = args.cacheBaseImage;
+            inputs['cache_base_image'] = args.cache_base_image;
             inputs['cached_dirs'] = args.cached_dirs;
             inputs['disabled'] = args.disabled;
             inputs['execute_every_command'] = args.execute_every_command;
