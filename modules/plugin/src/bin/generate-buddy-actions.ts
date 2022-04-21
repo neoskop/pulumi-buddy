@@ -106,18 +106,31 @@ async function main() {
                                 ]
                             };
                         }
-                        if (action.name === 'Run Next Pipeline' && !action.parameters.some(p => p.name === 'wait')) {
+                        if (action.name === 'Run Next Pipeline') {
+                            const parameters = action.parameters.slice();
+                            if (!parameters.some(p => p.name === 'wait')) {
+                                parameters.push({
+                                    name: 'wait',
+                                    type: { scalar: 'Boolean' },
+                                    required: false,
+                                    description: 'Pause execution until triggered pipeline has finished'
+                                });
+                            }
+                            if (!parameters.some(p => p.name === 'variables')) {
+                                parameters.push({
+                                    name: 'variables',
+                                    type: { isArray: true, ref: 'Variable' },
+                                    required: true,
+                                    description:
+                                        'The list of variables to set as parameters for the pipeline. At least one parameter is required.'
+                                });
+                            } else {
+                                const varParameters = parameters.find(p => p.name === 'variables');
+                                varParameters!.required = true;
+                            }
                             return {
                                 ...action,
-                                parameters: [
-                                    ...action.parameters,
-                                    {
-                                        name: 'wait',
-                                        type: { scalar: 'Boolean' },
-                                        required: false,
-                                        description: 'Pause execution until triggered pipeline has finished'
-                                    }
-                                ]
+                                parameters
                             };
                         }
                         return action;
