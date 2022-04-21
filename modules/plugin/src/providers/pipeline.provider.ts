@@ -83,6 +83,7 @@ export class PipelineProvider implements IProvider {
                 Struct.fromJavaScript({
                     ...outputs,
                     id: undefined,
+                    actions: undefined!,
                     pipeline_id: outputs.id,
                     project_name: props.project_name
                 } as any)
@@ -118,6 +119,7 @@ export class PipelineProvider implements IProvider {
                 Struct.fromJavaScript({
                     ...outputs,
                     id: undefined!,
+                    actions: undefined!,
                     pipeline_id: outputs.id,
                     project_name: props.project_name
                 } as any)
@@ -151,6 +153,7 @@ export class PipelineProvider implements IProvider {
                 Struct.fromJavaScript({
                     ...outputs,
                     id: undefined!,
+                    actions: undefined!,
                     pipeline_id: outputs.id,
                     project_name: news.project_name
                 } as any)
