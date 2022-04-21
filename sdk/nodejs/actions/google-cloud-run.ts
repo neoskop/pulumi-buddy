@@ -93,9 +93,9 @@ export interface GoogleCloudRunState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -120,7 +120,7 @@ export interface GoogleCloudRunState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 }
 
 export type GoogleCloudRunArgs = AsInputs<GoogleCloudRunState>;
@@ -147,12 +147,12 @@ export interface GoogleCloudRunProps {
     platform?: string;
     region?: string;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
+    variables: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -197,12 +197,12 @@ export class GoogleCloudRun extends CustomResource {
     platform!: Output<string | undefined>;
     region!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
 
     constructor(name: string, argsOrState: GoogleCloudRunArgs | GoogleCloudRunState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -231,7 +231,7 @@ export class GoogleCloudRun extends CustomResource {
             inputs['platform'] = state?.platform;
             inputs['region'] = state?.region;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -275,6 +275,10 @@ export class GoogleCloudRun extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['application_display_name'] = args.application_display_name;
             inputs['application_name'] = args.application_name;
             inputs['image'] = args.image;
@@ -294,7 +298,7 @@ export class GoogleCloudRun extends CustomResource {
             inputs['platform'] = args.platform;
             inputs['region'] = args.region;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;

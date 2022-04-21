@@ -52,9 +52,9 @@ export interface LinkValidatorState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -79,7 +79,7 @@ export interface LinkValidatorState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 }
 
 export type LinkValidatorArgs = AsInputs<LinkValidatorState>;
@@ -98,12 +98,12 @@ export interface LinkValidatorProps {
     ignore_errors?: boolean;
     ignored_prefixes?: string[];
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
+    variables: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -140,12 +140,12 @@ export class LinkValidator extends CustomResource {
     ignore_errors!: Output<boolean | undefined>;
     ignored_prefixes!: Output<string[] | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
 
     constructor(name: string, argsOrState: LinkValidatorArgs | LinkValidatorState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -166,7 +166,7 @@ export class LinkValidator extends CustomResource {
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['ignored_prefixes'] = state?.ignored_prefixes;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -198,6 +198,10 @@ export class LinkValidator extends CustomResource {
                 throw new Error('Missing required property "website"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['depth'] = args.depth;
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
@@ -207,7 +211,7 @@ export class LinkValidator extends CustomResource {
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['ignored_prefixes'] = args.ignored_prefixes;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;

@@ -1,6 +1,7 @@
 import { AmazonS3State, AmazonS3Props, AmazonS3Args, AmazonS3 } from './amazon-s3';
 import { AWSCLI2State, AWSCLI2Props, AWSCLI2Args, AWSCLI2 } from './aws-cli-2';
 import { AWSCLIState, AWSCLIProps, AWSCLIArgs, AWSCLI } from './aws-cli';
+import { AWSCodePipelineState, AWSCodePipelineProps, AWSCodePipelineArgs, AWSCodePipeline } from './aws-codepipeline';
 import { AWSECSState, AWSECSProps, AWSECSArgs, AWSECS } from './aws-ecs';
 import { AWSLambdaDeployState, AWSLambdaDeployProps, AWSLambdaDeployArgs, AWSLambdaDeploy } from './aws-lambda-deploy';
 import { AWSLambdaState, AWSLambdaProps, AWSLambdaArgs, AWSLambda } from './aws-lambda';
@@ -30,6 +31,7 @@ import {
 import { BuildAndroidAppState, BuildAndroidAppProps, BuildAndroidAppArgs, BuildAndroidApp } from './build-android-app';
 import { BuildDockerImageState, BuildDockerImageProps, BuildDockerImageArgs, BuildDockerImage } from './build-docker-image';
 import { BuildFlutterAppState, BuildFlutterAppProps, BuildFlutterAppArgs, BuildFlutterApp } from './build-flutter-app';
+import { BuildMultiArchImageState, BuildMultiArchImageProps, BuildMultiArchImageArgs, BuildMultiArchImage } from './build-multi-arch-image';
 import { BuildState, BuildProps, BuildArgs, Build } from './build';
 import { ClearCacheState, ClearCacheProps, ClearCacheArgs, ClearCache } from './clear-cache';
 import { CloudflareState, CloudflareProps, CloudflareArgs, Cloudflare } from './cloudflare';
@@ -86,6 +88,7 @@ import { GitPushState, GitPushProps, GitPushArgs, GitPush } from './git-push';
 import { GitcryptLockState, GitcryptLockProps, GitcryptLockArgs, GitcryptLock } from './gitcrypt-lock';
 import { GitcryptUnlockState, GitcryptUnlockProps, GitcryptUnlockArgs, GitcryptUnlock } from './gitcrypt-unlock';
 import { GitHubCLIState, GitHubCLIProps, GitHubCLIArgs, GitHubCLI } from './github-cli';
+import { GitLabCLIState, GitLabCLIProps, GitLabCLIArgs, GitLabCLI } from './gitlab-cli';
 import { GKEApplyDeploymentState, GKEApplyDeploymentProps, GKEApplyDeploymentArgs, GKEApplyDeployment } from './gke-apply-deployment';
 import { GKEKubectlState, GKEKubectlProps, GKEKubectlArgs, GKEKubectl } from './gke-kubectl';
 import { GKERunHelmState, GKERunHelmProps, GKERunHelmArgs, GKERunHelm } from './gke-run-helm';
@@ -200,6 +203,7 @@ import { ZIPState, ZIPProps, ZIPArgs, ZIP } from './zip';
 export * from './amazon-s3';
 export * from './aws-cli-2';
 export * from './aws-cli';
+export * from './aws-codepipeline';
 export * from './aws-ecs';
 export * from './aws-lambda-deploy';
 export * from './aws-lambda';
@@ -214,6 +218,7 @@ export * from './build-a-react-native-app';
 export * from './build-android-app';
 export * from './build-docker-image';
 export * from './build-flutter-app';
+export * from './build-multi-arch-image';
 export * from './build';
 export * from './clear-cache';
 export * from './cloudflare';
@@ -250,6 +255,7 @@ export * from './git-push';
 export * from './gitcrypt-lock';
 export * from './gitcrypt-unlock';
 export * from './github-cli';
+export * from './gitlab-cli';
 export * from './gke-apply-deployment';
 export * from './gke-kubectl';
 export * from './gke-run-helm';
@@ -326,6 +332,7 @@ export type ActionState =
     | AmazonS3State
     | AWSCLI2State
     | AWSCLIState
+    | AWSCodePipelineState
     | AWSECSState
     | AWSLambdaDeployState
     | AWSLambdaState
@@ -340,6 +347,7 @@ export type ActionState =
     | BuildAndroidAppState
     | BuildDockerImageState
     | BuildFlutterAppState
+    | BuildMultiArchImageState
     | BuildState
     | ClearCacheState
     | CloudflareState
@@ -376,6 +384,7 @@ export type ActionState =
     | GitcryptLockState
     | GitcryptUnlockState
     | GitHubCLIState
+    | GitLabCLIState
     | GKEApplyDeploymentState
     | GKEKubectlState
     | GKERunHelmState
@@ -450,6 +459,7 @@ export type ActionArgs =
     | AmazonS3Args
     | AWSCLI2Args
     | AWSCLIArgs
+    | AWSCodePipelineArgs
     | AWSECSArgs
     | AWSLambdaDeployArgs
     | AWSLambdaArgs
@@ -464,6 +474,7 @@ export type ActionArgs =
     | BuildAndroidAppArgs
     | BuildDockerImageArgs
     | BuildFlutterAppArgs
+    | BuildMultiArchImageArgs
     | BuildArgs
     | ClearCacheArgs
     | CloudflareArgs
@@ -500,6 +511,7 @@ export type ActionArgs =
     | GitcryptLockArgs
     | GitcryptUnlockArgs
     | GitHubCLIArgs
+    | GitLabCLIArgs
     | GKEApplyDeploymentArgs
     | GKEKubectlArgs
     | GKERunHelmArgs
@@ -574,6 +586,7 @@ export type ActionProps =
     | AmazonS3Props
     | AWSCLI2Props
     | AWSCLIProps
+    | AWSCodePipelineProps
     | AWSECSProps
     | AWSLambdaDeployProps
     | AWSLambdaProps
@@ -588,6 +601,7 @@ export type ActionProps =
     | BuildAndroidAppProps
     | BuildDockerImageProps
     | BuildFlutterAppProps
+    | BuildMultiArchImageProps
     | BuildProps
     | ClearCacheProps
     | CloudflareProps
@@ -624,6 +638,7 @@ export type ActionProps =
     | GitcryptLockProps
     | GitcryptUnlockProps
     | GitHubCLIProps
+    | GitLabCLIProps
     | GKEApplyDeploymentProps
     | GKEKubectlProps
     | GKERunHelmProps
@@ -698,6 +713,7 @@ export type Action =
     | AmazonS3
     | AWSCLI2
     | AWSCLI
+    | AWSCodePipeline
     | AWSECS
     | AWSLambdaDeploy
     | AWSLambda
@@ -712,6 +728,7 @@ export type Action =
     | BuildAndroidApp
     | BuildDockerImage
     | BuildFlutterApp
+    | BuildMultiArchImage
     | Build
     | ClearCache
     | Cloudflare
@@ -748,6 +765,7 @@ export type Action =
     | GitcryptLock
     | GitcryptUnlock
     | GitHubCLI
+    | GitLabCLI
     | GKEApplyDeployment
     | GKEKubectl
     | GKERunHelm

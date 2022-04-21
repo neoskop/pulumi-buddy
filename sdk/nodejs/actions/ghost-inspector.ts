@@ -83,9 +83,9 @@ export interface GhostInspectorState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -135,7 +135,7 @@ export interface GhostInspectorState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 
     /**
      * Alternate screen size to use for all tests in this execution only. This should be a string formatted as `{width}x{height}`, for example `1024x768`.
@@ -165,7 +165,7 @@ export interface GhostInspectorProps {
     password?: string;
     region?: string;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     start_url?: string;
@@ -175,7 +175,7 @@ export interface GhostInspectorProps {
     trigger_conditions?: TriggerCondition[];
     user?: string;
     user_agent?: string;
-    variables?: Variable[];
+    variables: Variable[];
     viewport?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -219,7 +219,7 @@ export class GhostInspector extends CustomResource {
     password!: Output<string | undefined>;
     region!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     start_url!: Output<string | undefined>;
@@ -229,7 +229,7 @@ export class GhostInspector extends CustomResource {
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     user!: Output<string | undefined>;
     user_agent!: Output<string | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
     viewport!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: GhostInspectorArgs | GhostInspectorState, opts?: CustomResourceOptions) {
@@ -257,7 +257,7 @@ export class GhostInspector extends CustomResource {
             inputs['password'] = state?.password;
             inputs['region'] = state?.region;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['start_url'] = state?.start_url;
@@ -291,6 +291,10 @@ export class GhostInspector extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
@@ -308,7 +312,7 @@ export class GhostInspector extends CustomResource {
             inputs['password'] = args.password;
             inputs['region'] = args.region;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['start_url'] = args.start_url;

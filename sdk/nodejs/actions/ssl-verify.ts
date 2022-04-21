@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { TriggerCondition, Variable } from '../common';
+import { Variable, TriggerCondition } from '../common';
 
 export interface SSLVerifyState {
     project_name: string;
@@ -20,6 +20,11 @@ export interface SSLVerifyState {
      * Validation period for SSL certificate.
      */
     valid_for_days: number;
+
+    /**
+     * The list of variables you can use the action.
+     */
+    variables: Variable[];
 
     /**
      * The URL of the website to be monitored.
@@ -52,9 +57,9 @@ export interface SSLVerifyState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -75,11 +80,6 @@ export interface SSLVerifyState {
      * The list of trigger conditions to meet so that the action can be triggered.
      */
     trigger_conditions?: TriggerCondition[];
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables?: Variable[];
 }
 
 export type SSLVerifyArgs = AsInputs<SSLVerifyState>;
@@ -92,18 +92,18 @@ export interface SSLVerifyProps {
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SSL_VERIFY';
     valid_for_days: number;
+    variables: Variable[];
     website: string;
     after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
     port?: string;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -134,18 +134,18 @@ export class SSLVerify extends CustomResource {
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SSL_VERIFY'>;
     valid_for_days!: Output<number>;
+    variables!: Output<Variable[]>;
     website!: Output<string>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     port!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: SSLVerifyArgs | SSLVerifyState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -160,18 +160,18 @@ export class SSLVerify extends CustomResource {
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['valid_for_days'] = state?.valid_for_days;
+            inputs['variables'] = state?.variables;
             inputs['website'] = state?.website;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['port'] = state?.port;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
-            inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as SSLVerifyArgs | undefined;
             if (!args?.project_name) {
@@ -194,6 +194,10 @@ export class SSLVerify extends CustomResource {
                 throw new Error('Missing required property "valid_for_days"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             if (!args?.website) {
                 throw new Error('Missing required property "website"');
             }
@@ -201,18 +205,18 @@ export class SSLVerify extends CustomResource {
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['valid_for_days'] = args.valid_for_days;
+            inputs['variables'] = args.variables;
             inputs['website'] = args.website;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['port'] = args.port;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
-            inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

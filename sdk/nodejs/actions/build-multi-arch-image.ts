@@ -3,23 +3,13 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { TriggerCondition, Variable } from '../common';
 
-export interface GitPushState {
+export interface BuildMultiArchImageState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The authentication mode for GIT. Should be set to `HTTP`.
+     * The path of the desired dockerfile in the repository.
      */
-    git_auth_mode: 'HTTP';
-
-    /**
-     * The name of the action.
-     */
-    name: string;
-
-    /**
-     * The url to the repository.
-     */
-    push_url: string;
+    dockerfile_path: string;
 
     /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
@@ -32,14 +22,14 @@ export interface GitPushState {
     after_action_id?: number;
 
     /**
-     * Optional custom git commit message.
+     * The arguments used when building the image from the Dockerfile.
      */
-    comment?: string;
+    build_args?: string[];
 
     /**
-     * The paths and/or files that will be left out during the push. Only works  when `use_custom_gitignore` is set to `true`.
+     * The docker build image context path.
      */
-    deployment_excludes?: string[];
+    context_path?: string;
 
     /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
@@ -47,29 +37,44 @@ export interface GitPushState {
     disabled?: boolean;
 
     /**
+     * The tag of the Docker image.
+     */
+    docker_image_tag?: string;
+
+    /**
      * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
     /**
-     * When set to `true`, action will push only repository files (without  artifacts).
+     * The ID of the integration. Required for delivering the Dockerfile to the Amazon ECR, Google GCR and Docker Hub.
      */
-    isolated?: boolean;
+    integration_hash?: string;
 
     /**
-     * The username required to connect to the server.
+     * The username required to connect to the server. Required for delivering the Dockerfile to a private registry.
      */
     login?: string;
 
     /**
-     * The password required to connect to the server.
+     * The password required to connect to the server. Required for delivering the Dockerfile to a private registry.
      */
     password?: string;
 
     /**
-     * Defines whether the tags should be pushed to the remote repository or  not.
+     * The name of the Amazon S3 region. Required for delivering the Dockerfile to the Amazon ECR. The full list of regions is available here.
      */
-    push_tags?: boolean;
+    region?: string;
+
+    /**
+     * The url to GCR. Can be one of gcr.io, us.gcr.io, eu.gcr.io or asia.gcr.io. Required for Google GCR.
+     */
+    registry?: string;
+
+    /**
+     * The location of the Docker repository.
+     */
+    repository?: string;
 
     /**
      * Number of retries if the action fails.
@@ -92,14 +97,24 @@ export interface GitPushState {
     run_only_on_first_failure?: boolean;
 
     /**
-     * The name of the tag to push.
+     * The identifier to pass into the `docker build --secret`. This identifier is associated with the `RUN --mount` identifier to use in the Dockerfile.
      */
-    tag?: string;
+    secret_id?: string;
 
     /**
-     * Defines the remote branch to which the push will be performed. If empty, files will be pushed to the same branch.
+     * Renames the secret file to a specific file in the Dockerfile RUN command to use.
      */
-    target_branch?: string;
+    secret_src?: string;
+
+    /**
+     * Specifies the target platform for the build output. You can set multiple target platforms. Default value: `linux/amd64`. Available values: `linux/amd64`, `linux/arm64`, `linux/riscv64`, `linux/ppc64le`, `linux/s390x`, `linux/386`, `linux/arm/v7`, `linux/arm/v`.
+     */
+    target_platform?: string[];
+
+    /**
+     * Specifes an intermediate build stage by name as a final stage for the resulting image. Commands after the target stage are skipped.
+     */
+    target_stage?: string;
 
     /**
      * The timeout in seconds.
@@ -112,52 +127,49 @@ export interface GitPushState {
     trigger_conditions?: TriggerCondition[];
 
     /**
-     * When set to `false` the push will ignore paths listed in .gitignore  file.
-     */
-    use_custom_gitignore?: boolean;
-
-    /**
      * The list of variables you can use the action.
      */
     variables: Variable[];
 
     /**
-     * Defines whether the `--force` flag should be used when invoking  the git push command or not.
+     * If set to `true`, the output of the logs will be default. If set to `false`, the output of the logs will be displayed in the plain mode.
      */
-    without_force?: boolean;
+    without_progress?: boolean;
 }
 
-export type GitPushArgs = AsInputs<GitPushState>;
+export type BuildMultiArchImageArgs = AsInputs<BuildMultiArchImageState>;
 
-export interface GitPushProps {
+export interface BuildMultiArchImageProps {
     url: string;
     html_url: string;
     action_id: number;
-    git_auth_mode: 'HTTP';
-    name: string;
-    push_url: string;
+    dockerfile_path: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'PUSH';
+    type: 'DOCKER_BUILD_MULTI_ARCH';
     after_action_id?: number;
-    comment?: string;
-    deployment_excludes?: string[];
+    build_args?: string[];
+    context_path?: string;
     disabled?: boolean;
+    docker_image_tag?: string;
     ignore_errors?: boolean;
-    isolated?: boolean;
+    integration_hash?: string;
     login?: string;
     password?: string;
-    push_tags?: boolean;
+    region?: string;
+    registry?: string;
+    repository?: string;
     retry_count?: number;
     retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    tag?: string;
-    target_branch?: string;
+    secret_id?: string;
+    secret_src?: string;
+    target_platform?: string[];
+    target_stage?: string;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    use_custom_gitignore?: boolean;
     variables: Variable[];
-    without_force?: boolean;
+    without_progress?: boolean;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -166,86 +178,90 @@ export interface GitPushProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class GitPush extends CustomResource {
-    static __pulumiType = 'buddy:action:GitPush';
+export class BuildMultiArchImage extends CustomResource {
+    static __pulumiType = 'buddy:action:BuildMultiArchImage';
 
-    static get(name: string, id: Input<ID>, state?: Partial<GitPushState>, opts?: CustomResourceOptions) {
-        return new GitPush(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<BuildMultiArchImageState>, opts?: CustomResourceOptions) {
+        return new BuildMultiArchImage(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is GitPush {
+    static isInstance(obj: any): obj is BuildMultiArchImage {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === GitPush.__pulumiType;
+        return obj['__pulumiType'] === BuildMultiArchImage.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    git_auth_mode!: Output<'HTTP'>;
-    name!: Output<string>;
-    push_url!: Output<string>;
+    dockerfile_path!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'PUSH'>;
+    type!: Output<'DOCKER_BUILD_MULTI_ARCH'>;
     after_action_id!: Output<number | undefined>;
-    comment!: Output<string | undefined>;
-    deployment_excludes!: Output<string[] | undefined>;
+    build_args!: Output<string[] | undefined>;
+    context_path!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
+    docker_image_tag!: Output<string | undefined>;
     ignore_errors!: Output<boolean | undefined>;
-    isolated!: Output<boolean | undefined>;
+    integration_hash!: Output<string | undefined>;
     login!: Output<string | undefined>;
     password!: Output<string | undefined>;
-    push_tags!: Output<boolean | undefined>;
+    region!: Output<string | undefined>;
+    registry!: Output<string | undefined>;
+    repository!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
-    tag!: Output<string | undefined>;
-    target_branch!: Output<string | undefined>;
+    secret_id!: Output<string | undefined>;
+    secret_src!: Output<string | undefined>;
+    target_platform!: Output<string[] | undefined>;
+    target_stage!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    use_custom_gitignore!: Output<boolean | undefined>;
     variables!: Output<Variable[]>;
-    without_force!: Output<boolean | undefined>;
+    without_progress!: Output<boolean | undefined>;
 
-    constructor(name: string, argsOrState: GitPushArgs | GitPushState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: BuildMultiArchImageArgs | BuildMultiArchImageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as GitPushState | undefined;
+            const state = argsOrState as BuildMultiArchImageState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['git_auth_mode'] = state?.git_auth_mode;
-            inputs['name'] = state?.name;
-            inputs['push_url'] = state?.push_url;
+            inputs['dockerfile_path'] = state?.dockerfile_path;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
-            inputs['comment'] = state?.comment;
-            inputs['deployment_excludes'] = state?.deployment_excludes;
+            inputs['build_args'] = state?.build_args;
+            inputs['context_path'] = state?.context_path;
             inputs['disabled'] = state?.disabled;
+            inputs['docker_image_tag'] = state?.docker_image_tag;
             inputs['ignore_errors'] = state?.ignore_errors;
-            inputs['isolated'] = state?.isolated;
+            inputs['integration_hash'] = state?.integration_hash;
             inputs['login'] = state?.login;
             inputs['password'] = state?.password;
-            inputs['push_tags'] = state?.push_tags;
+            inputs['region'] = state?.region;
+            inputs['registry'] = state?.registry;
+            inputs['repository'] = state?.repository;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
-            inputs['tag'] = state?.tag;
-            inputs['target_branch'] = state?.target_branch;
+            inputs['secret_id'] = state?.secret_id;
+            inputs['secret_src'] = state?.secret_src;
+            inputs['target_platform'] = state?.target_platform;
+            inputs['target_stage'] = state?.target_stage;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
-            inputs['use_custom_gitignore'] = state?.use_custom_gitignore;
             inputs['variables'] = state?.variables;
-            inputs['without_force'] = state?.without_force;
+            inputs['without_progress'] = state?.without_progress;
         } else {
-            const args = argsOrState as GitPushArgs | undefined;
+            const args = argsOrState as BuildMultiArchImageArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -254,16 +270,8 @@ export class GitPush extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.git_auth_mode) {
-                throw new Error('Missing required property "git_auth_mode"');
-            }
-
-            if (!args?.name) {
-                throw new Error('Missing required property "name"');
-            }
-
-            if (!args?.push_url) {
-                throw new Error('Missing required property "push_url"');
+            if (!args?.dockerfile_path) {
+                throw new Error('Missing required property "dockerfile_path"');
             }
 
             if (!args?.trigger_time) {
@@ -274,30 +282,32 @@ export class GitPush extends CustomResource {
                 throw new Error('Missing required property "variables"');
             }
 
-            inputs['git_auth_mode'] = args.git_auth_mode;
-            inputs['name'] = args.name;
-            inputs['push_url'] = args.push_url;
+            inputs['dockerfile_path'] = args.dockerfile_path;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
-            inputs['comment'] = args.comment;
-            inputs['deployment_excludes'] = args.deployment_excludes;
+            inputs['build_args'] = args.build_args;
+            inputs['context_path'] = args.context_path;
             inputs['disabled'] = args.disabled;
+            inputs['docker_image_tag'] = args.docker_image_tag;
             inputs['ignore_errors'] = args.ignore_errors;
-            inputs['isolated'] = args.isolated;
+            inputs['integration_hash'] = args.integration_hash;
             inputs['login'] = args.login;
             inputs['password'] = args.password;
-            inputs['push_tags'] = args.push_tags;
+            inputs['region'] = args.region;
+            inputs['registry'] = args.registry;
+            inputs['repository'] = args.repository;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
-            inputs['tag'] = args.tag;
-            inputs['target_branch'] = args.target_branch;
+            inputs['secret_id'] = args.secret_id;
+            inputs['secret_src'] = args.secret_src;
+            inputs['target_platform'] = args.target_platform;
+            inputs['target_stage'] = args.target_stage;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
-            inputs['use_custom_gitignore'] = args.use_custom_gitignore;
             inputs['variables'] = args.variables;
-            inputs['without_force'] = args.without_force;
+            inputs['without_progress'] = args.without_progress;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }
@@ -308,11 +318,11 @@ export class GitPush extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'PUSH';
+        inputs['type'] = 'DOCKER_BUILD_MULTI_ARCH';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(GitPush.__pulumiType, name, inputs, opts);
+        super(BuildMultiArchImage.__pulumiType, name, inputs, opts);
     }
 }

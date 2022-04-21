@@ -103,9 +103,9 @@ export interface BuildDockerImageState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -128,11 +128,6 @@ export interface BuildDockerImageState {
     secret_src?: string;
 
     /**
-     * Specifies the target platform for the build output. By default, it is set to `linux/amd64`. If the setting is other than default, the `buildkit` field is set to `true`. Available options: `linux/amd64`, `linux/arm64`, `linux/riscv64`, `linux/ppc64le`, `linux/s390x`, `linux/386`, `linux/arm/v7`, `linux/arm/v`.
-     */
-    target_platform?: string;
-
-    /**
      * The timeout in seconds.
      */
     timeout?: number;
@@ -145,7 +140,7 @@ export interface BuildDockerImageState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 
     /**
      * If set to `true`, the output of the logs will be default. If set to `false`, the output of the logs will be displayed in the plain mode.
@@ -179,15 +174,14 @@ export interface BuildDockerImageProps {
     registry?: string;
     repository?: string;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     secret_id?: string;
     secret_src?: string;
-    target_platform?: string;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
+    variables: Variable[];
     without_progress?: boolean;
     pipeline: PipelineProps;
     project_name: string;
@@ -235,15 +229,14 @@ export class BuildDockerImage extends CustomResource {
     registry!: Output<string | undefined>;
     repository!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     secret_id!: Output<string | undefined>;
     secret_src!: Output<string | undefined>;
-    target_platform!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
     without_progress!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: BuildDockerImageArgs | BuildDockerImageState, opts?: CustomResourceOptions) {
@@ -275,12 +268,11 @@ export class BuildDockerImage extends CustomResource {
             inputs['registry'] = state?.registry;
             inputs['repository'] = state?.repository;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['secret_id'] = state?.secret_id;
             inputs['secret_src'] = state?.secret_src;
-            inputs['target_platform'] = state?.target_platform;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
@@ -307,6 +299,10 @@ export class BuildDockerImage extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['dockerfile_path'] = args.dockerfile_path;
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
@@ -328,12 +324,11 @@ export class BuildDockerImage extends CustomResource {
             inputs['registry'] = args.registry;
             inputs['repository'] = args.repository;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['secret_id'] = args.secret_id;
             inputs['secret_src'] = args.secret_src;
-            inputs['target_platform'] = args.target_platform;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;

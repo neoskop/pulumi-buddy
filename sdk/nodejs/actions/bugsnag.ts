@@ -62,9 +62,9 @@ export interface BugsnagState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * See `sourceControl.revision` here.
@@ -94,7 +94,7 @@ export interface BugsnagState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 }
 
 export type BugsnagArgs = AsInputs<BugsnagState>;
@@ -115,13 +115,13 @@ export interface BugsnagProps {
     disabled?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     revision?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
+    variables: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -160,13 +160,13 @@ export class Bugsnag extends CustomResource {
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     revision!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
 
     constructor(name: string, argsOrState: BugsnagArgs | BugsnagState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -189,7 +189,7 @@ export class Bugsnag extends CustomResource {
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['revision'] = state?.revision;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
@@ -226,6 +226,10 @@ export class Bugsnag extends CustomResource {
                 throw new Error('Missing required property "version"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['name'] = args.name;
             inputs['release_stage'] = args.release_stage;
             inputs['token'] = args.token;
@@ -237,7 +241,7 @@ export class Bugsnag extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['revision'] = args.revision;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;

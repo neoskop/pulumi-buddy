@@ -63,9 +63,9 @@ export interface ElasticBeanstalkMonitorState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -90,7 +90,7 @@ export interface ElasticBeanstalkMonitorState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 
     /**
      * Defines whether or not to show verbose logs.
@@ -116,12 +116,12 @@ export interface ElasticBeanstalkMonitorProps {
     fail_on_yellow?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
+    variables: Variable[];
     verbose?: boolean;
     pipeline: PipelineProps;
     project_name: string;
@@ -161,12 +161,12 @@ export class ElasticBeanstalkMonitor extends CustomResource {
     fail_on_yellow!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
     verbose!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: ElasticBeanstalkMonitorArgs | ElasticBeanstalkMonitorState, opts?: CustomResourceOptions) {
@@ -190,7 +190,7 @@ export class ElasticBeanstalkMonitor extends CustomResource {
             inputs['fail_on_yellow'] = state?.fail_on_yellow;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -231,6 +231,10 @@ export class ElasticBeanstalkMonitor extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['application_name'] = args.application_name;
             inputs['environment'] = args.environment;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
@@ -244,7 +248,7 @@ export class ElasticBeanstalkMonitor extends CustomResource {
             inputs['fail_on_yellow'] = args.fail_on_yellow;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;

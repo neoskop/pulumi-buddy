@@ -67,14 +67,19 @@ export interface BuildState {
     main_service_name?: string;
 
     /**
+     * If set to `true`, resets the default entrypoint set by the image. Default value: `false`.
+     */
+    reset_entrypoint?: boolean;
+
+    /**
      * Number of retries if the action fails.
      */
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * All build commands are run as the default user defined in the selected Docker image. Can be set to another username (on the condition that this user exists in the selected image).
@@ -119,7 +124,7 @@ export interface BuildState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 
     /**
      * The path preceding the colon is the filesystem path (the folder from the filesystem to be mounted in the container). The path after the colon is the container path (the path in the container, where this filesystem will be located).
@@ -151,8 +156,9 @@ export interface BuildProps {
     execute_every_command?: boolean;
     ignore_errors?: boolean;
     main_service_name?: string;
+    reset_entrypoint?: boolean;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_as_user?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
@@ -161,7 +167,7 @@ export interface BuildProps {
     shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
+    variables: Variable[];
     volume_mappings?: string[];
     working_directory?: string;
     pipeline: PipelineProps;
@@ -203,8 +209,9 @@ export class Build extends CustomResource {
     execute_every_command!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     main_service_name!: Output<string | undefined>;
+    reset_entrypoint!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_as_user!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
@@ -213,7 +220,7 @@ export class Build extends CustomResource {
     shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
     volume_mappings!: Output<string[] | undefined>;
     working_directory!: Output<string | undefined>;
 
@@ -239,8 +246,9 @@ export class Build extends CustomResource {
             inputs['execute_every_command'] = state?.execute_every_command;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['main_service_name'] = state?.main_service_name;
+            inputs['reset_entrypoint'] = state?.reset_entrypoint;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_as_user'] = state?.run_as_user;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
@@ -282,6 +290,10 @@ export class Build extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['docker_image_name'] = args.docker_image_name;
             inputs['docker_image_tag'] = args.docker_image_tag;
             inputs['execute_commands'] = args.execute_commands;
@@ -294,8 +306,9 @@ export class Build extends CustomResource {
             inputs['execute_every_command'] = args.execute_every_command;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['main_service_name'] = args.main_service_name;
+            inputs['reset_entrypoint'] = args.reset_entrypoint;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_as_user'] = args.run_as_user;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;

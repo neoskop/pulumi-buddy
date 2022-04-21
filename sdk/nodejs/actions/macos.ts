@@ -57,9 +57,9 @@ export interface MacOSState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -89,7 +89,7 @@ export interface MacOSState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 
     /**
      * Defines the Xcode version.
@@ -114,13 +114,13 @@ export interface MacOSProps {
     pre_start_simulators?: string[];
     provision_profiles?: string[];
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     sync_paths?: SyncPath[];
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
+    variables: Variable[];
     xcode_version?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -159,13 +159,13 @@ export class MacOS extends CustomResource {
     pre_start_simulators!: Output<string[] | undefined>;
     provision_profiles!: Output<string[] | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     sync_paths!: Output<SyncPath[] | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
     xcode_version!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: MacOSArgs | MacOSState, opts?: CustomResourceOptions) {
@@ -188,7 +188,7 @@ export class MacOS extends CustomResource {
             inputs['pre_start_simulators'] = state?.pre_start_simulators;
             inputs['provision_profiles'] = state?.provision_profiles;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['sync_paths'] = state?.sync_paths;
@@ -218,6 +218,10 @@ export class MacOS extends CustomResource {
                 throw new Error('Missing required property "working_directory"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['commands'] = args.commands;
             inputs['trigger_time'] = args.trigger_time;
             inputs['working_directory'] = args.working_directory;
@@ -228,7 +232,7 @@ export class MacOS extends CustomResource {
             inputs['pre_start_simulators'] = args.pre_start_simulators;
             inputs['provision_profiles'] = args.provision_profiles;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['sync_paths'] = args.sync_paths;

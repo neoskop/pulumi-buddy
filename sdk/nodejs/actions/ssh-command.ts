@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { TriggerCondition, Variable } from '../common';
+import { Variable, TriggerCondition } from '../common';
 
 export interface SSHCommandState {
     project_name: string;
@@ -47,6 +47,11 @@ export interface SSHCommandState {
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
 
     /**
+     * The list of variables you can use the action.
+     */
+    variables: Variable[];
+
+    /**
      * The numerical ID of the action, after which this action should be added.
      */
     after_action_id?: number;
@@ -72,9 +77,9 @@ export interface SSHCommandState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * If set to `true`, commands are executed as a regular script. If set to false, the commands will be executed one by one, in non-interactive mode.
@@ -107,11 +112,6 @@ export interface SSHCommandState {
     trigger_conditions?: TriggerCondition[];
 
     /**
-     * The list of variables you can use the action.
-     */
-    variables?: Variable[];
-
-    /**
      * The absolute or relative path on the remote server.
      */
     working_directory?: string;
@@ -132,19 +132,19 @@ export interface SSHCommandProps {
     port: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SSH_COMMAND';
+    variables: Variable[];
     after_action_id?: number;
     disabled?: boolean;
     execute_every_command?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_as_script?: boolean;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
     working_directory?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -181,19 +181,19 @@ export class SSHCommand extends CustomResource {
     port!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SSH_COMMAND'>;
+    variables!: Output<Variable[]>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     execute_every_command!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_as_script!: Output<boolean | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
     working_directory!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: SSHCommandArgs | SSHCommandState, opts?: CustomResourceOptions) {
@@ -214,19 +214,19 @@ export class SSHCommand extends CustomResource {
             inputs['password'] = state?.password;
             inputs['port'] = state?.port;
             inputs['trigger_time'] = state?.trigger_time;
+            inputs['variables'] = state?.variables;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['execute_every_command'] = state?.execute_every_command;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_as_script'] = state?.run_as_script;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
-            inputs['variables'] = state?.variables;
             inputs['working_directory'] = state?.working_directory;
         } else {
             const args = argsOrState as SSHCommandArgs | undefined;
@@ -270,6 +270,10 @@ export class SSHCommand extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['authentication_mode'] = args.authentication_mode;
             inputs['commands'] = args.commands;
             inputs['host'] = args.host;
@@ -278,19 +282,19 @@ export class SSHCommand extends CustomResource {
             inputs['password'] = args.password;
             inputs['port'] = args.port;
             inputs['trigger_time'] = args.trigger_time;
+            inputs['variables'] = args.variables;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['execute_every_command'] = args.execute_every_command;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_as_script'] = args.run_as_script;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
-            inputs['variables'] = args.variables;
             inputs['working_directory'] = args.working_directory;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;

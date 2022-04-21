@@ -53,9 +53,9 @@ export interface NetlifyState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -90,7 +90,7 @@ export interface NetlifyState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 }
 
 export type NetlifyArgs = AsInputs<NetlifyState>;
@@ -109,14 +109,14 @@ export interface NetlifyProps {
     disabled?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     setup_commands?: string[];
     shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
+    variables: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -153,14 +153,14 @@ export class Netlify extends CustomResource {
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     setup_commands!: Output<string[] | undefined>;
     shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
 
     constructor(name: string, argsOrState: NetlifyArgs | NetlifyState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -181,7 +181,7 @@ export class Netlify extends CustomResource {
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['setup_commands'] = state?.setup_commands;
@@ -219,6 +219,10 @@ export class Netlify extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['application_name'] = args.application_name;
             inputs['execute_commands'] = args.execute_commands;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
@@ -230,7 +234,7 @@ export class Netlify extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['setup_commands'] = args.setup_commands;

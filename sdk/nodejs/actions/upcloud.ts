@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, TriggerCondition, Variable } from '../common';
+import { IntegrationRef, Variable, TriggerCondition } from '../common';
 import { Integration } from '../integration';
 
 export interface UpcloudState {
@@ -46,6 +46,11 @@ export interface UpcloudState {
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
+
+    /**
+     * The list of variables you can use the action.
+     */
+    variables: Variable[];
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -98,9 +103,9 @@ export interface UpcloudState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -121,11 +126,6 @@ export interface UpcloudState {
      * The list of trigger conditions to meet so that the action can be triggered.
      */
     trigger_conditions?: TriggerCondition[];
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables?: Variable[];
 }
 
 export type UpcloudArgs = AsInputs<UpcloudState>;
@@ -143,6 +143,7 @@ export interface UpcloudProps {
     port: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'UPCLOUD';
+    variables: Variable[];
     after_action_id?: number;
     deployment_excludes?: string[];
     deployment_includes?: string[];
@@ -153,12 +154,11 @@ export interface UpcloudProps {
     password?: string;
     remote_path?: string;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -194,6 +194,7 @@ export class Upcloud extends CustomResource {
     port!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'UPCLOUD'>;
+    variables!: Output<Variable[]>;
     after_action_id!: Output<number | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
@@ -204,12 +205,11 @@ export class Upcloud extends CustomResource {
     password!: Output<string | undefined>;
     remote_path!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: UpcloudArgs | UpcloudState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -229,6 +229,7 @@ export class Upcloud extends CustomResource {
             inputs['name'] = state?.name;
             inputs['port'] = state?.port;
             inputs['trigger_time'] = state?.trigger_time;
+            inputs['variables'] = state?.variables;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
@@ -239,12 +240,11 @@ export class Upcloud extends CustomResource {
             inputs['password'] = state?.password;
             inputs['remote_path'] = state?.remote_path;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
-            inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as UpcloudArgs | undefined;
             if (!args?.project_name) {
@@ -287,6 +287,10 @@ export class Upcloud extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['authentication_mode'] = args.authentication_mode;
             inputs['host'] = args.host;
             inputs['host_name'] = args.host_name;
@@ -297,6 +301,7 @@ export class Upcloud extends CustomResource {
             inputs['name'] = args.name;
             inputs['port'] = args.port;
             inputs['trigger_time'] = args.trigger_time;
+            inputs['variables'] = args.variables;
             inputs['after_action_id'] = args.after_action_id;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
@@ -307,12 +312,11 @@ export class Upcloud extends CustomResource {
             inputs['password'] = args.password;
             inputs['remote_path'] = args.remote_path;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
-            inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

@@ -103,9 +103,9 @@ export interface RunDockerContainerState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * All build commands are run as the default user defined in the selected Docker image. Can be set to another username (on the condition that this user exists in the selected image).
@@ -140,7 +140,7 @@ export interface RunDockerContainerState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 
     /**
      * The path preceding the colon is the filesystem path (the folder from the filesystem to be mounted in the container). The path after the colon is the container path (the path in the container, where this filesystem will be located).
@@ -174,14 +174,14 @@ export interface RunDockerContainerProps {
     region?: string;
     registry?: string;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_as_user?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     use_image_from_action?: boolean;
-    variables?: Variable[];
+    variables: Variable[];
     volume_mappings?: string[];
     pipeline: PipelineProps;
     project_name: string;
@@ -229,14 +229,14 @@ export class RunDockerContainer extends CustomResource {
     region!: Output<string | undefined>;
     registry!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_as_user!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     use_image_from_action!: Output<boolean | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
     volume_mappings!: Output<string[] | undefined>;
 
     constructor(name: string, argsOrState: RunDockerContainerArgs | RunDockerContainerState, opts?: CustomResourceOptions) {
@@ -268,7 +268,7 @@ export class RunDockerContainer extends CustomResource {
             inputs['region'] = state?.region;
             inputs['registry'] = state?.registry;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_as_user'] = state?.run_as_user;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
@@ -307,6 +307,10 @@ export class RunDockerContainer extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['docker_image_name'] = args.docker_image_name;
             inputs['docker_image_tag'] = args.docker_image_tag;
             inputs['inline_commands'] = args.inline_commands;
@@ -328,7 +332,7 @@ export class RunDockerContainer extends CustomResource {
             inputs['region'] = args.region;
             inputs['registry'] = args.registry;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_as_user'] = args.run_as_user;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;

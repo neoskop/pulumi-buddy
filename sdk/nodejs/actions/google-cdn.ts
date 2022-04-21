@@ -83,9 +83,9 @@ export interface GoogleCDNState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
@@ -115,7 +115,7 @@ export interface GoogleCDNState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 }
 
 export type GoogleCDNArgs = AsInputs<GoogleCDNState>;
@@ -140,13 +140,13 @@ export interface GoogleCDNProps {
     purge_all?: boolean;
     remote_path?: string;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     url_map?: string;
-    variables?: Variable[];
+    variables: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -189,13 +189,13 @@ export class GoogleCDN extends CustomResource {
     purge_all!: Output<boolean | undefined>;
     remote_path!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     url_map!: Output<string | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
 
     constructor(name: string, argsOrState: GoogleCDNArgs | GoogleCDNState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -222,7 +222,7 @@ export class GoogleCDN extends CustomResource {
             inputs['purge_all'] = state?.purge_all;
             inputs['remote_path'] = state?.remote_path;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
@@ -259,6 +259,10 @@ export class GoogleCDN extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['distribution_id'] = args.distribution_id;
             inputs['distribution_name'] = args.distribution_name;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
@@ -276,7 +280,7 @@ export class GoogleCDN extends CustomResource {
             inputs['purge_all'] = args.purge_all;
             inputs['remote_path'] = args.remote_path;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;

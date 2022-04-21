@@ -68,9 +68,9 @@ export interface RollbarNotificationState {
     retry_count?: number;
 
     /**
-     * Delay time between auto retries in minutes.
+     * Delay time between auto retries in seconds.
      */
-    retry_delay?: number;
+    retry_interval?: number;
 
     /**
      * The Rollbar username of the user who deployed.
@@ -110,7 +110,7 @@ export interface RollbarNotificationState {
     /**
      * The list of variables you can use the action.
      */
-    variables?: Variable[];
+    variables: Variable[];
 }
 
 export type RollbarNotificationArgs = AsInputs<RollbarNotificationState>;
@@ -132,7 +132,7 @@ export interface RollbarNotificationProps {
     disabled?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
-    retry_delay?: number;
+    retry_interval?: number;
     rollbar_username?: string;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
@@ -140,7 +140,7 @@ export interface RollbarNotificationProps {
     token_name?: string;
     trigger_conditions?: TriggerCondition[];
     user?: string;
-    variables?: Variable[];
+    variables: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -180,7 +180,7 @@ export class RollbarNotification extends CustomResource {
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
-    retry_delay!: Output<number | undefined>;
+    retry_interval!: Output<number | undefined>;
     rollbar_username!: Output<string | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
@@ -188,7 +188,7 @@ export class RollbarNotification extends CustomResource {
     token_name!: Output<string | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     user!: Output<string | undefined>;
-    variables!: Output<Variable[] | undefined>;
+    variables!: Output<Variable[]>;
 
     constructor(name: string, argsOrState: RollbarNotificationArgs | RollbarNotificationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -212,7 +212,7 @@ export class RollbarNotification extends CustomResource {
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
-            inputs['retry_delay'] = state?.retry_delay;
+            inputs['retry_interval'] = state?.retry_interval;
             inputs['rollbar_username'] = state?.rollbar_username;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
@@ -259,6 +259,10 @@ export class RollbarNotification extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            if (!args?.variables) {
+                throw new Error('Missing required property "variables"');
+            }
+
             inputs['application_id'] = args.application_id;
             inputs['application_name'] = args.application_name;
             inputs['environment'] = args.environment;
@@ -273,7 +277,7 @@ export class RollbarNotification extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
-            inputs['retry_delay'] = args.retry_delay;
+            inputs['retry_interval'] = args.retry_interval;
             inputs['rollbar_username'] = args.rollbar_username;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
