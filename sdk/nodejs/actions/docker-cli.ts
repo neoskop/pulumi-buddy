@@ -94,7 +94,7 @@ export interface DockerCLIState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type DockerCLIArgs = AsInputs<DockerCLIState>;
@@ -121,7 +121,7 @@ export interface DockerCLIProps {
     sync_paths?: SyncPath[];
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -166,7 +166,7 @@ export class DockerCLI extends CustomResource {
     sync_paths!: Output<SyncPath[] | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: DockerCLIArgs | DockerCLIState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -216,10 +216,6 @@ export class DockerCLI extends CustomResource {
 
             if (!args?.working_directory) {
                 throw new Error('Missing required property "working_directory"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['commands'] = args.commands;

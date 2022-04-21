@@ -89,7 +89,7 @@ export interface MacOSState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * Defines the Xcode version.
@@ -120,7 +120,7 @@ export interface MacOSProps {
     sync_paths?: SyncPath[];
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     xcode_version?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -165,7 +165,7 @@ export class MacOS extends CustomResource {
     sync_paths!: Output<SyncPath[] | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     xcode_version!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: MacOSArgs | MacOSState, opts?: CustomResourceOptions) {
@@ -216,10 +216,6 @@ export class MacOS extends CustomResource {
 
             if (!args?.working_directory) {
                 throw new Error('Missing required property "working_directory"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['commands'] = args.commands;

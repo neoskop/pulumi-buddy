@@ -99,7 +99,7 @@ export interface LinuxState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type LinuxArgs = AsInputs<LinuxState>;
@@ -127,7 +127,7 @@ export interface LinuxProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     user?: string;
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -173,7 +173,7 @@ export class Linux extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     user!: Output<string | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: LinuxArgs | LinuxState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -228,10 +228,6 @@ export class Linux extends CustomResource {
 
             if (!args?.working_directory) {
                 throw new Error('Missing required property "working_directory"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['commands'] = args.commands;

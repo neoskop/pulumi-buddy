@@ -114,7 +114,7 @@ export interface CreateNewSandboxState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type CreateNewSandboxArgs = AsInputs<CreateNewSandboxState>;
@@ -145,7 +145,7 @@ export interface CreateNewSandboxProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     username?: string;
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -194,7 +194,7 @@ export class CreateNewSandbox extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     username!: Output<string | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: CreateNewSandboxArgs | CreateNewSandboxState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -264,10 +264,6 @@ export class CreateNewSandbox extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['cpu_limit'] = args.cpu_limit;

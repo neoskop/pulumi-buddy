@@ -105,7 +105,7 @@ export interface DownloadS3State {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type DownloadS3Args = AsInputs<DownloadS3State>;
@@ -134,7 +134,7 @@ export interface DownloadS3Props {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -181,7 +181,7 @@ export class DownloadS3 extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: DownloadS3Args | DownloadS3State, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -245,10 +245,6 @@ export class DownloadS3 extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['bucket_name'] = args.bucket_name;

@@ -125,7 +125,7 @@ export interface CodeDeployState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * Defines whether to wait for the finish of the deployment in Amazon Code Deploy.
@@ -163,7 +163,7 @@ export interface CodeDeployProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     update_outdated_instances_only?: boolean;
-    variables: Variable[];
+    variables?: Variable[];
     wait_for_finish_deployment?: boolean;
     pipeline: PipelineProps;
     project_name: string;
@@ -215,7 +215,7 @@ export class CodeDeploy extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     update_outdated_instances_only!: Output<boolean | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     wait_for_finish_deployment!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: CodeDeployArgs | CodeDeployState, opts?: CustomResourceOptions) {
@@ -281,10 +281,6 @@ export class CodeDeploy extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_name'] = args.application_name;

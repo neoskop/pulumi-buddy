@@ -115,7 +115,7 @@ export interface GKERunPodState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type GKERunPodArgs = AsInputs<GKERunPodState>;
@@ -146,7 +146,7 @@ export interface GKERunPodProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -195,7 +195,7 @@ export class GKERunPod extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: GKERunPodArgs | GKERunPodState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -265,10 +265,6 @@ export class GKERunPod extends CustomResource {
 
             if (!args?.zone_id) {
                 throw new Error('Missing required property "zone_id"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_id'] = args.application_id;

@@ -90,7 +90,7 @@ export interface GitLabCLIState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type GitLabCLIArgs = AsInputs<GitLabCLIState>;
@@ -116,7 +116,7 @@ export interface GitLabCLIProps {
     shell?: 'BASH' | 'SH';
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -160,7 +160,7 @@ export class GitLabCLI extends CustomResource {
     shell!: Output<'BASH' | 'SH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: GitLabCLIArgs | GitLabCLIState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -217,10 +217,6 @@ export class GitLabCLI extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['execute_commands'] = args.execute_commands;

@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable, SyncPath, TriggerCondition } from '../common';
+import { SyncPath, TriggerCondition, Variable } from '../common';
 
 export interface XCodeState {
     project_name: string;
@@ -25,11 +25,6 @@ export interface XCodeState {
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables: Variable[];
 
     /**
      * The directory in which the pipeline filesystem will be mounted.
@@ -95,6 +90,11 @@ export interface XCodeState {
      * The list of trigger conditions to meet so that the action can be triggered.
      */
     trigger_conditions?: TriggerCondition[];
+
+    /**
+     * The list of variables you can use the action.
+     */
+    variables?: Variable[];
 }
 
 export type XCodeArgs = AsInputs<XCodeState>;
@@ -108,7 +108,6 @@ export interface XCodeProps {
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'NATIVE_BUILD_MAC';
-    variables: Variable[];
     working_directory: string;
     after_action_id?: number;
     disabled?: boolean;
@@ -122,6 +121,7 @@ export interface XCodeProps {
     sync_paths?: SyncPath[];
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -153,7 +153,6 @@ export class XCode extends CustomResource {
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'NATIVE_BUILD_MAC'>;
-    variables!: Output<Variable[]>;
     working_directory!: Output<string>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -167,6 +166,7 @@ export class XCode extends CustomResource {
     sync_paths!: Output<SyncPath[] | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: XCodeArgs | XCodeState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -182,7 +182,6 @@ export class XCode extends CustomResource {
             inputs['image'] = state?.image;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['variables'] = state?.variables;
             inputs['working_directory'] = state?.working_directory;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
@@ -196,6 +195,7 @@ export class XCode extends CustomResource {
             inputs['sync_paths'] = state?.sync_paths;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
+            inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as XCodeArgs | undefined;
             if (!args?.project_name) {
@@ -222,10 +222,6 @@ export class XCode extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
-            }
-
             if (!args?.working_directory) {
                 throw new Error('Missing required property "working_directory"');
             }
@@ -234,7 +230,6 @@ export class XCode extends CustomResource {
             inputs['image'] = args.image;
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['variables'] = args.variables;
             inputs['working_directory'] = args.working_directory;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
@@ -248,6 +243,7 @@ export class XCode extends CustomResource {
             inputs['sync_paths'] = args.sync_paths;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
+            inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable, TriggerCondition } from '../common';
+import { TriggerCondition, Variable } from '../common';
 
 export interface TransferToASandboxState {
     project_name: string;
@@ -15,11 +15,6 @@ export interface TransferToASandboxState {
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables: Variable[];
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -135,6 +130,11 @@ export interface TransferToASandboxState {
      * The name of the local (to the sandbox server) user who uploads the files.
      */
     user?: string;
+
+    /**
+     * The list of variables you can use the action.
+     */
+    variables?: Variable[];
 }
 
 export type TransferToASandboxArgs = AsInputs<TransferToASandboxState>;
@@ -146,7 +146,6 @@ export interface TransferToASandboxProps {
     sandbox_references: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'DEPLOY_TO_SANDBOX';
-    variables: Variable[];
     after_action_id?: number;
     days?: number;
     deletion_disabled?: boolean;
@@ -170,6 +169,7 @@ export interface TransferToASandboxProps {
     trigger_conditions?: TriggerCondition[];
     use_temporary_files?: boolean;
     user?: string;
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -199,7 +199,6 @@ export class TransferToASandbox extends CustomResource {
     sandbox_references!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'DEPLOY_TO_SANDBOX'>;
-    variables!: Output<Variable[]>;
     after_action_id!: Output<number | undefined>;
     days!: Output<number | undefined>;
     deletion_disabled!: Output<boolean | undefined>;
@@ -223,6 +222,7 @@ export class TransferToASandbox extends CustomResource {
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     use_temporary_files!: Output<boolean | undefined>;
     user!: Output<string | undefined>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: TransferToASandboxArgs | TransferToASandboxState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -236,7 +236,6 @@ export class TransferToASandbox extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['sandbox_references'] = state?.sandbox_references;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['variables'] = state?.variables;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['days'] = state?.days;
             inputs['deletion_disabled'] = state?.deletion_disabled;
@@ -260,6 +259,7 @@ export class TransferToASandbox extends CustomResource {
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['use_temporary_files'] = state?.use_temporary_files;
             inputs['user'] = state?.user;
+            inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as TransferToASandboxArgs | undefined;
             if (!args?.project_name) {
@@ -278,13 +278,8 @@ export class TransferToASandbox extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
-            }
-
             inputs['sandbox_references'] = args.sandbox_references;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['variables'] = args.variables;
             inputs['after_action_id'] = args.after_action_id;
             inputs['days'] = args.days;
             inputs['deletion_disabled'] = args.deletion_disabled;
@@ -308,6 +303,7 @@ export class TransferToASandbox extends CustomResource {
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['use_temporary_files'] = args.use_temporary_files;
             inputs['user'] = args.user;
+            inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

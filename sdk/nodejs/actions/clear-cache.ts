@@ -64,7 +64,7 @@ export interface ClearCacheState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type ClearCacheArgs = AsInputs<ClearCacheState>;
@@ -85,7 +85,7 @@ export interface ClearCacheProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -124,7 +124,7 @@ export class ClearCache extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: ClearCacheArgs | ClearCacheState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -164,10 +164,6 @@ export class ClearCache extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['cache_types'] = args.cache_types;

@@ -79,7 +79,7 @@ export interface RunNextPipelineState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * Pause execution until triggered pipeline has finished
@@ -108,7 +108,7 @@ export interface RunNextPipelineProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     wait?: boolean;
     pipeline: PipelineProps;
     project_name: string;
@@ -151,7 +151,7 @@ export class RunNextPipeline extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     wait!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: RunNextPipelineArgs | RunNextPipelineState, opts?: CustomResourceOptions) {
@@ -204,10 +204,6 @@ export class RunNextPipeline extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['name'] = args.name;

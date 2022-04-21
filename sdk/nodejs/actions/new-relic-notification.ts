@@ -85,7 +85,7 @@ export interface NewRelicNotificationState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * The revision to which the application is deployed. If not set, the default value is $BUDDY_EXECUTION_REVISION.
@@ -115,7 +115,7 @@ export interface NewRelicNotificationProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     version?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -159,7 +159,7 @@ export class NewRelicNotification extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     version!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: NewRelicNotificationArgs | NewRelicNotificationState, opts?: CustomResourceOptions) {
@@ -217,10 +217,6 @@ export class NewRelicNotification extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_id'] = args.application_id;

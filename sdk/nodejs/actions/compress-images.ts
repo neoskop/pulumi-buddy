@@ -84,7 +84,7 @@ export interface CompressImagesState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type CompressImagesArgs = AsInputs<CompressImagesState>;
@@ -109,7 +109,7 @@ export interface CompressImagesProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -152,7 +152,7 @@ export class CompressImages extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: CompressImagesArgs | CompressImagesState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -212,10 +212,6 @@ export class CompressImages extends CustomResource {
 
             if (!args?.types) {
                 throw new Error('Missing required property "types"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['destination'] = args.destination;

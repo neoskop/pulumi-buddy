@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable, TriggerCondition } from '../common';
+import { TriggerCondition, Variable } from '../common';
 
 export interface SSHCommandState {
     project_name: string;
@@ -45,11 +45,6 @@ export interface SSHCommandState {
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables: Variable[];
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -112,6 +107,11 @@ export interface SSHCommandState {
     trigger_conditions?: TriggerCondition[];
 
     /**
+     * The list of variables you can use the action.
+     */
+    variables?: Variable[];
+
+    /**
      * The absolute or relative path on the remote server.
      */
     working_directory?: string;
@@ -132,7 +132,6 @@ export interface SSHCommandProps {
     port: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SSH_COMMAND';
-    variables: Variable[];
     after_action_id?: number;
     disabled?: boolean;
     execute_every_command?: boolean;
@@ -145,6 +144,7 @@ export interface SSHCommandProps {
     shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
+    variables?: Variable[];
     working_directory?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -181,7 +181,6 @@ export class SSHCommand extends CustomResource {
     port!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SSH_COMMAND'>;
-    variables!: Output<Variable[]>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     execute_every_command!: Output<boolean | undefined>;
@@ -194,6 +193,7 @@ export class SSHCommand extends CustomResource {
     shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
+    variables!: Output<Variable[] | undefined>;
     working_directory!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: SSHCommandArgs | SSHCommandState, opts?: CustomResourceOptions) {
@@ -214,7 +214,6 @@ export class SSHCommand extends CustomResource {
             inputs['password'] = state?.password;
             inputs['port'] = state?.port;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['variables'] = state?.variables;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['execute_every_command'] = state?.execute_every_command;
@@ -227,6 +226,7 @@ export class SSHCommand extends CustomResource {
             inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
+            inputs['variables'] = state?.variables;
             inputs['working_directory'] = state?.working_directory;
         } else {
             const args = argsOrState as SSHCommandArgs | undefined;
@@ -270,10 +270,6 @@ export class SSHCommand extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
-            }
-
             inputs['authentication_mode'] = args.authentication_mode;
             inputs['commands'] = args.commands;
             inputs['host'] = args.host;
@@ -282,7 +278,6 @@ export class SSHCommand extends CustomResource {
             inputs['password'] = args.password;
             inputs['port'] = args.port;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['variables'] = args.variables;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['execute_every_command'] = args.execute_every_command;
@@ -295,6 +290,7 @@ export class SSHCommand extends CustomResource {
             inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
+            inputs['variables'] = args.variables;
             inputs['working_directory'] = args.working_directory;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;

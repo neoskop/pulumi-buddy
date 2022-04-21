@@ -105,7 +105,7 @@ export interface AWSLambdaState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type AWSLambdaArgs = AsInputs<AWSLambdaState>;
@@ -134,7 +134,7 @@ export interface AWSLambdaProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -181,7 +181,7 @@ export class AWSLambda extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: AWSLambdaArgs | AWSLambdaState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -241,10 +241,6 @@ export class AWSLambda extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['function_name'] = args.function_name;

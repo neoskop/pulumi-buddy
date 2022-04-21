@@ -110,7 +110,7 @@ export interface RollbarNotificationState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type RollbarNotificationArgs = AsInputs<RollbarNotificationState>;
@@ -140,7 +140,7 @@ export interface RollbarNotificationProps {
     token_name?: string;
     trigger_conditions?: TriggerCondition[];
     user?: string;
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -188,7 +188,7 @@ export class RollbarNotification extends CustomResource {
     token_name!: Output<string | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     user!: Output<string | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: RollbarNotificationArgs | RollbarNotificationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -257,10 +257,6 @@ export class RollbarNotification extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_id'] = args.application_id;

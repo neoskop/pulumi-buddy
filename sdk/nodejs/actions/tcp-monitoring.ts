@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable, TriggerCondition } from '../common';
+import { TriggerCondition, Variable } from '../common';
 
 export interface TCPMonitoringState {
     project_name: string;
@@ -20,11 +20,6 @@ export interface TCPMonitoringState {
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables: Variable[];
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -85,6 +80,11 @@ export interface TCPMonitoringState {
      * The list of trigger conditions to meet so that the action can be triggered.
      */
     trigger_conditions?: TriggerCondition[];
+
+    /**
+     * The list of variables you can use the action.
+     */
+    variables?: Variable[];
 }
 
 export type TCPMonitoringArgs = AsInputs<TCPMonitoringState>;
@@ -97,7 +97,6 @@ export interface TCPMonitoringProps {
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'TCP';
-    variables: Variable[];
     after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -110,6 +109,7 @@ export interface TCPMonitoringProps {
     text?: string;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -140,7 +140,6 @@ export class TCPMonitoring extends CustomResource {
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'TCP'>;
-    variables!: Output<Variable[]>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -153,6 +152,7 @@ export class TCPMonitoring extends CustomResource {
     text!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: TCPMonitoringArgs | TCPMonitoringState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -167,7 +167,6 @@ export class TCPMonitoring extends CustomResource {
             inputs['destination'] = state?.destination;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['variables'] = state?.variables;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -180,6 +179,7 @@ export class TCPMonitoring extends CustomResource {
             inputs['text'] = state?.text;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
+            inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as TCPMonitoringArgs | undefined;
             if (!args?.project_name) {
@@ -202,14 +202,9 @@ export class TCPMonitoring extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
-            }
-
             inputs['destination'] = args.destination;
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['variables'] = args.variables;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
@@ -222,6 +217,7 @@ export class TCPMonitoring extends CustomResource {
             inputs['text'] = args.text;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
+            inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

@@ -125,7 +125,7 @@ export interface GKERunHelmState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type GKERunHelmArgs = AsInputs<GKERunHelmState>;
@@ -158,7 +158,7 @@ export interface GKERunHelmProps {
     shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -209,7 +209,7 @@ export class GKERunHelm extends CustomResource {
     shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: GKERunHelmArgs | GKERunHelmState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -289,10 +289,6 @@ export class GKERunHelm extends CustomResource {
 
             if (!args?.zone_id) {
                 throw new Error('Missing required property "zone_id"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_id'] = args.application_id;

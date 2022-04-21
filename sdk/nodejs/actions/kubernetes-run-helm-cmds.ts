@@ -145,7 +145,7 @@ export interface KubernetesRunHelmCMDsState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type KubernetesRunHelmCMDsArgs = AsInputs<KubernetesRunHelmCMDsState>;
@@ -182,7 +182,7 @@ export interface KubernetesRunHelmCMDsProps {
     timeout?: number;
     token?: string;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -237,7 +237,7 @@ export class KubernetesRunHelmCMDs extends CustomResource {
     timeout!: Output<number | undefined>;
     token!: Output<string | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: KubernetesRunHelmCMDsArgs | KubernetesRunHelmCMDsState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -312,10 +312,6 @@ export class KubernetesRunHelmCMDs extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['auth_type'] = args.auth_type;

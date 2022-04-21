@@ -94,7 +94,7 @@ export interface BuildAndroidAppState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * The path preceding the colon is the filesystem path (the folder from the filesystem to be mounted in the container). The path after the colon is the container path (the path in the container, where this filesystem will be located).
@@ -131,7 +131,7 @@ export interface BuildAndroidAppProps {
     setup_commands?: string[];
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     volume_mappings?: string[];
     working_directory?: string;
     pipeline: PipelineProps;
@@ -178,7 +178,7 @@ export class BuildAndroidApp extends CustomResource {
     setup_commands!: Output<string[] | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     volume_mappings!: Output<string[] | undefined>;
     working_directory!: Output<string | undefined>;
 
@@ -240,10 +240,6 @@ export class BuildAndroidApp extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['docker_image_name'] = args.docker_image_name;

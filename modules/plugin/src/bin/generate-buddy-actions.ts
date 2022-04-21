@@ -106,16 +106,23 @@ async function main() {
                                 ]
                             };
                         }
-                        if (action.name === 'Run Next Pipeline') {
-                            const parameters = action.parameters.slice();
-                            if (!parameters.some(p => p.name === 'wait')) {
-                                parameters.push({
-                                    name: 'wait',
-                                    type: { scalar: 'Boolean' },
-                                    required: false,
-                                    description: 'Pause execution until triggered pipeline has finished'
-                                });
-                            }
+                        if (action.name === 'Run Next Pipeline' && !action.parameters.some(p => p.name === 'wait')) {
+
+                            return {
+                                ...action,
+                                parameters: [
+                                    ...action.parameters,
+                                    {
+                                        name: 'wait',
+                                        type: { scalar: 'Boolean' },
+                                        required: false,
+                                        description: 'Pause execution until triggered pipeline has finished'
+                                    }
+                                ]
+                            };
+                        }
+                        if (action.name === 'Pass arguments') {
+                            let parameters = action.parameters.slice();
                             if (!parameters.some(p => p.name === 'variables')) {
                                 parameters.push({
                                     name: 'variables',
@@ -125,9 +132,18 @@ async function main() {
                                         'The list of variables to set as parameters for the pipeline. At least one parameter is required.'
                                 });
                             } else {
-                                const varParameters = parameters.find(p => p.name === 'variables');
-                                varParameters!.required = true;
+                                parameters = parameters.map(p =>
+                                    p.name === 'variables'
+                                        ? {
+                                              ...p,
+                                              required: true,
+                                              description:
+                                                  'The list of variables to set as parameters for the pipeline. At least one parameter is required.'
+                                          }
+                                        : p
+                                );
                             }
+
                             return {
                                 ...action,
                                 parameters

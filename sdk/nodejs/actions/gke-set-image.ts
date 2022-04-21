@@ -120,7 +120,7 @@ export interface GKESetImageState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type GKESetImageArgs = AsInputs<GKESetImageState>;
@@ -152,7 +152,7 @@ export interface GKESetImageProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -202,7 +202,7 @@ export class GKESetImage extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: GKESetImageArgs | GKESetImageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -293,10 +293,6 @@ export class GKESetImage extends CustomResource {
 
             if (!args?.zone_id) {
                 throw new Error('Missing required property "zone_id"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_id'] = args.application_id;

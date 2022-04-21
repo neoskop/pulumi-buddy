@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable, TriggerCondition } from '../common';
+import { TriggerCondition, Variable } from '../common';
 
 export interface SSHToSandboxState {
     project_name: string;
@@ -20,11 +20,6 @@ export interface SSHToSandboxState {
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables: Variable[];
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -117,6 +112,11 @@ export interface SSHToSandboxState {
     user?: string;
 
     /**
+     * The list of variables you can use the action.
+     */
+    variables?: Variable[];
+
+    /**
      * The absolute or relative path on the sandbox.
      */
     working_directory?: string;
@@ -132,7 +132,6 @@ export interface SSHToSandboxProps {
     sandbox_references: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SANDBOX_EXEC';
-    variables: Variable[];
     after_action_id?: number;
     days?: number;
     disabled?: boolean;
@@ -151,6 +150,7 @@ export interface SSHToSandboxProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     user?: string;
+    variables?: Variable[];
     working_directory?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -182,7 +182,6 @@ export class SSHToSandbox extends CustomResource {
     sandbox_references!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SANDBOX_EXEC'>;
-    variables!: Output<Variable[]>;
     after_action_id!: Output<number | undefined>;
     days!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -201,6 +200,7 @@ export class SSHToSandbox extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     user!: Output<string | undefined>;
+    variables!: Output<Variable[] | undefined>;
     working_directory!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: SSHToSandboxArgs | SSHToSandboxState, opts?: CustomResourceOptions) {
@@ -216,7 +216,6 @@ export class SSHToSandbox extends CustomResource {
             inputs['commands'] = state?.commands;
             inputs['sandbox_references'] = state?.sandbox_references;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['variables'] = state?.variables;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['days'] = state?.days;
             inputs['disabled'] = state?.disabled;
@@ -235,6 +234,7 @@ export class SSHToSandbox extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['user'] = state?.user;
+            inputs['variables'] = state?.variables;
             inputs['working_directory'] = state?.working_directory;
         } else {
             const args = argsOrState as SSHToSandboxArgs | undefined;
@@ -258,14 +258,9 @@ export class SSHToSandbox extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
-            }
-
             inputs['commands'] = args.commands;
             inputs['sandbox_references'] = args.sandbox_references;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['variables'] = args.variables;
             inputs['after_action_id'] = args.after_action_id;
             inputs['days'] = args.days;
             inputs['disabled'] = args.disabled;
@@ -284,6 +279,7 @@ export class SSHToSandbox extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['user'] = args.user;
+            inputs['variables'] = args.variables;
             inputs['working_directory'] = args.working_directory;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;

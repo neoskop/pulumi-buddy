@@ -104,7 +104,7 @@ export interface PublishBundleToGooglePlayState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type PublishBundleToGooglePlayArgs = AsInputs<PublishBundleToGooglePlayState>;
@@ -133,7 +133,7 @@ export interface PublishBundleToGooglePlayProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     user_fraction?: number;
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -180,7 +180,7 @@ export class PublishBundleToGooglePlay extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     user_fraction!: Output<number | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: PublishBundleToGooglePlayArgs | PublishBundleToGooglePlayState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -244,10 +244,6 @@ export class PublishBundleToGooglePlay extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['apk_files'] = args.apk_files;

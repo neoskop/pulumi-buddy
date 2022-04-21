@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, Variable, TriggerCondition } from '../common';
+import { IntegrationRef, TriggerCondition, Variable } from '../common';
 import { Integration } from '../integration';
 
 export interface SentryNotificationState {
@@ -31,11 +31,6 @@ export interface SentryNotificationState {
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables: Variable[];
 
     /**
      * The version identifier of the release.
@@ -111,6 +106,11 @@ export interface SentryNotificationState {
      * The list of trigger conditions to meet so that the action can be triggered.
      */
     trigger_conditions?: TriggerCondition[];
+
+    /**
+     * The list of variables you can use the action.
+     */
+    variables?: Variable[];
 }
 
 export type SentryNotificationArgs = AsInputs<SentryNotificationState>;
@@ -125,7 +125,6 @@ export interface SentryNotificationProps {
     organization_slug: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SENTRY';
-    variables: Variable[];
     version: string;
     after_action_id?: number;
     deploy_url?: string;
@@ -141,6 +140,7 @@ export interface SentryNotificationProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -173,7 +173,6 @@ export class SentryNotification extends CustomResource {
     organization_slug!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SENTRY'>;
-    variables!: Output<Variable[]>;
     version!: Output<string>;
     after_action_id!: Output<number | undefined>;
     deploy_url!: Output<string | undefined>;
@@ -189,6 +188,7 @@ export class SentryNotification extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: SentryNotificationArgs | SentryNotificationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -205,7 +205,6 @@ export class SentryNotification extends CustomResource {
             inputs['name'] = state?.name;
             inputs['organization_slug'] = state?.organization_slug;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['variables'] = state?.variables;
             inputs['version'] = state?.version;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['deploy_url'] = state?.deploy_url;
@@ -221,6 +220,7 @@ export class SentryNotification extends CustomResource {
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
+            inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as SentryNotificationArgs | undefined;
             if (!args?.project_name) {
@@ -251,10 +251,6 @@ export class SentryNotification extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
-            }
-
             if (!args?.version) {
                 throw new Error('Missing required property "version"');
             }
@@ -266,7 +262,6 @@ export class SentryNotification extends CustomResource {
             inputs['name'] = args.name;
             inputs['organization_slug'] = args.organization_slug;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['variables'] = args.variables;
             inputs['version'] = args.version;
             inputs['after_action_id'] = args.after_action_id;
             inputs['deploy_url'] = args.deploy_url;
@@ -282,6 +277,7 @@ export class SentryNotification extends CustomResource {
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
+            inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

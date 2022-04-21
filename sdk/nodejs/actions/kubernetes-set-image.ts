@@ -139,7 +139,7 @@ export interface KubernetesSetImageState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type KubernetesSetImageArgs = AsInputs<KubernetesSetImageState>;
@@ -175,7 +175,7 @@ export interface KubernetesSetImageProps {
     timeout?: number;
     token?: string;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -229,7 +229,7 @@ export class KubernetesSetImage extends CustomResource {
     timeout!: Output<number | undefined>;
     token!: Output<string | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: KubernetesSetImageArgs | KubernetesSetImageState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -312,10 +312,6 @@ export class KubernetesSetImage extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['auth_type'] = args.auth_type;

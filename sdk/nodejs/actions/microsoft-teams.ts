@@ -89,7 +89,7 @@ export interface MicrosoftTeamsState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type MicrosoftTeamsArgs = AsInputs<MicrosoftTeamsState>;
@@ -115,7 +115,7 @@ export interface MicrosoftTeamsProps {
     send_as_html?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -159,7 +159,7 @@ export class MicrosoftTeams extends CustomResource {
     send_as_html!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: MicrosoftTeamsArgs | MicrosoftTeamsState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -216,10 +216,6 @@ export class MicrosoftTeams extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['content'] = args.content;

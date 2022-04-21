@@ -140,7 +140,7 @@ export interface RunDockerContainerState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * The path preceding the colon is the filesystem path (the folder from the filesystem to be mounted in the container). The path after the colon is the container path (the path in the container, where this filesystem will be located).
@@ -181,7 +181,7 @@ export interface RunDockerContainerProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     use_image_from_action?: boolean;
-    variables: Variable[];
+    variables?: Variable[];
     volume_mappings?: string[];
     pipeline: PipelineProps;
     project_name: string;
@@ -236,7 +236,7 @@ export class RunDockerContainer extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     use_image_from_action!: Output<boolean | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     volume_mappings!: Output<string[] | undefined>;
 
     constructor(name: string, argsOrState: RunDockerContainerArgs | RunDockerContainerState, opts?: CustomResourceOptions) {
@@ -305,10 +305,6 @@ export class RunDockerContainer extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['docker_image_name'] = args.docker_image_name;

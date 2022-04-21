@@ -110,7 +110,7 @@ export interface DigitalOceanCDNState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type DigitalOceanCDNArgs = AsInputs<DigitalOceanCDNState>;
@@ -140,7 +140,7 @@ export interface DigitalOceanCDNProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     url_map?: string;
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -188,7 +188,7 @@ export class DigitalOceanCDN extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     url_map!: Output<string | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: DigitalOceanCDNArgs | DigitalOceanCDNState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -245,10 +245,6 @@ export class DigitalOceanCDN extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['endpoint_id'] = args.endpoint_id;

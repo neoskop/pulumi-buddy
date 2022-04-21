@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Variable, TriggerCondition } from '../common';
+import { TriggerCondition, Variable } from '../common';
 
 export interface SSLVerifyState {
     project_name: string;
@@ -20,11 +20,6 @@ export interface SSLVerifyState {
      * Validation period for SSL certificate.
      */
     valid_for_days: number;
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables: Variable[];
 
     /**
      * The URL of the website to be monitored.
@@ -80,6 +75,11 @@ export interface SSLVerifyState {
      * The list of trigger conditions to meet so that the action can be triggered.
      */
     trigger_conditions?: TriggerCondition[];
+
+    /**
+     * The list of variables you can use the action.
+     */
+    variables?: Variable[];
 }
 
 export type SSLVerifyArgs = AsInputs<SSLVerifyState>;
@@ -92,7 +92,6 @@ export interface SSLVerifyProps {
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SSL_VERIFY';
     valid_for_days: number;
-    variables: Variable[];
     website: string;
     after_action_id?: number;
     disabled?: boolean;
@@ -104,6 +103,7 @@ export interface SSLVerifyProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -134,7 +134,6 @@ export class SSLVerify extends CustomResource {
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SSL_VERIFY'>;
     valid_for_days!: Output<number>;
-    variables!: Output<Variable[]>;
     website!: Output<string>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -146,6 +145,7 @@ export class SSLVerify extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: SSLVerifyArgs | SSLVerifyState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -160,7 +160,6 @@ export class SSLVerify extends CustomResource {
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['valid_for_days'] = state?.valid_for_days;
-            inputs['variables'] = state?.variables;
             inputs['website'] = state?.website;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
@@ -172,6 +171,7 @@ export class SSLVerify extends CustomResource {
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
+            inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as SSLVerifyArgs | undefined;
             if (!args?.project_name) {
@@ -194,10 +194,6 @@ export class SSLVerify extends CustomResource {
                 throw new Error('Missing required property "valid_for_days"');
             }
 
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
-            }
-
             if (!args?.website) {
                 throw new Error('Missing required property "website"');
             }
@@ -205,7 +201,6 @@ export class SSLVerify extends CustomResource {
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['valid_for_days'] = args.valid_for_days;
-            inputs['variables'] = args.variables;
             inputs['website'] = args.website;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
@@ -217,6 +212,7 @@ export class SSLVerify extends CustomResource {
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
+            inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

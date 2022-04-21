@@ -95,7 +95,7 @@ export interface HerokuState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * Defines whether the `--force` flag should be used when invoking the git push command or not.
@@ -127,7 +127,7 @@ export interface HerokuProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     use_custom_gitignore?: boolean;
-    variables: Variable[];
+    variables?: Variable[];
     without_force?: boolean;
     pipeline: PipelineProps;
     project_name: string;
@@ -173,7 +173,7 @@ export class Heroku extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     use_custom_gitignore!: Output<boolean | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     without_force!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: HerokuArgs | HerokuState, opts?: CustomResourceOptions) {
@@ -229,10 +229,6 @@ export class Heroku extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_name'] = args.application_name;

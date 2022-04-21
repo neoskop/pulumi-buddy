@@ -94,7 +94,7 @@ export interface EmailNotificationState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type EmailNotificationArgs = AsInputs<EmailNotificationState>;
@@ -121,7 +121,7 @@ export interface EmailNotificationProps {
     timeout?: number;
     title?: string;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -166,7 +166,7 @@ export class EmailNotification extends CustomResource {
     timeout!: Output<number | undefined>;
     title!: Output<string | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: EmailNotificationArgs | EmailNotificationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -216,10 +216,6 @@ export class EmailNotification extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['name'] = args.name;

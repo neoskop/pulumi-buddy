@@ -140,7 +140,7 @@ export interface BuildDockerImageState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * If set to `true`, the output of the logs will be default. If set to `false`, the output of the logs will be displayed in the plain mode.
@@ -181,7 +181,7 @@ export interface BuildDockerImageProps {
     secret_src?: string;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     without_progress?: boolean;
     pipeline: PipelineProps;
     project_name: string;
@@ -236,7 +236,7 @@ export class BuildDockerImage extends CustomResource {
     secret_src!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     without_progress!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: BuildDockerImageArgs | BuildDockerImageState, opts?: CustomResourceOptions) {
@@ -297,10 +297,6 @@ export class BuildDockerImage extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['dockerfile_path'] = args.dockerfile_path;

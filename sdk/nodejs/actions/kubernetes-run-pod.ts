@@ -129,7 +129,7 @@ export interface KubernetesRunPodState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type KubernetesRunPodArgs = AsInputs<KubernetesRunPodState>;
@@ -163,7 +163,7 @@ export interface KubernetesRunPodProps {
     timeout?: number;
     token?: string;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -215,7 +215,7 @@ export class KubernetesRunPod extends CustomResource {
     timeout!: Output<number | undefined>;
     token!: Output<string | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: KubernetesRunPodArgs | KubernetesRunPodState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -276,10 +276,6 @@ export class KubernetesRunPod extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['auth_type'] = args.auth_type;

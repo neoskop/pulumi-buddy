@@ -135,7 +135,7 @@ export interface GhostInspectorState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * Alternate screen size to use for all tests in this execution only. This should be a string formatted as `{width}x{height}`, for example `1024x768`.
@@ -175,7 +175,7 @@ export interface GhostInspectorProps {
     trigger_conditions?: TriggerCondition[];
     user?: string;
     user_agent?: string;
-    variables: Variable[];
+    variables?: Variable[];
     viewport?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -229,7 +229,7 @@ export class GhostInspector extends CustomResource {
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     user!: Output<string | undefined>;
     user_agent!: Output<string | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     viewport!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: GhostInspectorArgs | GhostInspectorState, opts?: CustomResourceOptions) {
@@ -289,10 +289,6 @@ export class GhostInspector extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>

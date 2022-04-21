@@ -94,7 +94,7 @@ export interface LighthouseState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type LighthouseArgs = AsInputs<LighthouseState>;
@@ -121,7 +121,7 @@ export interface LighthouseProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -166,7 +166,7 @@ export class Lighthouse extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: LighthouseArgs | LighthouseState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -236,10 +236,6 @@ export class Lighthouse extends CustomResource {
 
             if (!args?.website) {
                 throw new Error('Missing required property "website"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['accessibility'] = args.accessibility;

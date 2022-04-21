@@ -129,7 +129,7 @@ export interface BuildMultiArchImageState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * If set to `true`, the output of the logs will be default. If set to `false`, the output of the logs will be displayed in the plain mode.
@@ -168,7 +168,7 @@ export interface BuildMultiArchImageProps {
     target_stage?: string;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     without_progress?: boolean;
     pipeline: PipelineProps;
     project_name: string;
@@ -221,7 +221,7 @@ export class BuildMultiArchImage extends CustomResource {
     target_stage!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     without_progress!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: BuildMultiArchImageArgs | BuildMultiArchImageState, opts?: CustomResourceOptions) {
@@ -276,10 +276,6 @@ export class BuildMultiArchImage extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['dockerfile_path'] = args.dockerfile_path;

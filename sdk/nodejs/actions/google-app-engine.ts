@@ -110,7 +110,7 @@ export interface GoogleAppEngineState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * The verbosity level. Default level is `warning`. Can be one of `critical`, `debug`, `error`, `info`, `none` or `warning`.
@@ -150,7 +150,7 @@ export interface GoogleAppEngineProps {
     stop_previous_version?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     verbosity?: 'critical' | 'debug' | 'err' | '' | 'info' | 'none' | 'warning';
     version_label?: string;
     pipeline: PipelineProps;
@@ -200,7 +200,7 @@ export class GoogleAppEngine extends CustomResource {
     stop_previous_version!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     verbosity!: Output<'critical' | 'debug' | 'err' | '' | 'info' | 'none' | 'warning' | undefined>;
     version_label!: Output<string | undefined>;
 
@@ -265,10 +265,6 @@ export class GoogleAppEngine extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_name'] = args.application_name;

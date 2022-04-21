@@ -90,7 +90,7 @@ export interface ElasticBeanstalkMonitorState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * Defines whether or not to show verbose logs.
@@ -121,7 +121,7 @@ export interface ElasticBeanstalkMonitorProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     verbose?: boolean;
     pipeline: PipelineProps;
     project_name: string;
@@ -166,7 +166,7 @@ export class ElasticBeanstalkMonitor extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     verbose!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: ElasticBeanstalkMonitorArgs | ElasticBeanstalkMonitorState, opts?: CustomResourceOptions) {
@@ -229,10 +229,6 @@ export class ElasticBeanstalkMonitor extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_name'] = args.application_name;

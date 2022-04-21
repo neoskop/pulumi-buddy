@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Screenshot, Variable, Header, TriggerCondition } from '../common';
+import { Screenshot, Header, TriggerCondition, Variable } from '../common';
 
 export interface VisualTestsState {
     project_name: string;
@@ -45,11 +45,6 @@ export interface VisualTestsState {
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The list of variables you can use the action.
-     */
-    variables: Variable[];
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -100,6 +95,11 @@ export interface VisualTestsState {
      * The list of trigger conditions to meet so that the action can be triggered.
      */
     trigger_conditions?: TriggerCondition[];
+
+    /**
+     * The list of variables you can use the action.
+     */
+    variables?: Variable[];
 }
 
 export type VisualTestsArgs = AsInputs<VisualTestsState>;
@@ -117,7 +117,6 @@ export interface VisualTestsProps {
     screenshots: Screenshot[];
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'VISUAL_TESTS';
-    variables: Variable[];
     after_action_id?: number;
     disabled?: boolean;
     headers?: Header[];
@@ -128,6 +127,7 @@ export interface VisualTestsProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -163,7 +163,6 @@ export class VisualTests extends CustomResource {
     screenshots!: Output<Screenshot[]>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'VISUAL_TESTS'>;
-    variables!: Output<Variable[]>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     headers!: Output<Header[] | undefined>;
@@ -174,6 +173,7 @@ export class VisualTests extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: VisualTestsArgs | VisualTestsState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -193,7 +193,6 @@ export class VisualTests extends CustomResource {
             inputs['resolution_width'] = state?.resolution_width;
             inputs['screenshots'] = state?.screenshots;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['variables'] = state?.variables;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
             inputs['headers'] = state?.headers;
@@ -204,6 +203,7 @@ export class VisualTests extends CustomResource {
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
+            inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as VisualTestsArgs | undefined;
             if (!args?.project_name) {
@@ -246,10 +246,6 @@ export class VisualTests extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
-            }
-
             inputs['browser_type'] = args.browser_type;
             inputs['images_history_limit'] = args.images_history_limit;
             inputs['name'] = args.name;
@@ -258,7 +254,6 @@ export class VisualTests extends CustomResource {
             inputs['resolution_width'] = args.resolution_width;
             inputs['screenshots'] = args.screenshots;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['variables'] = args.variables;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
             inputs['headers'] = args.headers;
@@ -269,6 +264,7 @@ export class VisualTests extends CustomResource {
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
+            inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

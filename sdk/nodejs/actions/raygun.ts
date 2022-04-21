@@ -89,7 +89,7 @@ export interface RaygunState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * See `version` here.
@@ -120,7 +120,7 @@ export interface RaygunProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     user?: string;
-    variables: Variable[];
+    variables?: Variable[];
     version?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -165,7 +165,7 @@ export class Raygun extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     user!: Output<string | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     version!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: RaygunArgs | RaygunState, opts?: CustomResourceOptions) {
@@ -220,10 +220,6 @@ export class Raygun extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['device'] = args.device;

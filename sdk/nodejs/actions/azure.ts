@@ -109,7 +109,7 @@ export interface AzureState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * Defines whether the `--force` flag should be used when invoking the git push command or not.
@@ -144,7 +144,7 @@ export interface AzureProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     use_custom_gitignore?: boolean;
-    variables: Variable[];
+    variables?: Variable[];
     without_force?: boolean;
     pipeline: PipelineProps;
     project_name: string;
@@ -193,7 +193,7 @@ export class Azure extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     use_custom_gitignore!: Output<boolean | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     without_force!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: AzureArgs | AzureState, opts?: CustomResourceOptions) {
@@ -252,10 +252,6 @@ export class Azure extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['git_auth_mode'] = args.git_auth_mode;

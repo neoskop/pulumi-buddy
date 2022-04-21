@@ -89,7 +89,7 @@ export interface EslintState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 }
 
 export type EslintArgs = AsInputs<EslintState>;
@@ -115,7 +115,7 @@ export interface EslintProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -159,7 +159,7 @@ export class Eslint extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: EslintArgs | EslintState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -212,10 +212,6 @@ export class Eslint extends CustomResource {
 
             if (!args?.version) {
                 throw new Error('Missing required property "version"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['name'] = args.name;

@@ -95,7 +95,7 @@ export interface ElasticBeanstalkState {
     /**
      * The list of variables you can use the action.
      */
-    variables: Variable[];
+    variables?: Variable[];
 
     /**
      * The label of the deployed version.
@@ -127,7 +127,7 @@ export interface ElasticBeanstalkProps {
     run_only_on_first_failure?: boolean;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    variables: Variable[];
+    variables?: Variable[];
     version_label?: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -173,7 +173,7 @@ export class ElasticBeanstalk extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    variables!: Output<Variable[]>;
+    variables!: Output<Variable[] | undefined>;
     version_label!: Output<string | undefined>;
 
     constructor(name: string, argsOrState: ElasticBeanstalkArgs | ElasticBeanstalkState, opts?: CustomResourceOptions) {
@@ -237,10 +237,6 @@ export class ElasticBeanstalk extends CustomResource {
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
-            }
-
-            if (!args?.variables) {
-                throw new Error('Missing required property "variables"');
             }
 
             inputs['application_name'] = args.application_name;

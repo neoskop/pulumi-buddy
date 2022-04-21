@@ -67,7 +67,7 @@ export interface PassArgumentsState {
     trigger_conditions?: TriggerCondition[];
 
     /**
-     * The list of variables you can use the action.
+     * The list of variables to set as parameters for the pipeline. At least one parameter is required.
      */
     variables: Variable[];
 }
