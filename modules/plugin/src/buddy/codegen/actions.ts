@@ -97,7 +97,7 @@ export class BuddyCodegenActions {
     }
 
     protected toKeyword(str: string) {
-        return str.replace(/ [a-z]/g, str => str.toUpperCase()).replace(/[^\w-]/g, '');
+        return str.replace(/(?: |-)[a-z]/g, str => str.toUpperCase()).replace(/[^\w]/g, '');
     }
 
     protected sanitize(str: string) {
@@ -270,7 +270,7 @@ export class BuddyCodegenActions {
         args: TypeAliasDeclaration
     ) {
         const actionClass = file.addClass({
-            name: `${this.toKeyword(this.sanitize(action.name))}`,
+            name: this.toKeyword(this.sanitize(action.name)),
             isExported: true,
             extends: 'CustomResource',
             docs: [`\nRequired scopes in Buddy API: \`WORKSPACE\`, \`EXECUTION_MANAGE\`, \`EXECUTION_INFO\``]
