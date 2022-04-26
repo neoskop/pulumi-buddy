@@ -7,6 +7,11 @@ export interface DockerCLIState {
     project_name: string;
     pipeline_id: number;
     /**
+     * The name of the action.
+     */
+    name: string;
+
+    /**
      * The commands that will be executed.
      */
     commands: string[];
@@ -103,6 +108,7 @@ export interface DockerCLIProps {
     url: string;
     html_url: string;
     action_id: number;
+    name: string;
     commands: string[];
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'NATIVE_BUILD_DOCKER_CLI';
@@ -148,6 +154,7 @@ export class DockerCLI extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
+    name!: Output<string>;
     commands!: Output<string[]>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'NATIVE_BUILD_DOCKER_CLI'>;
@@ -178,6 +185,7 @@ export class DockerCLI extends CustomResource {
             const state = argsOrState as DockerCLIState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
+            inputs['name'] = state?.name;
             inputs['commands'] = state?.commands;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['working_directory'] = state?.working_directory;
@@ -206,6 +214,10 @@ export class DockerCLI extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
+            if (!args?.name) {
+                throw new Error('Missing required property "name"');
+            }
+
             if (!args?.commands) {
                 throw new Error('Missing required property "commands"');
             }
@@ -218,6 +230,7 @@ export class DockerCLI extends CustomResource {
                 throw new Error('Missing required property "working_directory"');
             }
 
+            inputs['name'] = args.name;
             inputs['commands'] = args.commands;
             inputs['trigger_time'] = args.trigger_time;
             inputs['working_directory'] = args.working_directory;
