@@ -22,7 +22,7 @@ Use `yarn install-plugin` to link the local build plugin into the pulumi plugin 
 ### Codegen
 
 Use `yarn generate:grpc-code` to generate the GRPC service and client classes.  
-Use `generate:buddy-actions` to generate all actions with the scraped informations for the [Buddy Docs](https://buddy.works/docs/api/pipelines/create-manage-actions/add-action).
+Use `yarn generate:buddy-actions` to generate all actions with the scraped informations for the [Buddy Docs](https://buddy.works/docs/api/pipelines/create-manage-actions/add-action).
 
 ### Publishing
 
