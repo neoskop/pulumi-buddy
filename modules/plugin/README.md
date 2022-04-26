@@ -16,17 +16,16 @@ See [NodeJS SDK](../../sdk/nodejs) for usage description.
 
 See [Workspace README](../..#project-structure) for project setup.
 
-Run `yarn build` or `yarn watch` for building respectively building on every file change.  
+Run `yarn build` or `yarn watch` for building respectively building on every file change.
 Use `yarn install-plugin` to link the local build plugin into the pulumi plugin directory.
 
 ### Codegen
 
-Use `yarn generate:grpc-code` to generate the GRPC service and client classes.  
-Use `generate:buddy-actions` to generate all actions with the scraped informations for the [Buddy Docs](https://buddy.works/docs/api/pipelines/create-manage-actions/add-action).
+Use `yarn generate:buddy-actions` to generate all actions with the scraped informations for the [Buddy Docs](https://buddy.works/docs/api/pipelines/create-manage-actions/add-action).
 
 ### Publishing
 
-Run `yarn bundle` to build, bundle the current version.  
+Run `yarn bundle` to build, bundle the current version.
 Run `yarn bundle-and-publish` to build, bundle and publish the current version (Requires write access to the `gs://pulumi.neoskop.cloud` bucket).
 
 ## License
