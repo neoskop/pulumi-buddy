@@ -14,12 +14,16 @@ export interface IBuddyEnvironmentVariableInput {
     key: string;
     value: string;
     description?: string;
-    ssh_key?: boolean;
+    type?: 'SSH_KEY' | 'VAR';
     settable?: boolean;
     encrypted?: boolean;
     project?: { name: string };
     pipeline?: { id: number };
     action?: { id: number };
+    file_place?: 'CONTAINER' | 'NONE';
+    file_name?: string;
+    file_path?: string;
+    file_chmod?: string;
 }
 
 export interface IBuddyEnvironmentVariable extends IBuddyEnvironmentVariableInput {
