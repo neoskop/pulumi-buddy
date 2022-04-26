@@ -52,7 +52,11 @@ export class EnvironmentVariableProvider implements IProvider {
             .diff('key', 'key')
             .diff('value', props?.encrypted ? null : 'value')
             .diff('description', 'description')
-            .diff('ssh_key', 'ssh_key')
+            .diff('type', 'type')
+            .diff('file_name', 'file_name')
+            .diff('file_path', 'file_path')
+            .diff('file_chmod', 'file_chmod')
+            .diff('file_place', 'file_place')
             .diff('settable', 'settable')
             .diff('encrypted', 'encrypted')
             .diff('project_name', null, true)
@@ -134,7 +138,7 @@ export class EnvironmentVariableProvider implements IProvider {
                 .workspace(this.configuration.require('workspace'))
                 .environmentVariable(id)
                 .update({
-                    ssh_key: false,
+                    type: 'VAR',
                     settable: false,
                     encrypted: false,
                     ...news
