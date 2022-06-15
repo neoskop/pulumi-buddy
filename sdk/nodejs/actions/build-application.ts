@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { Service, TriggerCondition, Variable } from '../common';
 
-export interface BuildState {
+export interface BuildApplicationState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -60,6 +60,11 @@ export interface BuildState {
      * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
+
+    /**
+     * if set to `true`, use cached image on timeouts (only for official images).
+     */
+    ignore_image_pull_failures?: boolean;
 
     /**
      * The hostname of the container in which the action is run. The container will be available under this name in the docker network for services defined in the `services` field.
@@ -137,9 +142,9 @@ export interface BuildState {
     working_directory?: string;
 }
 
-export type BuildArgs = AsInputs<BuildState>;
+export type BuildApplicationArgs = AsInputs<BuildApplicationState>;
 
-export interface BuildProps {
+export interface BuildApplicationProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -155,6 +160,7 @@ export interface BuildProps {
     disabled?: boolean;
     execute_every_command?: boolean;
     ignore_errors?: boolean;
+    ignore_image_pull_failures?: boolean;
     main_service_name?: string;
     reset_entrypoint?: boolean;
     retry_count?: number;
@@ -178,19 +184,19 @@ export interface BuildProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class Build extends CustomResource {
-    static __pulumiType = 'buddy:action:Build';
+export class BuildApplication extends CustomResource {
+    static __pulumiType = 'buddy:action:BuildApplication';
 
-    static get(name: string, id: Input<ID>, state?: Partial<BuildState>, opts?: CustomResourceOptions) {
-        return new Build(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<BuildApplicationState>, opts?: CustomResourceOptions) {
+        return new BuildApplication(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is Build {
+    static isInstance(obj: any): obj is BuildApplication {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === Build.__pulumiType;
+        return obj['__pulumiType'] === BuildApplication.__pulumiType;
     }
 
     project_name!: Output<string>;
@@ -208,6 +214,7 @@ export class Build extends CustomResource {
     disabled!: Output<boolean | undefined>;
     execute_every_command!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    ignore_image_pull_failures!: Output<boolean | undefined>;
     main_service_name!: Output<string | undefined>;
     reset_entrypoint!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
@@ -224,14 +231,14 @@ export class Build extends CustomResource {
     volume_mappings!: Output<string[] | undefined>;
     working_directory!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: BuildArgs | BuildState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: BuildApplicationArgs | BuildApplicationState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as BuildState | undefined;
+            const state = argsOrState as BuildApplicationState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['docker_image_name'] = state?.docker_image_name;
@@ -245,6 +252,7 @@ export class Build extends CustomResource {
             inputs['disabled'] = state?.disabled;
             inputs['execute_every_command'] = state?.execute_every_command;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['ignore_image_pull_failures'] = state?.ignore_image_pull_failures;
             inputs['main_service_name'] = state?.main_service_name;
             inputs['reset_entrypoint'] = state?.reset_entrypoint;
             inputs['retry_count'] = state?.retry_count;
@@ -261,7 +269,7 @@ export class Build extends CustomResource {
             inputs['volume_mappings'] = state?.volume_mappings;
             inputs['working_directory'] = state?.working_directory;
         } else {
-            const args = argsOrState as BuildArgs | undefined;
+            const args = argsOrState as BuildApplicationArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -301,6 +309,7 @@ export class Build extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['execute_every_command'] = args.execute_every_command;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['ignore_image_pull_failures'] = args.ignore_image_pull_failures;
             inputs['main_service_name'] = args.main_service_name;
             inputs['reset_entrypoint'] = args.reset_entrypoint;
             inputs['retry_count'] = args.retry_count;
@@ -331,6 +340,6 @@ export class Build extends CustomResource {
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(Build.__pulumiType, name, inputs, opts);
+        super(BuildApplication.__pulumiType, name, inputs, opts);
     }
 }

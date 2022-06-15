@@ -107,3 +107,8 @@ export interface Mapping {
     username?: string;
     password?: string;
 }
+
+export interface SandboxPlaybook {
+    type: string;
+    [key: string]: unknown
+}

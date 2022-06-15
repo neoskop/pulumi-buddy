@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Mapping, TriggerCondition, Variable } from '../common';
+import { Mapping, SandboxPlaybook, TriggerCondition, Variable } from '../common';
 
 export interface CreateNewSandboxState {
     project_name: string;
@@ -52,6 +52,11 @@ export interface CreateNewSandboxState {
     application_port?: number;
 
     /**
+     * If set to `true`, it allows you to use basic authorization in mappings
+     */
+    basic_auth?: boolean;
+
+    /**
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
@@ -64,7 +69,12 @@ export interface CreateNewSandboxState {
     /**
      * Defines the basic auth password required to access the exposed resources.
      */
-    password?: string;
+    mappings_password?: string;
+
+    /**
+     * Defines the basic auth username required to access the exposed resources.
+     */
+    mappings_username?: string;
 
     /**
      * Number of retries if the action fails.
@@ -87,12 +97,17 @@ export interface CreateNewSandboxState {
     run_only_on_first_failure?: boolean;
 
     /**
+     * Defines the list of playbooks to install during the sandbox creation.
+     */
+    sandbox_playbooks?: SandboxPlaybook[];
+
+    /**
      * Defines the subdomain used in the mapping.
      */
     subdomain?: string;
 
     /**
-     * List of tags applied to sandbox.
+     * The list of tags applied to the sandbox.
      */
     tags?: string[];
 
@@ -105,11 +120,6 @@ export interface CreateNewSandboxState {
      * The list of trigger conditions to meet so that the action can be triggered.
      */
     trigger_conditions?: TriggerCondition[];
-
-    /**
-     * Defines the basic auth username required to access the exposed resources.
-     */
-    username?: string;
 
     /**
      * The list of variables you can use the action.
@@ -133,18 +143,20 @@ export interface CreateNewSandboxProps {
     type: 'SANDBOX_CREATE_NEW';
     after_action_id?: number;
     application_port?: number;
+    basic_auth?: boolean;
     disabled?: boolean;
     ignore_errors?: boolean;
-    password?: string;
+    mappings_password?: string;
+    mappings_username?: string;
     retry_count?: number;
     retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    sandbox_playbooks?: SandboxPlaybook[];
     subdomain?: string;
     tags?: string[];
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    username?: string;
     variables?: Variable[];
     pipeline: PipelineProps;
     project_name: string;
@@ -182,18 +194,20 @@ export class CreateNewSandbox extends CustomResource {
     type!: Output<'SANDBOX_CREATE_NEW'>;
     after_action_id!: Output<number | undefined>;
     application_port!: Output<number | undefined>;
+    basic_auth!: Output<boolean | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
-    password!: Output<string | undefined>;
+    mappings_password!: Output<string | undefined>;
+    mappings_username!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    sandbox_playbooks!: Output<SandboxPlaybook[] | undefined>;
     subdomain!: Output<string | undefined>;
     tags!: Output<string[] | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    username!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
 
     constructor(name: string, argsOrState: CreateNewSandboxArgs | CreateNewSandboxState, opts?: CustomResourceOptions) {
@@ -215,18 +229,20 @@ export class CreateNewSandbox extends CustomResource {
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['application_port'] = state?.application_port;
+            inputs['basic_auth'] = state?.basic_auth;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
-            inputs['password'] = state?.password;
+            inputs['mappings_password'] = state?.mappings_password;
+            inputs['mappings_username'] = state?.mappings_username;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['sandbox_playbooks'] = state?.sandbox_playbooks;
             inputs['subdomain'] = state?.subdomain;
             inputs['tags'] = state?.tags;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
-            inputs['username'] = state?.username;
             inputs['variables'] = state?.variables;
         } else {
             const args = argsOrState as CreateNewSandboxArgs | undefined;
@@ -275,18 +291,20 @@ export class CreateNewSandbox extends CustomResource {
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['application_port'] = args.application_port;
+            inputs['basic_auth'] = args.basic_auth;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
-            inputs['password'] = args.password;
+            inputs['mappings_password'] = args.mappings_password;
+            inputs['mappings_username'] = args.mappings_username;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['sandbox_playbooks'] = args.sandbox_playbooks;
             inputs['subdomain'] = args.subdomain;
             inputs['tags'] = args.tags;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
-            inputs['username'] = args.username;
             inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;

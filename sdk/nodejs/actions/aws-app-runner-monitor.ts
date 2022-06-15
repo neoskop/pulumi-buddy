@@ -1,25 +1,35 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { SyncPath, TriggerCondition, Variable } from '../common';
+import { TriggerCondition, Variable } from '../common';
 
-export interface DockerCLIState {
+export interface AWSAppRunnerMonitorState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The commands that will be executed.
+     * The ID of the integration.
      */
-    commands: string[];
+    integration_hash: string;
+
+    /**
+     * The name of the Amazon region. The full list of regions is available here.
+     */
+    region: string;
+
+    /**
+     * The ID of the App Runner service ARN.
+     */
+    service: string;
+
+    /**
+     * Wait for `operation_in_progress` to complete (0-5400 seconds). Default is set to `5400`.
+     */
+    timeout: number;
 
     /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-
-    /**
-     * The directory in which the pipeline filesystem will be mounted.
-     */
-    working_directory: string;
 
     /**
      * The numerical ID of the action, after which this action should be added.
@@ -30,26 +40,6 @@ export interface DockerCLIState {
      * When set to `true` the action is disabled.  By default it is set to `false`.
      */
     disabled?: boolean;
-
-    /**
-     * Enables or disables Docker layer caching.
-     */
-    docker_layer_caching?: boolean;
-
-    /**
-     * Required if `docker_layer_caching` is set to `true`. Defines the caching scope. Available values: `WORKSPACE`, `PROJECT`, `PIPELINE`, `ACTION`.
-     */
-    docker_layer_caching_scope?: boolean;
-
-    /**
-     * Defines the name of the tag assigned to the cached layer.
-     */
-    docker_layer_caching_tag?: string;
-
-    /**
-     * If set to `true` all commands will be executed regardless of the result of the previous command.
-     */
-    execute_every_command?: boolean;
 
     /**
      * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
@@ -77,16 +67,6 @@ export interface DockerCLIState {
     run_only_on_first_failure?: boolean;
 
     /**
-     * Define file paths that should be copied before (`PIPELINE_TO_VM`) and after the execution (`VM_TO_PIPELINE`).
-     */
-    sync_paths?: SyncPath[];
-
-    /**
-     * The timeout in seconds.
-     */
-    timeout?: number;
-
-    /**
      * The list of trigger conditions to meet so that the action can be triggered.
      */
     trigger_conditions?: TriggerCondition[];
@@ -95,39 +75,29 @@ export interface DockerCLIState {
      * The list of variables you can use the action.
      */
     variables?: Variable[];
-
-    /**
-     * The name of the action.
-     */
-    name: string;
 }
 
-export type DockerCLIArgs = AsInputs<DockerCLIState>;
+export type AWSAppRunnerMonitorArgs = AsInputs<AWSAppRunnerMonitorState>;
 
-export interface DockerCLIProps {
+export interface AWSAppRunnerMonitorProps {
     url: string;
     html_url: string;
     action_id: number;
-    commands: string[];
+    integration_hash: string;
+    region: string;
+    service: string;
+    timeout: number;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'NATIVE_BUILD_DOCKER_CLI';
-    working_directory: string;
+    type: 'AWS_APP_RUNNER_MONITOR';
     after_action_id?: number;
     disabled?: boolean;
-    docker_layer_caching?: boolean;
-    docker_layer_caching_scope?: boolean;
-    docker_layer_caching_tag?: string;
-    execute_every_command?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
     retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    sync_paths?: SyncPath[];
-    timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
-    name: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -136,76 +106,66 @@ export interface DockerCLIProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class DockerCLI extends CustomResource {
-    static __pulumiType = 'buddy:action:DockerCLI';
+export class AWSAppRunnerMonitor extends CustomResource {
+    static __pulumiType = 'buddy:action:AWSAppRunnerMonitor';
 
-    static get(name: string, id: Input<ID>, state?: Partial<DockerCLIState>, opts?: CustomResourceOptions) {
-        return new DockerCLI(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<AWSAppRunnerMonitorState>, opts?: CustomResourceOptions) {
+        return new AWSAppRunnerMonitor(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is DockerCLI {
+    static isInstance(obj: any): obj is AWSAppRunnerMonitor {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === DockerCLI.__pulumiType;
+        return obj['__pulumiType'] === AWSAppRunnerMonitor.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    commands!: Output<string[]>;
+    integration_hash!: Output<string>;
+    region!: Output<string>;
+    service!: Output<string>;
+    timeout!: Output<number>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'NATIVE_BUILD_DOCKER_CLI'>;
-    working_directory!: Output<string>;
+    type!: Output<'AWS_APP_RUNNER_MONITOR'>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
-    docker_layer_caching!: Output<boolean | undefined>;
-    docker_layer_caching_scope!: Output<boolean | undefined>;
-    docker_layer_caching_tag!: Output<string | undefined>;
-    execute_every_command!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
-    sync_paths!: Output<SyncPath[] | undefined>;
-    timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
-    name!: Output<string>;
 
-    constructor(name: string, argsOrState: DockerCLIArgs | DockerCLIState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: AWSAppRunnerMonitorArgs | AWSAppRunnerMonitorState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as DockerCLIState | undefined;
+            const state = argsOrState as AWSAppRunnerMonitorState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['commands'] = state?.commands;
+            inputs['integration_hash'] = state?.integration_hash;
+            inputs['region'] = state?.region;
+            inputs['service'] = state?.service;
+            inputs['timeout'] = state?.timeout;
             inputs['trigger_time'] = state?.trigger_time;
-            inputs['working_directory'] = state?.working_directory;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
-            inputs['docker_layer_caching'] = state?.docker_layer_caching;
-            inputs['docker_layer_caching_scope'] = state?.docker_layer_caching_scope;
-            inputs['docker_layer_caching_tag'] = state?.docker_layer_caching_tag;
-            inputs['execute_every_command'] = state?.execute_every_command;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
-            inputs['sync_paths'] = state?.sync_paths;
-            inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
-            inputs['name'] = state?.name;
         } else {
-            const args = argsOrState as DockerCLIArgs | undefined;
+            const args = argsOrState as AWSAppRunnerMonitorArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -214,41 +174,40 @@ export class DockerCLI extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.commands) {
-                throw new Error('Missing required property "commands"');
+            if (!args?.integration_hash) {
+                throw new Error('Missing required property "integration_hash"');
+            }
+
+            if (!args?.region) {
+                throw new Error('Missing required property "region"');
+            }
+
+            if (!args?.service) {
+                throw new Error('Missing required property "service"');
+            }
+
+            if (!args?.timeout) {
+                throw new Error('Missing required property "timeout"');
             }
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            if (!args?.working_directory) {
-                throw new Error('Missing required property "working_directory"');
-            }
-
-            if (!args?.name) {
-                throw new Error('Missing required property "name"');
-            }
-
-            inputs['commands'] = args.commands;
+            inputs['integration_hash'] = args.integration_hash;
+            inputs['region'] = args.region;
+            inputs['service'] = args.service;
+            inputs['timeout'] = args.timeout;
             inputs['trigger_time'] = args.trigger_time;
-            inputs['working_directory'] = args.working_directory;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
-            inputs['docker_layer_caching'] = args.docker_layer_caching;
-            inputs['docker_layer_caching_scope'] = args.docker_layer_caching_scope;
-            inputs['docker_layer_caching_tag'] = args.docker_layer_caching_tag;
-            inputs['execute_every_command'] = args.execute_every_command;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
-            inputs['sync_paths'] = args.sync_paths;
-            inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
-            inputs['name'] = args.name;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }
@@ -259,11 +218,11 @@ export class DockerCLI extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'NATIVE_BUILD_DOCKER_CLI';
+        inputs['type'] = 'AWS_APP_RUNNER_MONITOR';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(DockerCLI.__pulumiType, name, inputs, opts);
+        super(AWSAppRunnerMonitor.__pulumiType, name, inputs, opts);
     }
 }
