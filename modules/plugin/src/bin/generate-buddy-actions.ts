@@ -107,7 +107,6 @@ async function main() {
                             };
                         }
                         if (action.name === 'Run Next Pipeline' && !action.parameters.some(p => p.name === 'wait')) {
-
                             return {
                                 ...action,
                                 parameters: [
@@ -144,6 +143,21 @@ async function main() {
                                 );
                             }
 
+                            return {
+                                ...action,
+                                parameters
+                            };
+                        }
+                        if (action.name === 'Docker CLI') {
+                            const parameters = action.parameters.slice();
+                            if (!parameters.some(p => p.name === 'name')) {
+                                parameters.push({
+                                    name: 'name',
+                                    type: { scalar: 'String' },
+                                    required: true,
+                                    description: 'The name of the action.'
+                                });
+                            }
                             return {
                                 ...action,
                                 parameters
