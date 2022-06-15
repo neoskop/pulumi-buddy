@@ -26,7 +26,7 @@
         "grpc": "1.24.2",
         "injection-js": "2.3.0",
         "minimist": "1.2.5",
-        "protobufjs": "6.9.0",
+        "protobufjs": "6.11.3",
         "pulumi-buddy": "0.6.0",
         "reflect-metadata": "0.1.13",
         "tslib": "1.11.1",
