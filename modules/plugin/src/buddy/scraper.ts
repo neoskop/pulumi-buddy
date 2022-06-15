@@ -227,6 +227,9 @@ export class BuddyScraper {
 
                 return a.required ? -1 : 1;
             })
+            .map(action => {
+                return this.patchParameter(actionName, action) || action;
+            })
             .filter((c, i, a) => {
                 const first = a.findIndex(e => e.name === c.name) === i;
                 if (!first) {
@@ -234,9 +237,6 @@ export class BuddyScraper {
                 }
 
                 return first;
-            })
-            .map(action => {
-                return this.patchParameter(actionName, action) || action;
             });
     }
 
@@ -244,11 +244,12 @@ export class BuddyScraper {
         const response = await Axios.get(url);
         const $ = cheerio.load(response.data);
         const name = $('h1').first().text();
-        const tables = $('.article-content table').toArray();
-        const table = cheerio.load(tables[0]);
-        const parameters = table('tr:has(> td)')
+        const parameters = $('.article-content table')
+            .first()
+            .find('tr:has(> td)')
             .toArray()
             .map(p => this.parseParameter(p));
+
         const type = (parameters.find(p => p.name === 'type')!.type as ParamaterTypeText).text[0];
         const action = {
             name,
