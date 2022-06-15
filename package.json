@@ -1,50 +1,50 @@
 {
-    "name": "neoskop-pulumi-buddy",
-    "author": "Mark Wecke <wecke@neoskop.de>",
-    "version": "0.6.1",
-    "license": "MIT",
-    "private": true,
-    "workspaces": [
-        "modules/plugin",
-        "sdk/nodejs"
-    ],
-    "prettier": {
-        "trailingComma": "none",
-        "tabWidth": 4,
-        "arrowParens": "avoid",
-        "bracketSpacing": true,
-        "endOfLine": "lf",
-        "htmlWhitespaceSensitivity": "css",
-        "printWidth": 140,
-        "quoteProps": "as-needed",
-        "singleQuote": true,
-        "overrides": [
-            {
-                "files": "*.md",
-                "options": {
-                    "printWidth": 80
-                }
-            }
-        ]
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
+  "name": "neoskop-pulumi-buddy",
+  "author": "Mark Wecke <wecke@neoskop.de>",
+  "version": "0.6.2-rc.0",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "modules/plugin",
+    "sdk/nodejs"
+  ],
+  "prettier": {
+    "trailingComma": "none",
+    "tabWidth": 4,
+    "arrowParens": "avoid",
+    "bracketSpacing": true,
+    "endOfLine": "lf",
+    "htmlWhitespaceSensitivity": "css",
+    "printWidth": 140,
+    "quoteProps": "as-needed",
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.md",
+        "options": {
+          "printWidth": 80
         }
-    },
-    "lint-staged": {
-        "*.ts": [
-            "prettier --write"
-        ],
-        "*.json": [
-            "prettier --write"
-        ],
-        "*.md": [
-            "prettier --write"
-        ]
-    },
-    "devDependencies": {
-        "husky": "4.2.5",
-        "lint-staged": "10.1.7"
+      }
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write"
+    ],
+    "*.json": [
+      "prettier --write"
+    ],
+    "*.md": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "husky": "4.2.5",
+    "lint-staged": "10.1.7"
+  }
 }
