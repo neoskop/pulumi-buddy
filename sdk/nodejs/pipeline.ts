@@ -6,6 +6,7 @@ import { MemberProps } from './member';
 import { ProjectProps } from './project';
 
 export type TriggerOn = 'CLICK' | 'EVENT' | 'SCHEDULE';
+export type Priority = 'LOW' | 'NORMAL' | 'HIGH';
 
 export interface PipelineState {
     project_name: string;
@@ -26,6 +27,7 @@ export interface PipelineState {
     ignore_fail_on_project_status?: boolean;
     execution_message_template?: string;
     trigger_conditions?: TriggerCondition[];
+    priority?: Priority;
 }
 
 export type PipelineArgs = AsInputs<PipelineState>;
@@ -53,6 +55,7 @@ export interface PipelineProps {
     run_always?: boolean;
     paused?: boolean;
     trigger_conditions?: TriggerCondition[];
+    priority?: Priority;
     project: ProjectProps;
     creator: MemberProps;
     actions: ActionProps[];
@@ -91,6 +94,8 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
     readonly ignore_fail_on_project_status!: Output<boolean>;
     readonly no_skip_to_most_recent!: Output<boolean>;
     readonly paused!: Output<boolean | undefined>;
+    readonly trigger_conditions!: Output<TriggerCondition[] | undefined>;
+    readonly priority!: Output<Priority | undefined>;
     readonly folder!: Output<string | undefined>;
     readonly project_name!: Output<string>;
     readonly on!: Output<TriggerOn>;
@@ -130,6 +135,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['ignore_fail_on_project_status'] = state?.ignore_fail_on_project_status;
             inputs['execution_message_template'] = state?.execution_message_template;
             inputs['trigger_conditions'] = state?.trigger_conditions;
+            inputs['priority'] = state?.priority;
         } else {
             const args = argsOrState as PipelineState | undefined;
             if (!args || !args.project_name) {
@@ -162,6 +168,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['ignore_fail_on_project_status'] = args?.ignore_fail_on_project_status;
             inputs['execution_message_template'] = args?.execution_message_template;
             inputs['trigger_conditions'] = args?.trigger_conditions;
+            inputs['priority'] = args?.priority;
         }
 
         if (!opts.version) {

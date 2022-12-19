@@ -35,6 +35,7 @@ export interface IBuddyPipeline {
     do_not_create_commit_status: boolean;
     ignore_fail_on_project_status: boolean;
     trigger_conditions?: TriggerConditionObject[];
+    priority?: Priority;
     project: {
         url: string;
         html_url: string;
@@ -54,6 +55,7 @@ export interface IBuddyPipeline {
 }
 
 export type TriggerOn = 'CLICK' | 'EVENT' | 'SCHEDULE';
+export type Priority = 'LOW' | 'NORMAL' | 'HIGH';
 export type TriggerCondition =
     | 'ALWAYS'
     | 'ON_CHANGE'
@@ -83,6 +85,7 @@ export interface IBuddyPipelineInput {
     ignore_fail_on_project_status?: boolean;
     execution_message_template?: string;
     trigger_conditions?: TriggerConditionObject[];
+    priority?: Priority;
 }
 
 export class BuddyPipelineApi {
