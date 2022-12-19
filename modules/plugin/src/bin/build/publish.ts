@@ -3,7 +3,7 @@ import * as path from 'path';
 import { step, info } from '../cli-utils';
 
 export async function publish(files: string[], bucketName: string) {
-    const storage = new Storage();
+    const storage = new Storage({ projectId: 'pulumi-270712' });
     const bucket = storage.bucket(bucketName);
 
     step('Publish', `to bucket gs://${bucketName}`);
