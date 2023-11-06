@@ -28,6 +28,7 @@ export interface PipelineState {
     execution_message_template?: string;
     trigger_conditions?: TriggerCondition[];
     priority?: Priority;
+    concurrent_pipeline_runs?: boolean;
 }
 
 export type PipelineArgs = AsInputs<PipelineState>;
@@ -59,6 +60,7 @@ export interface PipelineProps {
     project: ProjectProps;
     creator: MemberProps;
     actions: ActionProps[];
+    concurrent_pipeline_runs?: boolean;
 
     pipeline_id: number;
     project_name: string;
@@ -96,6 +98,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
     readonly paused!: Output<boolean | undefined>;
     readonly trigger_conditions!: Output<TriggerCondition[] | undefined>;
     readonly priority!: Output<Priority | undefined>;
+    readonly concurrent_pipeline_runs!: Output<boolean | undefined>;
     readonly folder!: Output<string | undefined>;
     readonly project_name!: Output<string>;
     readonly on!: Output<TriggerOn>;
@@ -136,6 +139,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['execution_message_template'] = state?.execution_message_template;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['priority'] = state?.priority;
+            inputs['concurrent_pipeline_runs'] = state?.concurrent_pipeline_runs;
         } else {
             const args = argsOrState as PipelineState | undefined;
             if (!args || !args.project_name) {
@@ -169,6 +173,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
             inputs['execution_message_template'] = args?.execution_message_template;
             inputs['trigger_conditions'] = args?.trigger_conditions;
             inputs['priority'] = args?.priority;
+            inputs['concurrent_pipeline_runs'] = args?.concurrent_pipeline_runs;
         }
 
         if (!opts.version) {

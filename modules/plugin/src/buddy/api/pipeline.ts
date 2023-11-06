@@ -36,6 +36,7 @@ export interface IBuddyPipeline {
     ignore_fail_on_project_status: boolean;
     trigger_conditions?: TriggerConditionObject[];
     priority?: Priority;
+    concurrent_pipeline_runs?: boolean;
     project: {
         url: string;
         html_url: string;
@@ -86,6 +87,7 @@ export interface IBuddyPipelineInput {
     execution_message_template?: string;
     trigger_conditions?: TriggerConditionObject[];
     priority?: Priority;
+    concurrent_pipeline_runs?: boolean;
 }
 
 export class BuddyPipelineApi {
