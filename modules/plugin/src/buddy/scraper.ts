@@ -192,7 +192,7 @@ export class BuddyScraper {
             );
             const $ = cheerio.load(response.data);
             const tables = $('#actions-schema + * + * + * + div.table-responsive > table').toArray();
-            const table = cheerio.load(tables[1]);
+            const table = cheerio.load(tables[0]);
             this.defaultParameters = [
                 ...table('tr:has(> td)')
                     .toArray()
