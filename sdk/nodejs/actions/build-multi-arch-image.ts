@@ -303,6 +303,10 @@ export class BuildMultiArchImage extends CustomResource {
             opts.version = require('../package').version;
         }
 
+        if (null == opts.deleteBeforeReplace) {
+            opts.deleteBeforeReplace = true;
+        }
+
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
         inputs['type'] = 'DOCKER_BUILD_MULTI_ARCH';
