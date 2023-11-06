@@ -100,6 +100,11 @@ export interface TriggerPipelineState {
      * The list of variables you can use the action.
      */
     variables?: Variable[];
+
+    /**
+     * Pause execution until triggered pipeline has finished
+     */
+    wait?: boolean;
 }
 
 export type TriggerPipelineArgs = AsInputs<TriggerPipelineState>;
@@ -128,6 +133,7 @@ export interface TriggerPipelineProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
+    wait?: boolean;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -174,6 +180,7 @@ export class TriggerPipeline extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
+    wait!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: TriggerPipelineArgs | TriggerPipelineState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -204,6 +211,7 @@ export class TriggerPipeline extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
+            inputs['wait'] = state?.wait;
         } else {
             const args = argsOrState as TriggerPipelineArgs | undefined;
             if (!args?.project_name) {
@@ -245,6 +253,7 @@ export class TriggerPipeline extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
+            inputs['wait'] = args.wait;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }
