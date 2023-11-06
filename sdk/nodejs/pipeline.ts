@@ -1,12 +1,11 @@
 import { AsInputs, AsOutputs } from '@pulumi-utils/sdk';
 import { CustomResource, CustomResourceOptions, ID, Input, Inputs, Output } from '@pulumi/pulumi';
-import { Event, TriggerCondition } from './common';
+import { Event, ExecutionPriority, TriggerCondition } from './common';
 import { ActionProps } from './actions';
 import { MemberProps } from './member';
 import { ProjectProps } from './project';
 
 export type TriggerOn = 'CLICK' | 'EVENT' | 'SCHEDULE';
-export type Priority = 'LOW' | 'NORMAL' | 'HIGH';
 
 export interface PipelineState {
     project_name: string;
@@ -27,7 +26,7 @@ export interface PipelineState {
     ignore_fail_on_project_status?: boolean;
     execution_message_template?: string;
     trigger_conditions?: TriggerCondition[];
-    priority?: Priority;
+    priority?: ExecutionPriority;
     concurrent_pipeline_runs?: boolean;
 }
 
@@ -56,7 +55,7 @@ export interface PipelineProps {
     run_always?: boolean;
     paused?: boolean;
     trigger_conditions?: TriggerCondition[];
-    priority?: Priority;
+    priority?: ExecutionPriority;
     project: ProjectProps;
     creator: MemberProps;
     actions: ActionProps[];
@@ -97,7 +96,7 @@ export class Pipeline extends CustomResource implements AsOutputs<PipelineProps>
     readonly no_skip_to_most_recent!: Output<boolean>;
     readonly paused!: Output<boolean | undefined>;
     readonly trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    readonly priority!: Output<Priority | undefined>;
+    readonly priority!: Output<ExecutionPriority | undefined>;
     readonly concurrent_pipeline_runs!: Output<boolean | undefined>;
     readonly folder!: Output<string | undefined>;
     readonly project_name!: Output<string>;

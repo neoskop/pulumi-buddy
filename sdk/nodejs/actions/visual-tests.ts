@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { Screenshot, Header, TriggerCondition, Variable } from '../common';
+import { Screenshot, Header, PipelinePermissions, TriggerCondition, Variable } from '../common';
 
 export interface VisualTestsState {
     project_name: string;
@@ -52,7 +52,7 @@ export interface VisualTestsState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
@@ -62,9 +62,14 @@ export interface VisualTestsState {
     headers?: Header[];
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
+
+    /**
+     * Define to set permissions for the action.
+     */
+    permissions?: PipelinePermissions;
 
     /**
      * Number of retries if the action fails.
@@ -77,12 +82,12 @@ export interface VisualTestsState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -121,6 +126,7 @@ export interface VisualTestsProps {
     disabled?: boolean;
     headers?: Header[];
     ignore_errors?: boolean;
+    permissions?: PipelinePermissions;
     retry_count?: number;
     retry_interval?: number;
     run_next_parallel?: boolean;
@@ -167,6 +173,7 @@ export class VisualTests extends CustomResource {
     disabled!: Output<boolean | undefined>;
     headers!: Output<Header[] | undefined>;
     ignore_errors!: Output<boolean | undefined>;
+    permissions!: Output<PipelinePermissions | undefined>;
     retry_count!: Output<number | undefined>;
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
@@ -197,6 +204,7 @@ export class VisualTests extends CustomResource {
             inputs['disabled'] = state?.disabled;
             inputs['headers'] = state?.headers;
             inputs['ignore_errors'] = state?.ignore_errors;
+            inputs['permissions'] = state?.permissions;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
@@ -258,6 +266,7 @@ export class VisualTests extends CustomResource {
             inputs['disabled'] = args.disabled;
             inputs['headers'] = args.headers;
             inputs['ignore_errors'] = args.ignore_errors;
+            inputs['permissions'] = args.permissions;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;

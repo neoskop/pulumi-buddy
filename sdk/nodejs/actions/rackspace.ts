@@ -38,6 +38,11 @@ export interface RackspaceState {
     after_action_id?: number;
 
     /**
+     * ContentEncoding that will be set for the deployed files e.g. "gzip".
+     */
+    content_encoding?: string;
+
+    /**
      * The paths and/or files that will be left out during the deployment.
      */
     deployment_excludes?: string[];
@@ -48,12 +53,12 @@ export interface RackspaceState {
     deployment_includes?: string[];
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -83,12 +88,12 @@ export interface RackspaceState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -121,6 +126,7 @@ export interface RackspaceProps {
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'RACKSPACE';
     after_action_id?: number;
+    content_encoding?: string;
     deployment_excludes?: string[];
     deployment_includes?: string[];
     disabled?: boolean;
@@ -168,6 +174,7 @@ export class Rackspace extends CustomResource {
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'RACKSPACE'>;
     after_action_id!: Output<number | undefined>;
+    content_encoding!: Output<string | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -199,6 +206,7 @@ export class Rackspace extends CustomResource {
             inputs['region'] = state?.region;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
+            inputs['content_encoding'] = state?.content_encoding;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
             inputs['disabled'] = state?.disabled;
@@ -251,6 +259,7 @@ export class Rackspace extends CustomResource {
             inputs['region'] = args.region;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
+            inputs['content_encoding'] = args.content_encoding;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
             inputs['disabled'] = args.disabled;

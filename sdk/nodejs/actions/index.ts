@@ -1,6 +1,7 @@
 import { AmazonS3State, AmazonS3Props, AmazonS3Args, AmazonS3 } from './amazon-s3';
 import { AWSAppRunnerDeployState, AWSAppRunnerDeployProps, AWSAppRunnerDeployArgs, AWSAppRunnerDeploy } from './aws-app-runner-deploy';
 import { AWSAppRunnerMonitorState, AWSAppRunnerMonitorProps, AWSAppRunnerMonitorArgs, AWSAppRunnerMonitor } from './aws-app-runner-monitor';
+import { AWSCDKCLIState, AWSCDKCLIProps, AWSCDKCLIArgs, AWSCDKCLI } from './aws-cdk-cli';
 import { AWSCLI2State, AWSCLI2Props, AWSCLI2Args, AWSCLI2 } from './aws-cli-2';
 import { AWSCLIState, AWSCLIProps, AWSCLIArgs, AWSCLI } from './aws-cli';
 import { AWSCodePipelineState, AWSCodePipelineProps, AWSCodePipelineArgs, AWSCodePipeline } from './aws-codepipeline';
@@ -10,6 +11,8 @@ import { AWSLambdaState, AWSLambdaProps, AWSLambdaArgs, AWSLambda } from './aws-
 import { AzureCLIState, AzureCLIProps, AzureCLIArgs, AzureCLI } from './azure-cli';
 import { AzureStorageState, AzureStorageProps, AzureStorageArgs, AzureStorage } from './azure-storage';
 import { AzureState, AzureProps, AzureArgs, Azure } from './azure';
+import { BackblazeB2State, BackblazeB2Props, BackblazeB2Args, BackblazeB2 } from './backblaze-b2';
+import { BlackfireState, BlackfireProps, BlackfireArgs, Blackfire } from './blackfire';
 import { BugsnagState, BugsnagProps, BugsnagArgs, Bugsnag } from './bugsnag';
 import { BuildACordovaAppState, BuildACordovaAppProps, BuildACordovaAppArgs, BuildACordovaApp } from './build-a-cordova-app';
 import {
@@ -46,13 +49,9 @@ import {
 } from './code-sign-and-export-an-ios-app';
 import { CodeDeployState, CodeDeployProps, CodeDeployArgs, CodeDeploy } from './codedeploy';
 import { CompressImagesState, CompressImagesProps, CompressImagesArgs, CompressImages } from './compress-images';
-import {
-    CopyFilesFromAnotherPipelineState,
-    CopyFilesFromAnotherPipelineProps,
-    CopyFilesFromAnotherPipelineArgs,
-    CopyFilesFromAnotherPipeline
-} from './copy-files-from-another-pipeline';
+import { CopyFilesState, CopyFilesProps, CopyFilesArgs, CopyFiles } from './copy-files';
 import { CreateNewSandboxState, CreateNewSandboxProps, CreateNewSandboxArgs, CreateNewSandbox } from './create-new-sandbox';
+import { CustomState, CustomProps, CustomArgs, Custom } from './custom';
 import { DatadogNotificationState, DatadogNotificationProps, DatadogNotificationArgs, DatadogNotification } from './datadog-notification';
 import { DatadogServiceCheckState, DatadogServiceCheckProps, DatadogServiceCheckArgs, DatadogServiceCheck } from './datadog-service-check';
 import {
@@ -67,8 +66,13 @@ import { DigitalOceanSpacesState, DigitalOceanSpacesProps, DigitalOceanSpacesArg
 import { DigitalOceanState, DigitalOceanProps, DigitalOceanArgs, DigitalOcean } from './digitalocean';
 import { DiscordNotificationState, DiscordNotificationProps, DiscordNotificationArgs, DiscordNotification } from './discord-notification';
 import { DockerCLIState, DockerCLIProps, DockerCLIArgs, DockerCLI } from './docker-cli';
+import { DockerState, DockerProps, DockerArgs, Docker } from './docker';
 import { DockerfileLinterState, DockerfileLinterProps, DockerfileLinterArgs, DockerfileLinter } from './dockerfile-linter';
+import { DownloadBackblazeB2State, DownloadBackblazeB2Props, DownloadBackblazeB2Args, DownloadBackblazeB2 } from './download-backblaze-b2';
+import { DownloadFromSandboxState, DownloadFromSandboxProps, DownloadFromSandboxArgs, DownloadFromSandbox } from './download-from-sandbox';
 import { DownloadFTPState, DownloadFTPProps, DownloadFTPArgs, DownloadFTP } from './download-ftp';
+import { DownloadFTPSState, DownloadFTPSProps, DownloadFTPSArgs, DownloadFTPS } from './download-ftps';
+import { DownloadGCSState, DownloadGCSProps, DownloadGCSArgs, DownloadGCS } from './download-gcs';
 import { DownloadS3State, DownloadS3Props, DownloadS3Args, DownloadS3 } from './download-s3';
 import { DownloadSFTPState, DownloadSFTPProps, DownloadSFTPArgs, DownloadSFTP } from './download-sftp';
 import {
@@ -85,11 +89,13 @@ import { FTPState, FTPProps, FTPArgs, FTP } from './ftp';
 import { FTPSState, FTPSProps, FTPSArgs, FTPS } from './ftps';
 import { GCloudCLIState, GCloudCLIProps, GCloudCLIArgs, GCloudCLI } from './gcloud-cli';
 import { GenerateVariablesState, GenerateVariablesProps, GenerateVariablesArgs, GenerateVariables } from './generate-variables';
+import { GhostInspectorCLIState, GhostInspectorCLIProps, GhostInspectorCLIArgs, GhostInspectorCLI } from './ghost-inspector-cli';
 import { GhostInspectorState, GhostInspectorProps, GhostInspectorArgs, GhostInspector } from './ghost-inspector';
 import { GitPushState, GitPushProps, GitPushArgs, GitPush } from './git-push';
 import { GitcryptLockState, GitcryptLockProps, GitcryptLockArgs, GitcryptLock } from './gitcrypt-lock';
 import { GitcryptUnlockState, GitcryptUnlockProps, GitcryptUnlockArgs, GitcryptUnlock } from './gitcrypt-unlock';
 import { GitHubCLIState, GitHubCLIProps, GitHubCLIArgs, GitHubCLI } from './github-cli';
+import { GitHubReleaseState, GitHubReleaseProps, GitHubReleaseArgs, GitHubRelease } from './github-release';
 import { GitLabCLIState, GitLabCLIProps, GitLabCLIArgs, GitLabCLI } from './gitlab-cli';
 import { GKEApplyDeploymentState, GKEApplyDeploymentProps, GKEApplyDeploymentArgs, GKEApplyDeployment } from './gke-apply-deployment';
 import { GKEKubectlState, GKEKubectlProps, GKEKubectlArgs, GKEKubectl } from './gke-kubectl';
@@ -113,6 +119,7 @@ import { HerokuCLIState, HerokuCLIProps, HerokuCLIArgs, HerokuCLI } from './hero
 import { HerokuState, HerokuProps, HerokuArgs, Heroku } from './heroku';
 import { HoneybadgerState, HoneybadgerProps, HoneybadgerArgs, Honeybadger } from './honeybadger';
 import { HTTPRequestState, HTTPRequestProps, HTTPRequestArgs, HTTPRequest } from './http-request';
+import { JMeterCLIState, JMeterCLIProps, JMeterCLIArgs, JMeterCLI } from './jmeter-cli';
 import {
     KubernetesApplyDeploymentConfigurationState,
     KubernetesApplyDeploymentConfigurationProps,
@@ -129,18 +136,13 @@ import {
 import { KubernetesRunPodState, KubernetesRunPodProps, KubernetesRunPodArgs, KubernetesRunPod } from './kubernetes-run-pod';
 import { KubernetesSetImageState, KubernetesSetImageProps, KubernetesSetImageArgs, KubernetesSetImage } from './kubernetes-set-image';
 import { LighthouseState, LighthouseProps, LighthouseArgs, Lighthouse } from './lighthouse';
-import { LinkValidatorState, LinkValidatorProps, LinkValidatorArgs, LinkValidator } from './link-validator';
+import { LinkCheckerState, LinkCheckerProps, LinkCheckerArgs, LinkChecker } from './link-checker';
 import { LinuxState, LinuxProps, LinuxArgs, Linux } from './linux';
 import { LogglyState, LogglyProps, LogglyArgs, Loggly } from './loggly';
 import { MacOSState, MacOSProps, MacOSArgs, MacOS } from './macos';
 import { MicrosoftTeamsState, MicrosoftTeamsProps, MicrosoftTeamsArgs, MicrosoftTeams } from './microsoft-teams';
 import { NetlifyState, NetlifyProps, NetlifyArgs, Netlify } from './netlify';
-import {
-    NewRelicNotificationState,
-    NewRelicNotificationProps,
-    NewRelicNotificationArgs,
-    NewRelicNotification
-} from './new-relic-notification';
+import { NewRelicCLIState, NewRelicCLIProps, NewRelicCLIArgs, NewRelicCLI } from './new-relic-cli';
 import { OperateSandboxState, OperateSandboxProps, OperateSandboxArgs, OperateSandbox } from './operate-sandbox';
 import { PassArgumentsState, PassArgumentsProps, PassArgumentsArgs, PassArguments } from './pass-arguments';
 import { PingMonitoringState, PingMonitoringProps, PingMonitoringArgs, PingMonitoring } from './ping-monitoring';
@@ -165,8 +167,8 @@ import { ReplaceState, ReplaceProps, ReplaceArgs, Replace } from './replace';
 import { RollbarNotificationState, RollbarNotificationProps, RollbarNotificationArgs, RollbarNotification } from './rollbar-notification';
 import { RsyncState, RsyncProps, RsyncArgs, Rsync } from './rsync';
 import { RunDockerContainerState, RunDockerContainerProps, RunDockerContainerArgs, RunDockerContainer } from './run-docker-container';
-import { RunNextPipelineState, RunNextPipelineProps, RunNextPipelineArgs, RunNextPipeline } from './run-next-pipeline';
 import { SentryNotificationState, SentryNotificationProps, SentryNotificationArgs, SentryNotification } from './sentry-notification';
+import { SetVariablesState, SetVariablesProps, SetVariablesArgs, SetVariables } from './set-variables';
 import { SFTPState, SFTPProps, SFTPArgs, SFTP } from './sftp';
 import { ShopifyCLIState, ShopifyCLIProps, ShopifyCLIArgs, ShopifyCLI } from './shopify-cli';
 import { ShopifyState, ShopifyProps, ShopifyArgs, Shopify } from './shopify';
@@ -184,6 +186,7 @@ import { SplitTestsState, SplitTestsProps, SplitTestsArgs, SplitTests } from './
 import { SSHCommandState, SSHCommandProps, SSHCommandArgs, SSHCommand } from './ssh-command';
 import { SSHToSandboxState, SSHToSandboxProps, SSHToSandboxArgs, SSHToSandbox } from './ssh-to-sandbox';
 import { SSLVerifyState, SSLVerifyProps, SSLVerifyArgs, SSLVerify } from './ssl-verify';
+import { StackHawkCLIState, StackHawkCLIProps, StackHawkCLIArgs, StackHawkCLI } from './stackhawk-cli';
 import { TCPMonitoringState, TCPMonitoringProps, TCPMonitoringArgs, TCPMonitoring } from './tcp-monitoring';
 import {
     TelegramNotificationState,
@@ -191,7 +194,10 @@ import {
     TelegramNotificationArgs,
     TelegramNotification
 } from './telegram-notification';
+import { TerraformCLIState, TerraformCLIProps, TerraformCLIArgs, TerraformCLI } from './terraform-cli';
+import { ThemeKitCLIState, ThemeKitCLIProps, ThemeKitCLIArgs, ThemeKitCLI } from './theme-kit-cli';
 import { TransferToASandboxState, TransferToASandboxProps, TransferToASandboxArgs, TransferToASandbox } from './transfer-to-a-sandbox';
+import { TriggerPipelineState, TriggerPipelineProps, TriggerPipelineArgs, TriggerPipeline } from './trigger-pipeline';
 import { UpcloudState, UpcloudProps, UpcloudArgs, Upcloud } from './upcloud';
 import { VisualTestsState, VisualTestsProps, VisualTestsArgs, VisualTests } from './visual-tests';
 import { VultrState, VultrProps, VultrArgs, Vultr } from './vultr';
@@ -199,12 +205,14 @@ import { WaitForApplyState, WaitForApplyProps, WaitForApplyArgs, WaitForApply } 
 import { WebMonitoringState, WebMonitoringProps, WebMonitoringArgs, WebMonitoring } from './web-monitoring';
 import { WebDAVState, WebDAVProps, WebDAVArgs, WebDAV } from './webdav';
 import { WindowsState, WindowsProps, WindowsArgs, Windows } from './windows';
-import { XCodeState, XCodeProps, XCodeArgs, XCode } from './xcode';
+import { WPCLIState, WPCLIProps, WPCLIArgs, WPCLI } from './wp-cli';
+import { XcodeState, XcodeProps, XcodeArgs, Xcode } from './xcode';
 import { ZIPState, ZIPProps, ZIPArgs, ZIP } from './zip';
 
 export * from './amazon-s3';
 export * from './aws-app-runner-deploy';
 export * from './aws-app-runner-monitor';
+export * from './aws-cdk-cli';
 export * from './aws-cli-2';
 export * from './aws-cli';
 export * from './aws-codepipeline';
@@ -214,6 +222,8 @@ export * from './aws-lambda';
 export * from './azure-cli';
 export * from './azure-storage';
 export * from './azure';
+export * from './backblaze-b2';
+export * from './blackfire';
 export * from './bugsnag';
 export * from './build-a-cordova-app';
 export * from './build-a-fastlane-app-ios';
@@ -230,8 +240,9 @@ export * from './cloudfront';
 export * from './code-sign-and-export-an-ios-app';
 export * from './codedeploy';
 export * from './compress-images';
-export * from './copy-files-from-another-pipeline';
+export * from './copy-files';
 export * from './create-new-sandbox';
+export * from './custom';
 export * from './datadog-notification';
 export * from './datadog-service-check';
 export * from './deploy-to-app-store-connect';
@@ -241,8 +252,13 @@ export * from './digitalocean-spaces';
 export * from './digitalocean';
 export * from './discord-notification';
 export * from './docker-cli';
+export * from './docker';
 export * from './dockerfile-linter';
+export * from './download-backblaze-b2';
+export * from './download-from-sandbox';
 export * from './download-ftp';
+export * from './download-ftps';
+export * from './download-gcs';
 export * from './download-s3';
 export * from './download-sftp';
 export * from './elastic-beanstalk-monitor';
@@ -254,11 +270,13 @@ export * from './ftp';
 export * from './ftps';
 export * from './gcloud-cli';
 export * from './generate-variables';
+export * from './ghost-inspector-cli';
 export * from './ghost-inspector';
 export * from './git-push';
 export * from './gitcrypt-lock';
 export * from './gitcrypt-unlock';
 export * from './github-cli';
+export * from './github-release';
 export * from './gitlab-cli';
 export * from './gke-apply-deployment';
 export * from './gke-kubectl';
@@ -278,19 +296,20 @@ export * from './heroku';
 export * from './honeybadger';
 export * from './http-request';
 export * from './index';
+export * from './jmeter-cli';
 export * from './kubernetes-apply-deployment-configuration';
 export * from './kubernetes-kubectl';
 export * from './kubernetes-run-helm-cmds';
 export * from './kubernetes-run-pod';
 export * from './kubernetes-set-image';
 export * from './lighthouse';
-export * from './link-validator';
+export * from './link-checker';
 export * from './linux';
 export * from './loggly';
 export * from './macos';
 export * from './microsoft-teams';
 export * from './netlify';
-export * from './new-relic-notification';
+export * from './new-relic-cli';
 export * from './operate-sandbox';
 export * from './pass-arguments';
 export * from './ping-monitoring';
@@ -305,8 +324,8 @@ export * from './replace';
 export * from './rollbar-notification';
 export * from './rsync';
 export * from './run-docker-container';
-export * from './run-next-pipeline';
 export * from './sentry-notification';
+export * from './set-variables';
 export * from './sftp';
 export * from './shopify-cli';
 export * from './shopify';
@@ -319,9 +338,13 @@ export * from './split-tests';
 export * from './ssh-command';
 export * from './ssh-to-sandbox';
 export * from './ssl-verify';
+export * from './stackhawk-cli';
 export * from './tcp-monitoring';
 export * from './telegram-notification';
+export * from './terraform-cli';
+export * from './theme-kit-cli';
 export * from './transfer-to-a-sandbox';
+export * from './trigger-pipeline';
 export * from './upcloud';
 export * from './visual-tests';
 export * from './vultr';
@@ -329,6 +352,7 @@ export * from './wait-for-apply';
 export * from './web-monitoring';
 export * from './webdav';
 export * from './windows';
+export * from './wp-cli';
 export * from './xcode';
 export * from './zip';
 
@@ -336,6 +360,7 @@ export type ActionState =
     | AmazonS3State
     | AWSAppRunnerDeployState
     | AWSAppRunnerMonitorState
+    | AWSCDKCLIState
     | AWSCLI2State
     | AWSCLIState
     | AWSCodePipelineState
@@ -345,6 +370,8 @@ export type ActionState =
     | AzureCLIState
     | AzureStorageState
     | AzureState
+    | BackblazeB2State
+    | BlackfireState
     | BugsnagState
     | BuildACordovaAppState
     | BuildAFastlaneAppiOSState
@@ -361,8 +388,9 @@ export type ActionState =
     | CodeSignAndExportAnIOSAppState
     | CodeDeployState
     | CompressImagesState
-    | CopyFilesFromAnotherPipelineState
+    | CopyFilesState
     | CreateNewSandboxState
+    | CustomState
     | DatadogNotificationState
     | DatadogServiceCheckState
     | DeployToAppStoreConnectState
@@ -372,8 +400,13 @@ export type ActionState =
     | DigitalOceanState
     | DiscordNotificationState
     | DockerCLIState
+    | DockerState
     | DockerfileLinterState
+    | DownloadBackblazeB2State
+    | DownloadFromSandboxState
     | DownloadFTPState
+    | DownloadFTPSState
+    | DownloadGCSState
     | DownloadS3State
     | DownloadSFTPState
     | ElasticBeanstalkMonitorState
@@ -385,11 +418,13 @@ export type ActionState =
     | FTPSState
     | GCloudCLIState
     | GenerateVariablesState
+    | GhostInspectorCLIState
     | GhostInspectorState
     | GitPushState
     | GitcryptLockState
     | GitcryptUnlockState
     | GitHubCLIState
+    | GitHubReleaseState
     | GitLabCLIState
     | GKEApplyDeploymentState
     | GKEKubectlState
@@ -408,19 +443,20 @@ export type ActionState =
     | HerokuState
     | HoneybadgerState
     | HTTPRequestState
+    | JMeterCLIState
     | KubernetesApplyDeploymentConfigurationState
     | KubernetesKubectlState
     | KubernetesRunHelmCMDsState
     | KubernetesRunPodState
     | KubernetesSetImageState
     | LighthouseState
-    | LinkValidatorState
+    | LinkCheckerState
     | LinuxState
     | LogglyState
     | MacOSState
     | MicrosoftTeamsState
     | NetlifyState
-    | NewRelicNotificationState
+    | NewRelicCLIState
     | OperateSandboxState
     | PassArgumentsState
     | PingMonitoringState
@@ -435,8 +471,8 @@ export type ActionState =
     | RollbarNotificationState
     | RsyncState
     | RunDockerContainerState
-    | RunNextPipelineState
     | SentryNotificationState
+    | SetVariablesState
     | SFTPState
     | ShopifyCLIState
     | ShopifyState
@@ -449,9 +485,13 @@ export type ActionState =
     | SSHCommandState
     | SSHToSandboxState
     | SSLVerifyState
+    | StackHawkCLIState
     | TCPMonitoringState
     | TelegramNotificationState
+    | TerraformCLIState
+    | ThemeKitCLIState
     | TransferToASandboxState
+    | TriggerPipelineState
     | UpcloudState
     | VisualTestsState
     | VultrState
@@ -459,12 +499,14 @@ export type ActionState =
     | WebMonitoringState
     | WebDAVState
     | WindowsState
-    | XCodeState
+    | WPCLIState
+    | XcodeState
     | ZIPState;
 export type ActionArgs =
     | AmazonS3Args
     | AWSAppRunnerDeployArgs
     | AWSAppRunnerMonitorArgs
+    | AWSCDKCLIArgs
     | AWSCLI2Args
     | AWSCLIArgs
     | AWSCodePipelineArgs
@@ -474,6 +516,8 @@ export type ActionArgs =
     | AzureCLIArgs
     | AzureStorageArgs
     | AzureArgs
+    | BackblazeB2Args
+    | BlackfireArgs
     | BugsnagArgs
     | BuildACordovaAppArgs
     | BuildAFastlaneAppiOSArgs
@@ -490,8 +534,9 @@ export type ActionArgs =
     | CodeSignAndExportAnIOSAppArgs
     | CodeDeployArgs
     | CompressImagesArgs
-    | CopyFilesFromAnotherPipelineArgs
+    | CopyFilesArgs
     | CreateNewSandboxArgs
+    | CustomArgs
     | DatadogNotificationArgs
     | DatadogServiceCheckArgs
     | DeployToAppStoreConnectArgs
@@ -501,8 +546,13 @@ export type ActionArgs =
     | DigitalOceanArgs
     | DiscordNotificationArgs
     | DockerCLIArgs
+    | DockerArgs
     | DockerfileLinterArgs
+    | DownloadBackblazeB2Args
+    | DownloadFromSandboxArgs
     | DownloadFTPArgs
+    | DownloadFTPSArgs
+    | DownloadGCSArgs
     | DownloadS3Args
     | DownloadSFTPArgs
     | ElasticBeanstalkMonitorArgs
@@ -514,11 +564,13 @@ export type ActionArgs =
     | FTPSArgs
     | GCloudCLIArgs
     | GenerateVariablesArgs
+    | GhostInspectorCLIArgs
     | GhostInspectorArgs
     | GitPushArgs
     | GitcryptLockArgs
     | GitcryptUnlockArgs
     | GitHubCLIArgs
+    | GitHubReleaseArgs
     | GitLabCLIArgs
     | GKEApplyDeploymentArgs
     | GKEKubectlArgs
@@ -537,19 +589,20 @@ export type ActionArgs =
     | HerokuArgs
     | HoneybadgerArgs
     | HTTPRequestArgs
+    | JMeterCLIArgs
     | KubernetesApplyDeploymentConfigurationArgs
     | KubernetesKubectlArgs
     | KubernetesRunHelmCMDsArgs
     | KubernetesRunPodArgs
     | KubernetesSetImageArgs
     | LighthouseArgs
-    | LinkValidatorArgs
+    | LinkCheckerArgs
     | LinuxArgs
     | LogglyArgs
     | MacOSArgs
     | MicrosoftTeamsArgs
     | NetlifyArgs
-    | NewRelicNotificationArgs
+    | NewRelicCLIArgs
     | OperateSandboxArgs
     | PassArgumentsArgs
     | PingMonitoringArgs
@@ -564,8 +617,8 @@ export type ActionArgs =
     | RollbarNotificationArgs
     | RsyncArgs
     | RunDockerContainerArgs
-    | RunNextPipelineArgs
     | SentryNotificationArgs
+    | SetVariablesArgs
     | SFTPArgs
     | ShopifyCLIArgs
     | ShopifyArgs
@@ -578,9 +631,13 @@ export type ActionArgs =
     | SSHCommandArgs
     | SSHToSandboxArgs
     | SSLVerifyArgs
+    | StackHawkCLIArgs
     | TCPMonitoringArgs
     | TelegramNotificationArgs
+    | TerraformCLIArgs
+    | ThemeKitCLIArgs
     | TransferToASandboxArgs
+    | TriggerPipelineArgs
     | UpcloudArgs
     | VisualTestsArgs
     | VultrArgs
@@ -588,12 +645,14 @@ export type ActionArgs =
     | WebMonitoringArgs
     | WebDAVArgs
     | WindowsArgs
-    | XCodeArgs
+    | WPCLIArgs
+    | XcodeArgs
     | ZIPArgs;
 export type ActionProps =
     | AmazonS3Props
     | AWSAppRunnerDeployProps
     | AWSAppRunnerMonitorProps
+    | AWSCDKCLIProps
     | AWSCLI2Props
     | AWSCLIProps
     | AWSCodePipelineProps
@@ -603,6 +662,8 @@ export type ActionProps =
     | AzureCLIProps
     | AzureStorageProps
     | AzureProps
+    | BackblazeB2Props
+    | BlackfireProps
     | BugsnagProps
     | BuildACordovaAppProps
     | BuildAFastlaneAppiOSProps
@@ -619,8 +680,9 @@ export type ActionProps =
     | CodeSignAndExportAnIOSAppProps
     | CodeDeployProps
     | CompressImagesProps
-    | CopyFilesFromAnotherPipelineProps
+    | CopyFilesProps
     | CreateNewSandboxProps
+    | CustomProps
     | DatadogNotificationProps
     | DatadogServiceCheckProps
     | DeployToAppStoreConnectProps
@@ -630,8 +692,13 @@ export type ActionProps =
     | DigitalOceanProps
     | DiscordNotificationProps
     | DockerCLIProps
+    | DockerProps
     | DockerfileLinterProps
+    | DownloadBackblazeB2Props
+    | DownloadFromSandboxProps
     | DownloadFTPProps
+    | DownloadFTPSProps
+    | DownloadGCSProps
     | DownloadS3Props
     | DownloadSFTPProps
     | ElasticBeanstalkMonitorProps
@@ -643,11 +710,13 @@ export type ActionProps =
     | FTPSProps
     | GCloudCLIProps
     | GenerateVariablesProps
+    | GhostInspectorCLIProps
     | GhostInspectorProps
     | GitPushProps
     | GitcryptLockProps
     | GitcryptUnlockProps
     | GitHubCLIProps
+    | GitHubReleaseProps
     | GitLabCLIProps
     | GKEApplyDeploymentProps
     | GKEKubectlProps
@@ -666,19 +735,20 @@ export type ActionProps =
     | HerokuProps
     | HoneybadgerProps
     | HTTPRequestProps
+    | JMeterCLIProps
     | KubernetesApplyDeploymentConfigurationProps
     | KubernetesKubectlProps
     | KubernetesRunHelmCMDsProps
     | KubernetesRunPodProps
     | KubernetesSetImageProps
     | LighthouseProps
-    | LinkValidatorProps
+    | LinkCheckerProps
     | LinuxProps
     | LogglyProps
     | MacOSProps
     | MicrosoftTeamsProps
     | NetlifyProps
-    | NewRelicNotificationProps
+    | NewRelicCLIProps
     | OperateSandboxProps
     | PassArgumentsProps
     | PingMonitoringProps
@@ -693,8 +763,8 @@ export type ActionProps =
     | RollbarNotificationProps
     | RsyncProps
     | RunDockerContainerProps
-    | RunNextPipelineProps
     | SentryNotificationProps
+    | SetVariablesProps
     | SFTPProps
     | ShopifyCLIProps
     | ShopifyProps
@@ -707,9 +777,13 @@ export type ActionProps =
     | SSHCommandProps
     | SSHToSandboxProps
     | SSLVerifyProps
+    | StackHawkCLIProps
     | TCPMonitoringProps
     | TelegramNotificationProps
+    | TerraformCLIProps
+    | ThemeKitCLIProps
     | TransferToASandboxProps
+    | TriggerPipelineProps
     | UpcloudProps
     | VisualTestsProps
     | VultrProps
@@ -717,12 +791,14 @@ export type ActionProps =
     | WebMonitoringProps
     | WebDAVProps
     | WindowsProps
-    | XCodeProps
+    | WPCLIProps
+    | XcodeProps
     | ZIPProps;
 export type Action =
     | AmazonS3
     | AWSAppRunnerDeploy
     | AWSAppRunnerMonitor
+    | AWSCDKCLI
     | AWSCLI2
     | AWSCLI
     | AWSCodePipeline
@@ -732,6 +808,8 @@ export type Action =
     | AzureCLI
     | AzureStorage
     | Azure
+    | BackblazeB2
+    | Blackfire
     | Bugsnag
     | BuildACordovaApp
     | BuildAFastlaneAppiOS
@@ -748,8 +826,9 @@ export type Action =
     | CodeSignAndExportAnIOSApp
     | CodeDeploy
     | CompressImages
-    | CopyFilesFromAnotherPipeline
+    | CopyFiles
     | CreateNewSandbox
+    | Custom
     | DatadogNotification
     | DatadogServiceCheck
     | DeployToAppStoreConnect
@@ -759,8 +838,13 @@ export type Action =
     | DigitalOcean
     | DiscordNotification
     | DockerCLI
+    | Docker
     | DockerfileLinter
+    | DownloadBackblazeB2
+    | DownloadFromSandbox
     | DownloadFTP
+    | DownloadFTPS
+    | DownloadGCS
     | DownloadS3
     | DownloadSFTP
     | ElasticBeanstalkMonitor
@@ -772,11 +856,13 @@ export type Action =
     | FTPS
     | GCloudCLI
     | GenerateVariables
+    | GhostInspectorCLI
     | GhostInspector
     | GitPush
     | GitcryptLock
     | GitcryptUnlock
     | GitHubCLI
+    | GitHubRelease
     | GitLabCLI
     | GKEApplyDeployment
     | GKEKubectl
@@ -795,19 +881,20 @@ export type Action =
     | Heroku
     | Honeybadger
     | HTTPRequest
+    | JMeterCLI
     | KubernetesApplyDeploymentConfiguration
     | KubernetesKubectl
     | KubernetesRunHelmCMDs
     | KubernetesRunPod
     | KubernetesSetImage
     | Lighthouse
-    | LinkValidator
+    | LinkChecker
     | Linux
     | Loggly
     | MacOS
     | MicrosoftTeams
     | Netlify
-    | NewRelicNotification
+    | NewRelicCLI
     | OperateSandbox
     | PassArguments
     | PingMonitoring
@@ -822,8 +909,8 @@ export type Action =
     | RollbarNotification
     | Rsync
     | RunDockerContainer
-    | RunNextPipeline
     | SentryNotification
+    | SetVariables
     | SFTP
     | ShopifyCLI
     | Shopify
@@ -836,9 +923,13 @@ export type Action =
     | SSHCommand
     | SSHToSandbox
     | SSLVerify
+    | StackHawkCLI
     | TCPMonitoring
     | TelegramNotification
+    | TerraformCLI
+    | ThemeKitCLI
     | TransferToASandbox
+    | TriggerPipeline
     | Upcloud
     | VisualTests
     | Vultr
@@ -846,5 +937,6 @@ export type Action =
     | WebMonitoring
     | WebDAV
     | Windows
-    | XCode
+    | WPCLI
+    | Xcode
     | ZIP;

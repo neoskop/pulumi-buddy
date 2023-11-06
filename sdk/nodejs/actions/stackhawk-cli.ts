@@ -1,20 +1,25 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { PipelineRef, TriggerCondition, Variable } from '../common';
+import { TriggerCondition, Variable } from '../common';
 
-export interface CopyFilesFromAnotherPipelineState {
+export interface StackHawkCLIState {
     project_name: string;
     pipeline_id: number;
+    /**
+     * The commands that will be executed.
+     */
+    execute_commands: string[];
+
+    /**
+     * The ID of the integration.
+     */
+    integration_hash: string;
+
     /**
      * The name of the action.
      */
     name: string;
-
-    /**
-     * The object with the id of the pipeline from which files will be copied.
-     */
-    source_pipeline: PipelineRef;
 
     /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
@@ -27,27 +32,12 @@ export interface CopyFilesFromAnotherPipelineState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the hidden files and folders (the ones with the name beginning with a ".") are copied.
-     */
-    copy_hidden_files?: boolean;
-
-    /**
-     * The paths and/or files that will be left out during the deployment.
-     */
-    deployment_excludes?: string[];
-
-    /**
-     * The exceptions from the ignore patterns set in `deployment_excludes`.
-     */
-    deployment_includes?: string[];
-
-    /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -62,24 +52,24 @@ export interface CopyFilesFromAnotherPipelineState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
     /**
-     * The path in the source pipeline’s filesystem.
+     * The command that will be executed only on the first run.
      */
-    source_path?: string;
+    setup_commands?: string[];
 
     /**
-     * The path in the current pipeline’s filesystem.
+     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
      */
-    target_path?: string;
+    shell?: 'SH' | 'BASH';
 
     /**
      * The timeout in seconds.
@@ -97,28 +87,26 @@ export interface CopyFilesFromAnotherPipelineState {
     variables?: Variable[];
 }
 
-export type CopyFilesFromAnotherPipelineArgs = AsInputs<CopyFilesFromAnotherPipelineState>;
+export type StackHawkCLIArgs = AsInputs<StackHawkCLIState>;
 
-export interface CopyFilesFromAnotherPipelineProps {
+export interface StackHawkCLIProps {
     url: string;
     html_url: string;
     action_id: number;
+    execute_commands: string[];
+    integration_hash: string;
     name: string;
-    source_pipeline: PipelineRef;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'COPY_FILES';
+    type: 'STACK_HAWK_CLI';
     after_action_id?: number;
-    copy_hidden_files?: boolean;
-    deployment_excludes?: string[];
-    deployment_includes?: string[];
     disabled?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
     retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    source_path?: string;
-    target_path?: string;
+    setup_commands?: string[];
+    shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
@@ -130,78 +118,70 @@ export interface CopyFilesFromAnotherPipelineProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class CopyFilesFromAnotherPipeline extends CustomResource {
-    static __pulumiType = 'buddy:action:CopyFilesFromAnotherPipeline';
+export class StackHawkCLI extends CustomResource {
+    static __pulumiType = 'buddy:action:StackHawkCLI';
 
-    static get(name: string, id: Input<ID>, state?: Partial<CopyFilesFromAnotherPipelineState>, opts?: CustomResourceOptions) {
-        return new CopyFilesFromAnotherPipeline(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<StackHawkCLIState>, opts?: CustomResourceOptions) {
+        return new StackHawkCLI(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is CopyFilesFromAnotherPipeline {
+    static isInstance(obj: any): obj is StackHawkCLI {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === CopyFilesFromAnotherPipeline.__pulumiType;
+        return obj['__pulumiType'] === StackHawkCLI.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
+    execute_commands!: Output<string[]>;
+    integration_hash!: Output<string>;
     name!: Output<string>;
-    source_pipeline!: Output<PipelineRef>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'COPY_FILES'>;
+    type!: Output<'STACK_HAWK_CLI'>;
     after_action_id!: Output<number | undefined>;
-    copy_hidden_files!: Output<boolean | undefined>;
-    deployment_excludes!: Output<string[] | undefined>;
-    deployment_includes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
-    source_path!: Output<string | undefined>;
-    target_path!: Output<string | undefined>;
+    setup_commands!: Output<string[] | undefined>;
+    shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
 
-    constructor(
-        name: string,
-        argsOrState: CopyFilesFromAnotherPipelineArgs | CopyFilesFromAnotherPipelineState,
-        opts?: CustomResourceOptions
-    ) {
+    constructor(name: string, argsOrState: StackHawkCLIArgs | StackHawkCLIState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as CopyFilesFromAnotherPipelineState | undefined;
+            const state = argsOrState as StackHawkCLIState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
+            inputs['execute_commands'] = state?.execute_commands;
+            inputs['integration_hash'] = state?.integration_hash;
             inputs['name'] = state?.name;
-            inputs['source_pipeline'] = state?.source_pipeline;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
-            inputs['copy_hidden_files'] = state?.copy_hidden_files;
-            inputs['deployment_excludes'] = state?.deployment_excludes;
-            inputs['deployment_includes'] = state?.deployment_includes;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
-            inputs['source_path'] = state?.source_path;
-            inputs['target_path'] = state?.target_path;
+            inputs['setup_commands'] = state?.setup_commands;
+            inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
         } else {
-            const args = argsOrState as CopyFilesFromAnotherPipelineArgs | undefined;
+            const args = argsOrState as StackHawkCLIArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -210,33 +190,35 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.name) {
-                throw new Error('Missing required property "name"');
+            if (!args?.execute_commands) {
+                throw new Error('Missing required property "execute_commands"');
             }
 
-            if (!args?.source_pipeline) {
-                throw new Error('Missing required property "source_pipeline"');
+            if (!args?.integration_hash) {
+                throw new Error('Missing required property "integration_hash"');
+            }
+
+            if (!args?.name) {
+                throw new Error('Missing required property "name"');
             }
 
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
+            inputs['execute_commands'] = args.execute_commands;
+            inputs['integration_hash'] = args.integration_hash;
             inputs['name'] = args.name;
-            inputs['source_pipeline'] = args.source_pipeline;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
-            inputs['copy_hidden_files'] = args.copy_hidden_files;
-            inputs['deployment_excludes'] = args.deployment_excludes;
-            inputs['deployment_includes'] = args.deployment_includes;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
-            inputs['source_path'] = args.source_path;
-            inputs['target_path'] = args.target_path;
+            inputs['setup_commands'] = args.setup_commands;
+            inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
@@ -250,11 +232,11 @@ export class CopyFilesFromAnotherPipeline extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'COPY_FILES';
+        inputs['type'] = 'STACK_HAWK_CLI';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(CopyFilesFromAnotherPipeline.__pulumiType, name, inputs, opts);
+        super(StackHawkCLI.__pulumiType, name, inputs, opts);
     }
 }

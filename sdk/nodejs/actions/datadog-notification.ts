@@ -13,11 +13,6 @@ export interface DatadogNotificationState {
     alert_type: 'SUCCESS' | 'WARNING' | 'ERROR';
 
     /**
-     * The content of the posted event.
-     */
-    content: string;
-
-    /**
      * The integration.
      */
     integration: IntegrationRef | Integration;
@@ -26,11 +21,6 @@ export interface DatadogNotificationState {
      * The name of the action.
      */
     name: string;
-
-    /**
-     * The title of the posted event.
-     */
-    title: string;
 
     /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
@@ -48,7 +38,12 @@ export interface DatadogNotificationState {
     aggregation_key?: string;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * The content of the posted event.
+     */
+    content?: string;
+
+    /**
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
@@ -58,14 +53,14 @@ export interface DatadogNotificationState {
     host?: string;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
     /**
-     * The Datadog region. Can be one of `NA` or `EU`. If not set, the default is `NA`.
+     * The Datadog region.  Can be one of `US1`, `US3`, `US5`, `EU1`, `AP1`, `US1_FED`. If not set, the default is `US1`.
      */
-    region?: 'NA' | 'EU';
+    region?: string;
 
     /**
      * Number of retries if the action fails.
@@ -78,12 +73,12 @@ export interface DatadogNotificationState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -96,6 +91,11 @@ export interface DatadogNotificationState {
      * The timeout in seconds.
      */
     timeout?: number;
+
+    /**
+     * The title of the posted event.
+     */
+    title?: string;
 
     /**
      * The list of trigger conditions to meet so that the action can be triggered.
@@ -115,24 +115,24 @@ export interface DatadogNotificationProps {
     html_url: string;
     action_id: number;
     alert_type: 'SUCCESS' | 'WARNING' | 'ERROR';
-    content: string;
     integration: IntegrationRef | Integration;
     name: string;
-    title: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'DATADOG';
     after_action_id?: number;
     aggregation_key?: string;
+    content?: string;
     disabled?: boolean;
     host?: string;
     ignore_errors?: boolean;
-    region?: 'NA' | 'EU';
+    region?: string;
     retry_count?: number;
     retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
     tags?: string[];
     timeout?: number;
+    title?: string;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
     pipeline: PipelineProps;
@@ -162,24 +162,24 @@ export class DatadogNotification extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     alert_type!: Output<'SUCCESS' | 'WARNING' | 'ERROR'>;
-    content!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
-    title!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'DATADOG'>;
     after_action_id!: Output<number | undefined>;
     aggregation_key!: Output<string | undefined>;
+    content!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     host!: Output<string | undefined>;
     ignore_errors!: Output<boolean | undefined>;
-    region!: Output<'NA' | 'EU' | undefined>;
+    region!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
     tags!: Output<string[] | undefined>;
     timeout!: Output<number | undefined>;
+    title!: Output<string | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
 
@@ -194,13 +194,12 @@ export class DatadogNotification extends CustomResource {
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['alert_type'] = state?.alert_type;
-            inputs['content'] = state?.content;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
-            inputs['title'] = state?.title;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['aggregation_key'] = state?.aggregation_key;
+            inputs['content'] = state?.content;
             inputs['disabled'] = state?.disabled;
             inputs['host'] = state?.host;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -211,6 +210,7 @@ export class DatadogNotification extends CustomResource {
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['tags'] = state?.tags;
             inputs['timeout'] = state?.timeout;
+            inputs['title'] = state?.title;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
         } else {
@@ -227,10 +227,6 @@ export class DatadogNotification extends CustomResource {
                 throw new Error('Missing required property "alert_type"');
             }
 
-            if (!args?.content) {
-                throw new Error('Missing required property "content"');
-            }
-
             if (!args?.integration) {
                 throw new Error('Missing required property "integration"');
             }
@@ -239,24 +235,19 @@ export class DatadogNotification extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
-            if (!args?.title) {
-                throw new Error('Missing required property "title"');
-            }
-
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
             inputs['alert_type'] = args.alert_type;
-            inputs['content'] = args.content;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
             inputs['name'] = args.name;
-            inputs['title'] = args.title;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['aggregation_key'] = args.aggregation_key;
+            inputs['content'] = args.content;
             inputs['disabled'] = args.disabled;
             inputs['host'] = args.host;
             inputs['ignore_errors'] = args.ignore_errors;
@@ -267,6 +258,7 @@ export class DatadogNotification extends CustomResource {
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['tags'] = args.tags;
             inputs['timeout'] = args.timeout;
+            inputs['title'] = args.title;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
             inputs['project_name'] = args.project_name;

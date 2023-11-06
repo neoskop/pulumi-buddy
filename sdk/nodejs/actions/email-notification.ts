@@ -12,9 +12,14 @@ export interface EmailNotificationState {
     name: string;
 
     /**
-     * The recipients of the notification: email addresses (one per line).
+     * The recipients of the notification: email addresses (one per line).  One of `send_to_groups` or `recipients` must be specified.
      */
     recipients: string;
+
+    /**
+     * The list of groups' names to which emails will be sent. One of `send_to_groups` or `recipients` must be specified.
+     */
+    send_to_groups: string;
 
     /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
@@ -32,7 +37,7 @@ export interface EmailNotificationState {
     content?: string;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
@@ -47,7 +52,7 @@ export interface EmailNotificationState {
     from_name?: string;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -62,12 +67,12 @@ export interface EmailNotificationState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -105,6 +110,7 @@ export interface EmailNotificationProps {
     action_id: number;
     name: string;
     recipients: string;
+    send_to_groups: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'EMAIL';
     after_action_id?: number;
@@ -150,6 +156,7 @@ export class EmailNotification extends CustomResource {
     action_id!: Output<number>;
     name!: Output<string>;
     recipients!: Output<string>;
+    send_to_groups!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'EMAIL'>;
     after_action_id!: Output<number | undefined>;
@@ -180,6 +187,7 @@ export class EmailNotification extends CustomResource {
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
             inputs['recipients'] = state?.recipients;
+            inputs['send_to_groups'] = state?.send_to_groups;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['content'] = state?.content;
@@ -214,12 +222,17 @@ export class EmailNotification extends CustomResource {
                 throw new Error('Missing required property "recipients"');
             }
 
+            if (!args?.send_to_groups) {
+                throw new Error('Missing required property "send_to_groups"');
+            }
+
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
             inputs['name'] = args.name;
             inputs['recipients'] = args.recipients;
+            inputs['send_to_groups'] = args.send_to_groups;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['content'] = args.content;

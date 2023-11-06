@@ -37,17 +37,22 @@ export interface GitPushState {
     comment?: string;
 
     /**
+     * Use custom git push options.
+     */
+    custom_options?: string;
+
+    /**
      * The paths and/or files that will be left out during the push. Only works  when `use_custom_gitignore` is set to `true`.
      */
     deployment_excludes?: string[];
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -82,12 +87,12 @@ export interface GitPushState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -140,6 +145,7 @@ export interface GitPushProps {
     type: 'PUSH';
     after_action_id?: number;
     comment?: string;
+    custom_options?: string;
     deployment_excludes?: string[];
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -191,6 +197,7 @@ export class GitPush extends CustomResource {
     type!: Output<'PUSH'>;
     after_action_id!: Output<number | undefined>;
     comment!: Output<string | undefined>;
+    custom_options!: Output<string | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -226,6 +233,7 @@ export class GitPush extends CustomResource {
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['comment'] = state?.comment;
+            inputs['custom_options'] = state?.custom_options;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -276,6 +284,7 @@ export class GitPush extends CustomResource {
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['comment'] = args.comment;
+            inputs['custom_options'] = args.custom_options;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;

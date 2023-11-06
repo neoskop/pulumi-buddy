@@ -33,12 +33,12 @@ export interface ShopifyCLIState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -53,12 +53,12 @@ export interface ShopifyCLIState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -98,7 +98,7 @@ export interface ShopifyCLIProps {
     integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'SHOPIFY_THEMEKIT_CLI';
+    type: 'SHOPIFY_CLI';
     after_action_id?: number;
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -141,7 +141,7 @@ export class ShopifyCLI extends CustomResource {
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'SHOPIFY_THEMEKIT_CLI'>;
+    type!: Output<'SHOPIFY_CLI'>;
     after_action_id!: Output<number | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -235,7 +235,7 @@ export class ShopifyCLI extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'SHOPIFY_THEMEKIT_CLI';
+        inputs['type'] = 'SHOPIFY_CLI';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;

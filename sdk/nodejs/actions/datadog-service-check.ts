@@ -27,7 +27,7 @@ export interface DatadogServiceCheckState {
     check?: string;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
@@ -37,7 +37,7 @@ export interface DatadogServiceCheckState {
     host_name?: string;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -47,9 +47,9 @@ export interface DatadogServiceCheckState {
     message?: string;
 
     /**
-     * The Datadog region. Can be one of `NA` or `EU`. If not set, the default is `NA`.
+     * The Datadog region. Can be one of `US1`, `US3`, `US5`, `EU1`, `AP1`, `US1_FED`. If not set, the default is `US1`.
      */
-    region?: 'NA' | 'EU';
+    region?: string;
 
     /**
      * Number of retries if the action fails.
@@ -62,12 +62,12 @@ export interface DatadogServiceCheckState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -107,7 +107,7 @@ export interface DatadogServiceCheckProps {
     host_name?: string;
     ignore_errors?: boolean;
     message?: string;
-    region?: 'NA' | 'EU';
+    region?: string;
     retry_count?: number;
     retry_interval?: number;
     run_next_parallel?: boolean;
@@ -151,7 +151,7 @@ export class DatadogServiceCheck extends CustomResource {
     host_name!: Output<string | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     message!: Output<string | undefined>;
-    region!: Output<'NA' | 'EU' | undefined>;
+    region!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;

@@ -8,11 +8,6 @@ export interface HoneybadgerState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The name of the Honeybadger application.
-     */
-    application_name: string;
-
-    /**
      * The Honeybadger environment.
      */
     environment: string;
@@ -43,12 +38,12 @@ export interface HoneybadgerState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -63,12 +58,12 @@ export interface HoneybadgerState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -94,7 +89,6 @@ export interface HoneybadgerProps {
     url: string;
     html_url: string;
     action_id: number;
-    application_name: string;
     environment: string;
     integration: IntegrationRef | Integration;
     name: string;
@@ -137,7 +131,6 @@ export class Honeybadger extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    application_name!: Output<string>;
     environment!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
@@ -165,7 +158,6 @@ export class Honeybadger extends CustomResource {
             const state = argsOrState as HoneybadgerState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['application_name'] = state?.application_name;
             inputs['environment'] = state?.environment;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
@@ -191,10 +183,6 @@ export class Honeybadger extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.application_name) {
-                throw new Error('Missing required property "application_name"');
-            }
-
             if (!args?.environment) {
                 throw new Error('Missing required property "environment"');
             }
@@ -215,7 +203,6 @@ export class Honeybadger extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            inputs['application_name'] = args.application_name;
             inputs['environment'] = args.environment;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration

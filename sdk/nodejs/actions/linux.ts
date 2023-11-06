@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { SyncPath, TriggerCondition, Variable } from '../common';
+import { Ami, SyncPath, TriggerCondition, Variable } from '../common';
 
 export interface LinuxState {
     project_name: string;
@@ -32,7 +32,12 @@ export interface LinuxState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * Set if `distribution` is set to `AMI`.
+     */
+    ami?: Ami;
+
+    /**
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
@@ -42,19 +47,9 @@ export interface LinuxState {
     execute_every_command?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
-
-    /**
-     * Required if `distribution` is set to `AMI`. Defines the AMI ID of the image. Ohio-region images only. The image must have rsync installed.
-     */
-    image?: string;
-
-    /**
-     * Required if `distribution` is set to `AMI`. The port used for SSH in the custom image.
-     */
-    port?: string;
 
     /**
      * Number of retries if the action fails.
@@ -67,12 +62,12 @@ export interface LinuxState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -92,14 +87,19 @@ export interface LinuxState {
     trigger_conditions?: TriggerCondition[];
 
     /**
-     * Required if `distribution` is set to `AMI`. The name of the user in the custom image.
-     */
-    user?: string;
-
-    /**
      * The list of variables you can use the action.
      */
     variables?: Variable[];
+
+    /**
+     * The name of the action from which the VM is reused (if `vm_from_prev_action` is set to `true`). If not set, the previous one will be used.
+     */
+    vm_action_name?: string;
+
+    /**
+     * Set to `true` if you want the action to use the VM from the previous Linux action.
+     */
+    vm_from_prev_action?: boolean;
 }
 
 export type LinuxArgs = AsInputs<LinuxState>;
@@ -114,11 +114,10 @@ export interface LinuxProps {
     type: 'NATIVE_BUILD_LINUX';
     working_directory: string;
     after_action_id?: number;
+    ami?: Ami;
     disabled?: boolean;
     execute_every_command?: boolean;
     ignore_errors?: boolean;
-    image?: string;
-    port?: string;
     retry_count?: number;
     retry_interval?: number;
     run_next_parallel?: boolean;
@@ -126,8 +125,9 @@ export interface LinuxProps {
     sync_paths?: SyncPath[];
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
-    user?: string;
     variables?: Variable[];
+    vm_action_name?: string;
+    vm_from_prev_action?: boolean;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -160,11 +160,10 @@ export class Linux extends CustomResource {
     type!: Output<'NATIVE_BUILD_LINUX'>;
     working_directory!: Output<string>;
     after_action_id!: Output<number | undefined>;
+    ami!: Output<Ami | undefined>;
     disabled!: Output<boolean | undefined>;
     execute_every_command!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
-    image!: Output<string | undefined>;
-    port!: Output<string | undefined>;
     retry_count!: Output<number | undefined>;
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
@@ -172,8 +171,9 @@ export class Linux extends CustomResource {
     sync_paths!: Output<SyncPath[] | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
-    user!: Output<string | undefined>;
     variables!: Output<Variable[] | undefined>;
+    vm_action_name!: Output<string | undefined>;
+    vm_from_prev_action!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: LinuxArgs | LinuxState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -190,11 +190,10 @@ export class Linux extends CustomResource {
             inputs['trigger_time'] = state?.trigger_time;
             inputs['working_directory'] = state?.working_directory;
             inputs['after_action_id'] = state?.after_action_id;
+            inputs['ami'] = state?.ami;
             inputs['disabled'] = state?.disabled;
             inputs['execute_every_command'] = state?.execute_every_command;
             inputs['ignore_errors'] = state?.ignore_errors;
-            inputs['image'] = state?.image;
-            inputs['port'] = state?.port;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
@@ -202,8 +201,9 @@ export class Linux extends CustomResource {
             inputs['sync_paths'] = state?.sync_paths;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
-            inputs['user'] = state?.user;
             inputs['variables'] = state?.variables;
+            inputs['vm_action_name'] = state?.vm_action_name;
+            inputs['vm_from_prev_action'] = state?.vm_from_prev_action;
         } else {
             const args = argsOrState as LinuxArgs | undefined;
             if (!args?.project_name) {
@@ -235,11 +235,10 @@ export class Linux extends CustomResource {
             inputs['trigger_time'] = args.trigger_time;
             inputs['working_directory'] = args.working_directory;
             inputs['after_action_id'] = args.after_action_id;
+            inputs['ami'] = args.ami;
             inputs['disabled'] = args.disabled;
             inputs['execute_every_command'] = args.execute_every_command;
             inputs['ignore_errors'] = args.ignore_errors;
-            inputs['image'] = args.image;
-            inputs['port'] = args.port;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
@@ -247,8 +246,9 @@ export class Linux extends CustomResource {
             inputs['sync_paths'] = args.sync_paths;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
-            inputs['user'] = args.user;
             inputs['variables'] = args.variables;
+            inputs['vm_action_name'] = args.vm_action_name;
+            inputs['vm_from_prev_action'] = args.vm_from_prev_action;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

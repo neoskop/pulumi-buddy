@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { SyncPath, TriggerCondition, Variable } from '../common';
+import { Ami, SyncPath, TriggerCondition, Variable } from '../common';
 
 export interface WindowsState {
     project_name: string;
@@ -32,9 +32,19 @@ export interface WindowsState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * Set if `distribution` is set to `AMI`.
+     */
+    ami?: Ami;
+
+    /**
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
+
+    /**
+     * Defines the image used to create the VM. Use `WINDOWS_SERVER_2019` for the default image, `AMI` for a custom `AMI`.
+     */
+    distribution?: string;
 
     /**
      * If set to `true` all commands will be executed regardless of the result of the previous command.
@@ -42,7 +52,7 @@ export interface WindowsState {
     execute_every_command?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -57,12 +67,12 @@ export interface WindowsState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -85,6 +95,16 @@ export interface WindowsState {
      * The list of variables you can use the action.
      */
     variables?: Variable[];
+
+    /**
+     * The name of the action from which the VM is reused (if `vm_from_prev_action` is set to `true`). If not set, the previous one will be used.
+     */
+    vm_action_name?: string;
+
+    /**
+     * Set to `true` if you want the action to use the VM from the previous Windows action.
+     */
+    vm_from_prev_action?: boolean;
 }
 
 export type WindowsArgs = AsInputs<WindowsState>;
@@ -99,7 +119,9 @@ export interface WindowsProps {
     type: 'NATIVE_BUILD_WINDOWS';
     working_directory: string;
     after_action_id?: number;
+    ami?: Ami;
     disabled?: boolean;
+    distribution?: string;
     execute_every_command?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
@@ -110,6 +132,8 @@ export interface WindowsProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
+    vm_action_name?: string;
+    vm_from_prev_action?: boolean;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -142,7 +166,9 @@ export class Windows extends CustomResource {
     type!: Output<'NATIVE_BUILD_WINDOWS'>;
     working_directory!: Output<string>;
     after_action_id!: Output<number | undefined>;
+    ami!: Output<Ami | undefined>;
     disabled!: Output<boolean | undefined>;
+    distribution!: Output<string | undefined>;
     execute_every_command!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
@@ -153,6 +179,8 @@ export class Windows extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
+    vm_action_name!: Output<string | undefined>;
+    vm_from_prev_action!: Output<boolean | undefined>;
 
     constructor(name: string, argsOrState: WindowsArgs | WindowsState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
@@ -169,7 +197,9 @@ export class Windows extends CustomResource {
             inputs['trigger_time'] = state?.trigger_time;
             inputs['working_directory'] = state?.working_directory;
             inputs['after_action_id'] = state?.after_action_id;
+            inputs['ami'] = state?.ami;
             inputs['disabled'] = state?.disabled;
+            inputs['distribution'] = state?.distribution;
             inputs['execute_every_command'] = state?.execute_every_command;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
@@ -180,6 +210,8 @@ export class Windows extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
+            inputs['vm_action_name'] = state?.vm_action_name;
+            inputs['vm_from_prev_action'] = state?.vm_from_prev_action;
         } else {
             const args = argsOrState as WindowsArgs | undefined;
             if (!args?.project_name) {
@@ -211,7 +243,9 @@ export class Windows extends CustomResource {
             inputs['trigger_time'] = args.trigger_time;
             inputs['working_directory'] = args.working_directory;
             inputs['after_action_id'] = args.after_action_id;
+            inputs['ami'] = args.ami;
             inputs['disabled'] = args.disabled;
+            inputs['distribution'] = args.distribution;
             inputs['execute_every_command'] = args.execute_every_command;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
@@ -222,6 +256,8 @@ export class Windows extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
+            inputs['vm_action_name'] = args.vm_action_name;
+            inputs['vm_from_prev_action'] = args.vm_from_prev_action;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }

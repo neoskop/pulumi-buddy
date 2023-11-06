@@ -50,6 +50,11 @@ export interface AmazonS3State {
     cache_control?: string;
 
     /**
+     * ContentEncoding that will be set for the deployed files e.g. "gzip".
+     */
+    content_encoding?: string;
+
+    /**
      * If set to `true`, files are not deleted if changeset indcates that.
      */
     deletion_disabled?: boolean;
@@ -70,7 +75,7 @@ export interface AmazonS3State {
     deployment_includes?: string[];
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
@@ -80,7 +85,7 @@ export interface AmazonS3State {
     expires_date?: string;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -115,12 +120,12 @@ export interface AmazonS3State {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -166,6 +171,7 @@ export interface AmazonS3Props {
         | 'LOG_DELIVERY_WRITE';
     after_action_id?: number;
     cache_control?: string;
+    content_encoding?: string;
     deletion_disabled?: boolean;
     deploy_tags?: Tag[];
     deployment_excludes?: string[];
@@ -228,6 +234,7 @@ export class AmazonS3 extends CustomResource {
     >;
     after_action_id!: Output<number | undefined>;
     cache_control!: Output<string | undefined>;
+    content_encoding!: Output<string | undefined>;
     deletion_disabled!: Output<boolean | undefined>;
     deploy_tags!: Output<Tag[] | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
@@ -265,6 +272,7 @@ export class AmazonS3 extends CustomResource {
             inputs['acl'] = state?.acl;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['cache_control'] = state?.cache_control;
+            inputs['content_encoding'] = state?.content_encoding;
             inputs['deletion_disabled'] = state?.deletion_disabled;
             inputs['deploy_tags'] = state?.deploy_tags;
             inputs['deployment_excludes'] = state?.deployment_excludes;
@@ -319,6 +327,7 @@ export class AmazonS3 extends CustomResource {
             inputs['acl'] = args.acl;
             inputs['after_action_id'] = args.after_action_id;
             inputs['cache_control'] = args.cache_control;
+            inputs['content_encoding'] = args.content_encoding;
             inputs['deletion_disabled'] = args.deletion_disabled;
             inputs['deploy_tags'] = args.deploy_tags;
             inputs['deployment_excludes'] = args.deployment_excludes;

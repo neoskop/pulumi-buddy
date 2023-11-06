@@ -12,6 +12,11 @@ export interface SleepState {
     name: string;
 
     /**
+     * The time (in seconds) to sleep. The value should be between 0 and 1200.
+     */
+    sleep_in_sec: number;
+
+    /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -22,12 +27,12 @@ export interface SleepState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -42,19 +47,14 @@ export interface SleepState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
-
-    /**
-     * The time (in seconds) to sleep. The value should be between 0 and 1200.
-     */
-    sleep_in_sec?: number;
 
     /**
      * The timeout in seconds.
@@ -79,6 +79,7 @@ export interface SleepProps {
     html_url: string;
     action_id: number;
     name: string;
+    sleep_in_sec: number;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'SLEEP';
     after_action_id?: number;
@@ -88,7 +89,6 @@ export interface SleepProps {
     retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    sleep_in_sec?: number;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
@@ -119,6 +119,7 @@ export class Sleep extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     name!: Output<string>;
+    sleep_in_sec!: Output<number>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'SLEEP'>;
     after_action_id!: Output<number | undefined>;
@@ -128,7 +129,6 @@ export class Sleep extends CustomResource {
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
-    sleep_in_sec!: Output<number | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
@@ -144,6 +144,7 @@ export class Sleep extends CustomResource {
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['name'] = state?.name;
+            inputs['sleep_in_sec'] = state?.sleep_in_sec;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['disabled'] = state?.disabled;
@@ -152,7 +153,6 @@ export class Sleep extends CustomResource {
             inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
-            inputs['sleep_in_sec'] = state?.sleep_in_sec;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
@@ -170,11 +170,16 @@ export class Sleep extends CustomResource {
                 throw new Error('Missing required property "name"');
             }
 
+            if (!args?.sleep_in_sec) {
+                throw new Error('Missing required property "sleep_in_sec"');
+            }
+
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
 
             inputs['name'] = args.name;
+            inputs['sleep_in_sec'] = args.sleep_in_sec;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['disabled'] = args.disabled;
@@ -183,7 +188,6 @@ export class Sleep extends CustomResource {
             inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
-            inputs['sleep_in_sec'] = args.sleep_in_sec;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;

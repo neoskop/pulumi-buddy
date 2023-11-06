@@ -12,6 +12,11 @@ export interface MacOSState {
     commands: string[];
 
     /**
+     * The name of the action.
+     */
+    name: string;
+
+    /**
      * Specifies when the action should be executed. Can be one of `ON_EVERY_EXECUTION`, `ON_FAILURE` or `ON_BACK_TO_SUCCESS`. The default value is `ON_EVERY_EXECUTION`.
      */
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -32,12 +37,12 @@ export interface MacOSState {
     certificates?: string[];
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -62,12 +67,12 @@ export interface MacOSState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -104,6 +109,7 @@ export interface MacOSProps {
     html_url: string;
     action_id: number;
     commands: string[];
+    name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'NATIVE_BUILD_MAC';
     working_directory: string;
@@ -149,6 +155,7 @@ export class MacOS extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     commands!: Output<string[]>;
+    name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'NATIVE_BUILD_MAC'>;
     working_directory!: Output<string>;
@@ -179,6 +186,7 @@ export class MacOS extends CustomResource {
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['commands'] = state?.commands;
+            inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['working_directory'] = state?.working_directory;
             inputs['after_action_id'] = state?.after_action_id;
@@ -210,6 +218,10 @@ export class MacOS extends CustomResource {
                 throw new Error('Missing required property "commands"');
             }
 
+            if (!args?.name) {
+                throw new Error('Missing required property "name"');
+            }
+
             if (!args?.trigger_time) {
                 throw new Error('Missing required property "trigger_time"');
             }
@@ -219,6 +231,7 @@ export class MacOS extends CustomResource {
             }
 
             inputs['commands'] = args.commands;
+            inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['working_directory'] = args.working_directory;
             inputs['after_action_id'] = args.after_action_id;

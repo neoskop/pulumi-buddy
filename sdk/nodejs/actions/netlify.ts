@@ -8,11 +8,6 @@ export interface NetlifyState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The name of the Netlify application.
-     */
-    application_name: string;
-
-    /**
      * Commands that will be executed.
      */
     execute_commands: string[];
@@ -21,6 +16,11 @@ export interface NetlifyState {
      * The integration.
      */
     integration: IntegrationRef | Integration;
+
+    /**
+     * The name of the action.
+     */
+    name: string;
 
     /**
      * The API ID in the site details.
@@ -38,12 +38,12 @@ export interface NetlifyState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -58,12 +58,12 @@ export interface NetlifyState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -99,9 +99,9 @@ export interface NetlifyProps {
     url: string;
     html_url: string;
     action_id: number;
-    application_name: string;
     execute_commands: string[];
     integration: IntegrationRef | Integration;
+    name: string;
     site_id: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'NETLIFY';
@@ -143,9 +143,9 @@ export class Netlify extends CustomResource {
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    application_name!: Output<string>;
     execute_commands!: Output<string[]>;
     integration!: Output<IntegrationRef | Integration>;
+    name!: Output<string>;
     site_id!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'NETLIFY'>;
@@ -172,9 +172,9 @@ export class Netlify extends CustomResource {
             const state = argsOrState as NetlifyState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['application_name'] = state?.application_name;
             inputs['execute_commands'] = state?.execute_commands;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
+            inputs['name'] = state?.name;
             inputs['site_id'] = state?.site_id;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
@@ -199,16 +199,16 @@ export class Netlify extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.application_name) {
-                throw new Error('Missing required property "application_name"');
-            }
-
             if (!args?.execute_commands) {
                 throw new Error('Missing required property "execute_commands"');
             }
 
             if (!args?.integration) {
                 throw new Error('Missing required property "integration"');
+            }
+
+            if (!args?.name) {
+                throw new Error('Missing required property "name"');
             }
 
             if (!args?.site_id) {
@@ -219,11 +219,11 @@ export class Netlify extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            inputs['application_name'] = args.application_name;
             inputs['execute_commands'] = args.execute_commands;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );
+            inputs['name'] = args.name;
             inputs['site_id'] = args.site_id;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;

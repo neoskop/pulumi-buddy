@@ -33,22 +33,17 @@ export interface GCloudCLIState {
     after_action_id?: number;
 
     /**
-     * The display name of the Google application.
-     */
-    application_display_name?: string;
-
-    /**
      * The name of the Google application.
      */
     application_name?: string;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -63,12 +58,12 @@ export interface GCloudCLIState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -110,7 +105,6 @@ export interface GCloudCLIProps {
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'GOOGLE_CLOUD_CLI';
     after_action_id?: number;
-    application_display_name?: string;
     application_name?: string;
     disabled?: boolean;
     ignore_errors?: boolean;
@@ -155,7 +149,6 @@ export class GCloudCLI extends CustomResource {
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'GOOGLE_CLOUD_CLI'>;
     after_action_id!: Output<number | undefined>;
-    application_display_name!: Output<string | undefined>;
     application_name!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
@@ -184,7 +177,6 @@ export class GCloudCLI extends CustomResource {
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
-            inputs['application_display_name'] = state?.application_display_name;
             inputs['application_name'] = state?.application_name;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
@@ -230,7 +222,6 @@ export class GCloudCLI extends CustomResource {
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
-            inputs['application_display_name'] = args.application_display_name;
             inputs['application_name'] = args.application_name;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;

@@ -156,6 +156,10 @@ export class BuddyScraper {
             } else {
                 return { scalar: type, isArray };
             }
+        } else if('Input' === type) {
+            return { ref: 'CustomInput', isArray };
+        } else if('Asset' === type) {
+            return { ref: type, isArray: true };
         } else if (type) {
             return { ref: type, isArray };
         } else {

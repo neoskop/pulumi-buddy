@@ -1,7 +1,7 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
-import { SyncPath, TriggerCondition, Variable } from '../common';
+import { Ami, SyncPath, TriggerCondition, Variable } from '../common';
 
 export interface DockerCLIState {
     project_name: string;
@@ -27,9 +27,19 @@ export interface DockerCLIState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * Set if `distribution` is set to `AMI`.
+     */
+    ami?: Ami;
+
+    /**
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
+
+    /**
+     * Set to `AMI` if you want to use your own ami (default `UBUNTU_20_04`)
+     */
+    distribution?: string;
 
     /**
      * Enables or disables Docker layer caching.
@@ -52,7 +62,7 @@ export interface DockerCLIState {
     execute_every_command?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -67,12 +77,12 @@ export interface DockerCLIState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -97,6 +107,16 @@ export interface DockerCLIState {
     variables?: Variable[];
 
     /**
+     * The name of the action from which the VM is reused (if `vm_from_prev_action` is set to `true`). If not set, the previous one will be used.
+     */
+    vm_action_name?: string;
+
+    /**
+     * Set to `true` if you want the action to use the VM from the previous Docker CLI action.
+     */
+    vm_from_prev_action?: boolean;
+
+    /**
      * The name of the action.
      */
     name: string;
@@ -113,7 +133,9 @@ export interface DockerCLIProps {
     type: 'NATIVE_BUILD_DOCKER_CLI';
     working_directory: string;
     after_action_id?: number;
+    ami?: Ami;
     disabled?: boolean;
+    distribution?: string;
     docker_layer_caching?: boolean;
     docker_layer_caching_scope?: boolean;
     docker_layer_caching_tag?: string;
@@ -127,6 +149,8 @@ export interface DockerCLIProps {
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
+    vm_action_name?: string;
+    vm_from_prev_action?: boolean;
     name: string;
     pipeline: PipelineProps;
     project_name: string;
@@ -159,7 +183,9 @@ export class DockerCLI extends CustomResource {
     type!: Output<'NATIVE_BUILD_DOCKER_CLI'>;
     working_directory!: Output<string>;
     after_action_id!: Output<number | undefined>;
+    ami!: Output<Ami | undefined>;
     disabled!: Output<boolean | undefined>;
+    distribution!: Output<string | undefined>;
     docker_layer_caching!: Output<boolean | undefined>;
     docker_layer_caching_scope!: Output<boolean | undefined>;
     docker_layer_caching_tag!: Output<string | undefined>;
@@ -173,6 +199,8 @@ export class DockerCLI extends CustomResource {
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
+    vm_action_name!: Output<string | undefined>;
+    vm_from_prev_action!: Output<boolean | undefined>;
     name!: Output<string>;
 
     constructor(name: string, argsOrState: DockerCLIArgs | DockerCLIState, opts?: CustomResourceOptions) {
@@ -189,7 +217,9 @@ export class DockerCLI extends CustomResource {
             inputs['trigger_time'] = state?.trigger_time;
             inputs['working_directory'] = state?.working_directory;
             inputs['after_action_id'] = state?.after_action_id;
+            inputs['ami'] = state?.ami;
             inputs['disabled'] = state?.disabled;
+            inputs['distribution'] = state?.distribution;
             inputs['docker_layer_caching'] = state?.docker_layer_caching;
             inputs['docker_layer_caching_scope'] = state?.docker_layer_caching_scope;
             inputs['docker_layer_caching_tag'] = state?.docker_layer_caching_tag;
@@ -203,6 +233,8 @@ export class DockerCLI extends CustomResource {
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
+            inputs['vm_action_name'] = state?.vm_action_name;
+            inputs['vm_from_prev_action'] = state?.vm_from_prev_action;
             inputs['name'] = state?.name;
         } else {
             const args = argsOrState as DockerCLIArgs | undefined;
@@ -234,7 +266,9 @@ export class DockerCLI extends CustomResource {
             inputs['trigger_time'] = args.trigger_time;
             inputs['working_directory'] = args.working_directory;
             inputs['after_action_id'] = args.after_action_id;
+            inputs['ami'] = args.ami;
             inputs['disabled'] = args.disabled;
+            inputs['distribution'] = args.distribution;
             inputs['docker_layer_caching'] = args.docker_layer_caching;
             inputs['docker_layer_caching_scope'] = args.docker_layer_caching_scope;
             inputs['docker_layer_caching_tag'] = args.docker_layer_caching_tag;
@@ -248,6 +282,8 @@ export class DockerCLI extends CustomResource {
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
+            inputs['vm_action_name'] = args.vm_action_name;
+            inputs['vm_from_prev_action'] = args.vm_from_prev_action;
             inputs['name'] = args.name;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;

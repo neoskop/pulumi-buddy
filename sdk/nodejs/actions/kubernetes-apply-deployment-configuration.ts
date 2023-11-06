@@ -62,7 +62,7 @@ export interface KubernetesApplyDeploymentConfigurationState {
     client_key?: string;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
@@ -77,7 +77,7 @@ export interface KubernetesApplyDeploymentConfigurationState {
     grace_period_arg?: number;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -127,19 +127,14 @@ export interface KubernetesApplyDeploymentConfigurationState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
-
-    /**
-     * If `true`, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.
-     */
-    save_config_arg?: boolean;
 
     /**
      * The timeout in seconds.
@@ -195,7 +190,6 @@ export interface KubernetesApplyDeploymentConfigurationProps {
     retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
-    save_config_arg?: boolean;
     timeout?: number;
     token?: string;
     trigger_conditions?: TriggerCondition[];
@@ -253,7 +247,6 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
-    save_config_arg!: Output<boolean | undefined>;
     timeout!: Output<number | undefined>;
     token!: Output<string | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
@@ -299,7 +292,6 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
             inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
-            inputs['save_config_arg'] = state?.save_config_arg;
             inputs['timeout'] = state?.timeout;
             inputs['token'] = state?.token;
             inputs['trigger_conditions'] = state?.trigger_conditions;
@@ -360,7 +352,6 @@ export class KubernetesApplyDeploymentConfiguration extends CustomResource {
             inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
-            inputs['save_config_arg'] = args.save_config_arg;
             inputs['timeout'] = args.timeout;
             inputs['token'] = args.token;
             inputs['trigger_conditions'] = args.trigger_conditions;

@@ -3,7 +3,7 @@ import { PipelineProps } from '../pipeline';
 import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
 import { SyncPath, TriggerCondition, Variable } from '../common';
 
-export interface XCodeState {
+export interface XcodeState {
     project_name: string;
     pipeline_id: number;
     /**
@@ -12,7 +12,7 @@ export interface XCodeState {
     commands: string[];
 
     /**
-     * The XCode version for the action. Available values: `11.7`, `10.3`, `12.1`, `12.2`, `12`.
+     * The Xcode version for the action. Available values: `11.7`, `10.3`, `12.1`, `12.2`, `12`.
      */
     image: string;
 
@@ -37,7 +37,7 @@ export interface XCodeState {
     after_action_id?: number;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
@@ -47,12 +47,12 @@ export interface XCodeState {
     execute_every_command?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
     /**
-     * A series of simulators to be launched before the action starts. Available values: `iPhone SE (2nd generation)`, `Apple Watch Series 4 - 44mm`, `Apple Watch Series 5 - 44mm`, `iPhone 11`, `iPhone 8`, `Apple TV`, `iPhone 11 Pro`, `iPhone 11 Pro Max`, `Apple TV 4K (at 1080p)`, `Apple TV 4K`, `iPad Pro (11-inch) (2nd generation)`, `iPad Air (3rd generation)`, `iPad (7th generation)`, `iPad Pro (12.9-inch) (4th generation)`, `iPhone 8 Plus`, `Apple Watch Series 4 - 40mm`, `Apple Watch Series 5 - 40mm`, `iPad Pro (9.7-inch)`
+     * A series of simulators to be launched before the action starts. Available values:  `iPad (7th generation)`,`iPad (9th generation)`, `iPad Air (3rd generation)`, `iPad Air (4th generation)`, `iPad Air (5th generation)`, `iPad Pro (11-inch) (2nd generation)`,`iPad Pro (11-inch) (3rd generation)`,`iPad Pro (12.9-inch) (4th generation)`,`iPad Pro (12.9-inch) (5th generation)`, `iPad Pro (9.7-inch)`, `iPad mini (6th generation)`, `iPhone 11`, `iPhone 11 Pro`, `iPhone 11 Pro Max`, `iPhone 12`, `iPhone 12 Pro`, `iPhone 12 Pro Max`, `iPhone 12 mini`, `iPhone 13`, `Phone 13 Pro`, `iPhone 13 Pro Max`, `iPhone 13 mini`, `iPhone 14`, `iPhone 14 Plus`, `iPhone 14 Pro`, `iPhone 14 Pro Max`, `iPhone 8`, `iPhone 8 Plus`, `iPhone SE (2nd generation)`, `iPhone SE (3rd generation)`
      */
     preStartSimulators?: string[];
 
@@ -67,12 +67,12 @@ export interface XCodeState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -97,9 +97,9 @@ export interface XCodeState {
     variables?: Variable[];
 }
 
-export type XCodeArgs = AsInputs<XCodeState>;
+export type XcodeArgs = AsInputs<XcodeState>;
 
-export interface XCodeProps {
+export interface XcodeProps {
     url: string;
     html_url: string;
     action_id: number;
@@ -130,19 +130,19 @@ export interface XCodeProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class XCode extends CustomResource {
-    static __pulumiType = 'buddy:action:XCode';
+export class Xcode extends CustomResource {
+    static __pulumiType = 'buddy:action:Xcode';
 
-    static get(name: string, id: Input<ID>, state?: Partial<XCodeState>, opts?: CustomResourceOptions) {
-        return new XCode(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<XcodeState>, opts?: CustomResourceOptions) {
+        return new Xcode(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is XCode {
+    static isInstance(obj: any): obj is Xcode {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === XCode.__pulumiType;
+        return obj['__pulumiType'] === Xcode.__pulumiType;
     }
 
     project_name!: Output<string>;
@@ -168,14 +168,14 @@ export class XCode extends CustomResource {
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
 
-    constructor(name: string, argsOrState: XCodeArgs | XCodeState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: XcodeArgs | XcodeState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as XCodeState | undefined;
+            const state = argsOrState as XcodeState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['commands'] = state?.commands;
@@ -197,7 +197,7 @@ export class XCode extends CustomResource {
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
         } else {
-            const args = argsOrState as XCodeArgs | undefined;
+            const args = argsOrState as XcodeArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -259,6 +259,6 @@ export class XCode extends CustomResource {
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(XCode.__pulumiType, name, inputs, opts);
+        super(Xcode.__pulumiType, name, inputs, opts);
     }
 }

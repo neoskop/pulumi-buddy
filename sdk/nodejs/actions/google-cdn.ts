@@ -13,11 +13,6 @@ export interface GoogleCDNState {
     distribution_id: string;
 
     /**
-     * The name of the Google CDN web distribution.
-     */
-    distribution_name: string;
-
-    /**
      * The integration.
      */
     integration: IntegrationRef | Integration;
@@ -48,12 +43,12 @@ export interface GoogleCDNState {
     deployment_includes?: string[];
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -88,12 +83,12 @@ export interface GoogleCDNState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -125,7 +120,6 @@ export interface GoogleCDNProps {
     html_url: string;
     action_id: number;
     distribution_id: string;
-    distribution_name: string;
     integration: IntegrationRef | Integration;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
@@ -174,7 +168,6 @@ export class GoogleCDN extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     distribution_id!: Output<string>;
-    distribution_name!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
@@ -208,7 +201,6 @@ export class GoogleCDN extends CustomResource {
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['distribution_id'] = state?.distribution_id;
-            inputs['distribution_name'] = state?.distribution_name;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
@@ -243,10 +235,6 @@ export class GoogleCDN extends CustomResource {
                 throw new Error('Missing required property "distribution_id"');
             }
 
-            if (!args?.distribution_name) {
-                throw new Error('Missing required property "distribution_name"');
-            }
-
             if (!args?.integration) {
                 throw new Error('Missing required property "integration"');
             }
@@ -260,7 +248,6 @@ export class GoogleCDN extends CustomResource {
             }
 
             inputs['distribution_id'] = args.distribution_id;
-            inputs['distribution_name'] = args.distribution_name;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration
             );

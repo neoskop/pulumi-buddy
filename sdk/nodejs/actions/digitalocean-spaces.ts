@@ -42,7 +42,12 @@ export interface DigitalOceanSpacesState {
     cache_control?: string;
 
     /**
-     * The paths and/or files that will be left our during the deployment.
+     * ContentEncoding that will be set for the deployed files e.g. "gzip".
+     */
+    content_encoding?: string;
+
+    /**
+     * The paths and/or files that will be left out during the deployment.
      */
     deployment_excludes?: string[];
 
@@ -52,12 +57,12 @@ export interface DigitalOceanSpacesState {
     deployment_includes?: string[];
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -92,12 +97,12 @@ export interface DigitalOceanSpacesState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -131,6 +136,7 @@ export interface DigitalOceanSpacesProps {
     type: 'DO_SPACES';
     after_action_id?: number;
     cache_control?: string;
+    content_encoding?: string;
     deployment_excludes?: string[];
     deployment_includes?: string[];
     disabled?: boolean;
@@ -180,6 +186,7 @@ export class DigitalOceanSpaces extends CustomResource {
     type!: Output<'DO_SPACES'>;
     after_action_id!: Output<number | undefined>;
     cache_control!: Output<string | undefined>;
+    content_encoding!: Output<string | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
     disabled!: Output<boolean | undefined>;
@@ -213,6 +220,7 @@ export class DigitalOceanSpaces extends CustomResource {
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
             inputs['cache_control'] = state?.cache_control;
+            inputs['content_encoding'] = state?.content_encoding;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
             inputs['disabled'] = state?.disabled;
@@ -265,6 +273,7 @@ export class DigitalOceanSpaces extends CustomResource {
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
             inputs['cache_control'] = args.cache_control;
+            inputs['content_encoding'] = args.content_encoding;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;
             inputs['disabled'] = args.disabled;

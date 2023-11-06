@@ -33,14 +33,14 @@ export interface AzureStorageState {
     after_action_id?: number;
 
     /**
-     * The display name of the application.
-     */
-    application_display_name?: string;
-
-    /**
      * The name of the application.
      */
     application_name?: string;
+
+    /**
+     * ContentEncoding that will be set for the deployed files e.g. "gzip".
+     */
+    content_encoding?: string;
 
     /**
      * If set to `true`, files are not deleted if changeset indcates that.
@@ -58,12 +58,12 @@ export interface AzureStorageState {
     deployment_includes?: string[];
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -93,12 +93,12 @@ export interface AzureStorageState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -135,8 +135,8 @@ export interface AzureStorageProps {
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
     type: 'AZURE_STORAGE';
     after_action_id?: number;
-    application_display_name?: string;
     application_name?: string;
+    content_encoding?: string;
     deletion_disabled?: boolean;
     deployment_excludes?: string[];
     deployment_includes?: string[];
@@ -185,8 +185,8 @@ export class AzureStorage extends CustomResource {
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
     type!: Output<'AZURE_STORAGE'>;
     after_action_id!: Output<number | undefined>;
-    application_display_name!: Output<string | undefined>;
     application_name!: Output<string | undefined>;
+    content_encoding!: Output<string | undefined>;
     deletion_disabled!: Output<boolean | undefined>;
     deployment_excludes!: Output<string[] | undefined>;
     deployment_includes!: Output<string[] | undefined>;
@@ -219,8 +219,8 @@ export class AzureStorage extends CustomResource {
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
-            inputs['application_display_name'] = state?.application_display_name;
             inputs['application_name'] = state?.application_name;
+            inputs['content_encoding'] = state?.content_encoding;
             inputs['deletion_disabled'] = state?.deletion_disabled;
             inputs['deployment_excludes'] = state?.deployment_excludes;
             inputs['deployment_includes'] = state?.deployment_includes;
@@ -270,8 +270,8 @@ export class AzureStorage extends CustomResource {
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
-            inputs['application_display_name'] = args.application_display_name;
             inputs['application_name'] = args.application_name;
+            inputs['content_encoding'] = args.content_encoding;
             inputs['deletion_disabled'] = args.deletion_disabled;
             inputs['deployment_excludes'] = args.deployment_excludes;
             inputs['deployment_includes'] = args.deployment_includes;

@@ -13,11 +13,6 @@ export interface RollbarNotificationState {
     application_id: string;
 
     /**
-     * The name of the application.
-     */
-    application_name: string;
-
-    /**
      * The name of the environment being deployed.
      */
     environment: string;
@@ -53,12 +48,12 @@ export interface RollbarNotificationState {
     comment?: string;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -78,12 +73,12 @@ export interface RollbarNotificationState {
     rollbar_username?: string;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -120,7 +115,6 @@ export interface RollbarNotificationProps {
     html_url: string;
     action_id: number;
     application_id: string;
-    application_name: string;
     environment: string;
     integration: IntegrationRef | Integration;
     name: string;
@@ -168,7 +162,6 @@ export class RollbarNotification extends CustomResource {
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
     application_id!: Output<string>;
-    application_name!: Output<string>;
     environment!: Output<string>;
     integration!: Output<IntegrationRef | Integration>;
     name!: Output<string>;
@@ -201,7 +194,6 @@ export class RollbarNotification extends CustomResource {
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
             inputs['application_id'] = state?.application_id;
-            inputs['application_name'] = state?.application_name;
             inputs['environment'] = state?.environment;
             inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
             inputs['name'] = state?.name;
@@ -235,10 +227,6 @@ export class RollbarNotification extends CustomResource {
                 throw new Error('Missing required property "application_id"');
             }
 
-            if (!args?.application_name) {
-                throw new Error('Missing required property "application_name"');
-            }
-
             if (!args?.environment) {
                 throw new Error('Missing required property "environment"');
             }
@@ -260,7 +248,6 @@ export class RollbarNotification extends CustomResource {
             }
 
             inputs['application_id'] = args.application_id;
-            inputs['application_name'] = args.application_name;
             inputs['environment'] = args.environment;
             inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
                 integration instanceof Integration ? { hash_id: integration.hash_id } : integration

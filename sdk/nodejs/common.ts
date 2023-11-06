@@ -112,3 +112,44 @@ export interface SandboxPlaybook {
     type: string;
     [key: string]: unknown
 }
+
+export interface CustomInput {
+    id: string;
+    value: string;
+}
+
+export interface Ami {
+    id?: string;
+    user?: string;
+    port?: string;
+}
+
+export interface Asset {
+    source_path: string;
+    label: string;
+}
+
+export interface Cookie {
+    name: string;
+    value: string;
+}
+
+export type AccessLevel = 'DENIED' | 'ALLOWED';
+
+export interface UserPermission {
+    id: number;
+    access_level: AccessLevel; 
+}
+
+export interface GroupPermission {
+    id: number;
+    access_level: AccessLevel; 
+}
+
+export interface PipelinePermissions {
+    others: AccessLevel ;
+    users: UserPermission[];
+    groups: GroupPermission[];
+}
+
+export type ExecutionPriority = 'LOW' | 'NORMAL' | 'HIGH';

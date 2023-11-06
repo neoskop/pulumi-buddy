@@ -1,26 +1,20 @@
 import { AsInputs } from '@pulumi-utils/sdk';
 import { PipelineProps } from '../pipeline';
-import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs, output } from '@pulumi/pulumi';
-import { IntegrationRef, TriggerCondition, Variable } from '../common';
-import { Integration } from '../integration';
+import { CustomResource, Input, Output, ID, CustomResourceOptions, Inputs } from '@pulumi/pulumi';
+import { TriggerCondition, Variable } from '../common';
 
-export interface NewRelicNotificationState {
+export interface GhostInspectorCLIState {
     project_name: string;
     pipeline_id: number;
     /**
-     * The ID of the Newrelic application.
+     * The commands that will be executed.
      */
-    application_id: string;
+    execute_commands: string;
 
     /**
-     * The title of the notification.
+     * The ID of the integration.
      */
-    description: string;
-
-    /**
-     * The integration.
-     */
-    integration: IntegrationRef | Integration;
+    integration_hash: string;
 
     /**
      * The name of the action.
@@ -38,17 +32,12 @@ export interface NewRelicNotificationState {
     after_action_id?: number;
 
     /**
-     * The content of the notification.
-     */
-    changelog?: string;
-
-    /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -63,14 +52,24 @@ export interface NewRelicNotificationState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
+
+    /**
+     * The command that will be executed only on the first run.
+     */
+    setup_commands?: string;
+
+    /**
+     * The name of the shell that will be used to execute commands. Can be one of `SH` (default) or `BASH`.
+     */
+    shell?: 'SH' | 'BASH';
 
     /**
      * The timeout in seconds.
@@ -86,37 +85,31 @@ export interface NewRelicNotificationState {
      * The list of variables you can use the action.
      */
     variables?: Variable[];
-
-    /**
-     * The revision to which the application is deployed. If not set, the default value is $BUDDY_EXECUTION_REVISION.
-     */
-    version?: string;
 }
 
-export type NewRelicNotificationArgs = AsInputs<NewRelicNotificationState>;
+export type GhostInspectorCLIArgs = AsInputs<GhostInspectorCLIState>;
 
-export interface NewRelicNotificationProps {
+export interface GhostInspectorCLIProps {
     url: string;
     html_url: string;
     action_id: number;
-    application_id: string;
-    description: string;
-    integration: IntegrationRef | Integration;
+    execute_commands: string;
+    integration_hash: string;
     name: string;
     trigger_time: 'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS';
-    type: 'NEW_RELIC';
+    type: 'GHOST_INSPECTOR_CLI';
     after_action_id?: number;
-    changelog?: string;
     disabled?: boolean;
     ignore_errors?: boolean;
     retry_count?: number;
     retry_interval?: number;
     run_next_parallel?: boolean;
     run_only_on_first_failure?: boolean;
+    setup_commands?: string;
+    shell?: 'SH' | 'BASH';
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     variables?: Variable[];
-    version?: string;
     pipeline: PipelineProps;
     project_name: string;
     pipeline_id: number;
@@ -125,72 +118,70 @@ export interface NewRelicNotificationProps {
 /**
  * Required scopes in Buddy API: `WORKSPACE`, `EXECUTION_MANAGE`, `EXECUTION_INFO`
  */
-export class NewRelicNotification extends CustomResource {
-    static __pulumiType = 'buddy:action:NewRelicNotification';
+export class GhostInspectorCLI extends CustomResource {
+    static __pulumiType = 'buddy:action:GhostInspectorCLI';
 
-    static get(name: string, id: Input<ID>, state?: Partial<NewRelicNotificationState>, opts?: CustomResourceOptions) {
-        return new NewRelicNotification(name, state as any, { ...opts, id });
+    static get(name: string, id: Input<ID>, state?: Partial<GhostInspectorCLIState>, opts?: CustomResourceOptions) {
+        return new GhostInspectorCLI(name, state as any, { ...opts, id });
     }
 
-    static isInstance(obj: any): obj is NewRelicNotification {
+    static isInstance(obj: any): obj is GhostInspectorCLI {
         if (null == obj) {
             return false;
         }
 
-        return obj['__pulumiType'] === NewRelicNotification.__pulumiType;
+        return obj['__pulumiType'] === GhostInspectorCLI.__pulumiType;
     }
 
     project_name!: Output<string>;
     pipeline_id!: Output<number>;
     action_id!: Output<number>;
-    application_id!: Output<string>;
-    description!: Output<string>;
-    integration!: Output<IntegrationRef | Integration>;
+    execute_commands!: Output<string>;
+    integration_hash!: Output<string>;
     name!: Output<string>;
     trigger_time!: Output<'ON_EVERY_EXECUTION' | 'ON_FAILURE' | 'ON_BACK_TO_SUCCESS'>;
-    type!: Output<'NEW_RELIC'>;
+    type!: Output<'GHOST_INSPECTOR_CLI'>;
     after_action_id!: Output<number | undefined>;
-    changelog!: Output<string | undefined>;
     disabled!: Output<boolean | undefined>;
     ignore_errors!: Output<boolean | undefined>;
     retry_count!: Output<number | undefined>;
     retry_interval!: Output<number | undefined>;
     run_next_parallel!: Output<boolean | undefined>;
     run_only_on_first_failure!: Output<boolean | undefined>;
+    setup_commands!: Output<string | undefined>;
+    shell!: Output<'SH' | 'BASH' | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     variables!: Output<Variable[] | undefined>;
-    version!: Output<string | undefined>;
 
-    constructor(name: string, argsOrState: NewRelicNotificationArgs | NewRelicNotificationState, opts?: CustomResourceOptions) {
+    constructor(name: string, argsOrState: GhostInspectorCLIArgs | GhostInspectorCLIState, opts?: CustomResourceOptions) {
         const inputs: Inputs = {};
         if (!opts) {
             opts = {};
         }
 
         if (opts.id) {
-            const state = argsOrState as NewRelicNotificationState | undefined;
+            const state = argsOrState as GhostInspectorCLIState | undefined;
             inputs['project_name'] = state?.project_name;
             inputs['pipeline_id'] = state?.pipeline_id;
-            inputs['application_id'] = state?.application_id;
-            inputs['description'] = state?.description;
-            inputs['integration'] = state?.integration instanceof Integration ? { hash_id: state.integration.hash_id } : state?.integration;
+            inputs['execute_commands'] = state?.execute_commands;
+            inputs['integration_hash'] = state?.integration_hash;
             inputs['name'] = state?.name;
             inputs['trigger_time'] = state?.trigger_time;
             inputs['after_action_id'] = state?.after_action_id;
-            inputs['changelog'] = state?.changelog;
             inputs['disabled'] = state?.disabled;
             inputs['ignore_errors'] = state?.ignore_errors;
             inputs['retry_count'] = state?.retry_count;
             inputs['retry_interval'] = state?.retry_interval;
             inputs['run_next_parallel'] = state?.run_next_parallel;
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
+            inputs['setup_commands'] = state?.setup_commands;
+            inputs['shell'] = state?.shell;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['variables'] = state?.variables;
-            inputs['version'] = state?.version;
         } else {
-            const args = argsOrState as NewRelicNotificationArgs | undefined;
+            const args = argsOrState as GhostInspectorCLIArgs | undefined;
             if (!args?.project_name) {
                 throw new Error('Missing required property "project_name"');
             }
@@ -199,16 +190,12 @@ export class NewRelicNotification extends CustomResource {
                 throw new Error('Missing required property "pipeline_id"');
             }
 
-            if (!args?.application_id) {
-                throw new Error('Missing required property "application_id"');
+            if (!args?.execute_commands) {
+                throw new Error('Missing required property "execute_commands"');
             }
 
-            if (!args?.description) {
-                throw new Error('Missing required property "description"');
-            }
-
-            if (!args?.integration) {
-                throw new Error('Missing required property "integration"');
+            if (!args?.integration_hash) {
+                throw new Error('Missing required property "integration_hash"');
             }
 
             if (!args?.name) {
@@ -219,25 +206,22 @@ export class NewRelicNotification extends CustomResource {
                 throw new Error('Missing required property "trigger_time"');
             }
 
-            inputs['application_id'] = args.application_id;
-            inputs['description'] = args.description;
-            inputs['integration'] = output(args.integration as Output<IntegrationRef | Integration>).apply(integration =>
-                integration instanceof Integration ? { hash_id: integration.hash_id } : integration
-            );
+            inputs['execute_commands'] = args.execute_commands;
+            inputs['integration_hash'] = args.integration_hash;
             inputs['name'] = args.name;
             inputs['trigger_time'] = args.trigger_time;
             inputs['after_action_id'] = args.after_action_id;
-            inputs['changelog'] = args.changelog;
             inputs['disabled'] = args.disabled;
             inputs['ignore_errors'] = args.ignore_errors;
             inputs['retry_count'] = args.retry_count;
             inputs['retry_interval'] = args.retry_interval;
             inputs['run_next_parallel'] = args.run_next_parallel;
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
+            inputs['setup_commands'] = args.setup_commands;
+            inputs['shell'] = args.shell;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['variables'] = args.variables;
-            inputs['version'] = args.version;
             inputs['project_name'] = args.project_name;
             inputs['pipeline_id'] = args.pipeline_id;
         }
@@ -248,11 +232,11 @@ export class NewRelicNotification extends CustomResource {
 
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
-        inputs['type'] = 'NEW_RELIC';
+        inputs['type'] = 'GHOST_INSPECTOR_CLI';
         inputs['url'] = undefined;
         inputs['html_url'] = undefined;
         inputs['action_id'] = undefined;
 
-        super(NewRelicNotification.__pulumiType, name, inputs, opts);
+        super(GhostInspectorCLI.__pulumiType, name, inputs, opts);
     }
 }

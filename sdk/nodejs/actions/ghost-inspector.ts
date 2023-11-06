@@ -48,7 +48,7 @@ export interface GhostInspectorState {
     disable_notifications?: boolean;
 
     /**
-     * When set to `true` the action is disabled.  By default it is set to `false`.
+     * When set to 'true' the action is disabled.  By default it is set to 'false'.
      */
     disabled?: boolean;
 
@@ -58,7 +58,7 @@ export interface GhostInspectorState {
     folder_id?: string;
 
     /**
-     * If set to `true` the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
+     * If set to 'true' the execution will proceed, mark action as a warning and jump to the next action. Doesn't apply to deployment actions.
      */
     ignore_errors?: boolean;
 
@@ -88,12 +88,12 @@ export interface GhostInspectorState {
     retry_interval?: number;
 
     /**
-     * When set to `true`, the subsequent action defined in the pipeline will run in parallel to the current action.
+     * When set to 'true', the subsequent action defined in the pipeline will run in parallel to the current action.
      */
     run_next_parallel?: boolean;
 
     /**
-     * Defines whether the action should be executed on each failure. Restricted to and required if the `trigger_time` is `ON_FAILURE`.
+     * Defines whether the action should be executed on each failure. Restricted to and required if the 'trigger_time' is 'ON_FAILURE'.
      */
     run_only_on_first_failure?: boolean;
 
@@ -106,11 +106,6 @@ export interface GhostInspectorState {
      * The ID of the suite to execute.
      */
     suite_id?: string;
-
-    /**
-     * The name of the suite to execute.
-     */
-    suite_name?: string;
 
     /**
      * The timeout in seconds.
@@ -170,7 +165,6 @@ export interface GhostInspectorProps {
     run_only_on_first_failure?: boolean;
     start_url?: string;
     suite_id?: string;
-    suite_name?: string;
     timeout?: number;
     trigger_conditions?: TriggerCondition[];
     user?: string;
@@ -224,7 +218,6 @@ export class GhostInspector extends CustomResource {
     run_only_on_first_failure!: Output<boolean | undefined>;
     start_url!: Output<string | undefined>;
     suite_id!: Output<string | undefined>;
-    suite_name!: Output<string | undefined>;
     timeout!: Output<number | undefined>;
     trigger_conditions!: Output<TriggerCondition[] | undefined>;
     user!: Output<string | undefined>;
@@ -262,7 +255,6 @@ export class GhostInspector extends CustomResource {
             inputs['run_only_on_first_failure'] = state?.run_only_on_first_failure;
             inputs['start_url'] = state?.start_url;
             inputs['suite_id'] = state?.suite_id;
-            inputs['suite_name'] = state?.suite_name;
             inputs['timeout'] = state?.timeout;
             inputs['trigger_conditions'] = state?.trigger_conditions;
             inputs['user'] = state?.user;
@@ -313,7 +305,6 @@ export class GhostInspector extends CustomResource {
             inputs['run_only_on_first_failure'] = args.run_only_on_first_failure;
             inputs['start_url'] = args.start_url;
             inputs['suite_id'] = args.suite_id;
-            inputs['suite_name'] = args.suite_name;
             inputs['timeout'] = args.timeout;
             inputs['trigger_conditions'] = args.trigger_conditions;
             inputs['user'] = args.user;
