@@ -1,7 +1,7 @@
 import Axios from 'axios';
 import * as cheerio from 'cheerio';
 import { Observable, from } from 'rxjs';
-import { switchMap, mergeMap, toArray } from 'rxjs/operators';
+import { switchMap, mergeMap, toArray, tap } from 'rxjs/operators';
 
 export type ParamaterTypeScalar = { scalar: 'String' | 'Number' | 'Boolean'; isArray?: boolean };
 export type ParamaterTypeText = { text: string[]; isArray?: boolean; default?: string };
@@ -120,7 +120,7 @@ export class BuddyScraper {
     async getActionDetailUrls(): Promise<string[]> {
         const response = await Axios.get<string>(`${this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL}${BuddyScraper.ROOT_PAGE}`);
         const $ = cheerio.load(response.data);
-        return $('a.nav-vertical-element[href*="/add-action/"]')
+        return $('div.transition-height.pl-4 > div.transition-height.pl-4 > a[href*="/add-action/"]:not(:first-child)')
             .toArray()
             .map(el => {
                 const href = $(el).attr('href')!.toString();
@@ -191,7 +191,7 @@ export class BuddyScraper {
                 `${this.options?.baseUrl || BuddyScraper.DEFAULT_BASE_URL}${BuddyScraper.DEFAULT_ACTION_PARAMETERS_PAGE}`
             );
             const $ = cheerio.load(response.data);
-            const tables = $('.article-content > div > div.table-responsive table').toArray();
+            const tables = $('#actions-schema + * + * + * + div.table-responsive > table').toArray();
             const table = cheerio.load(tables[1]);
             this.defaultParameters = [
                 ...table('tr:has(> td)')
@@ -244,7 +244,7 @@ export class BuddyScraper {
         const response = await Axios.get(url);
         const $ = cheerio.load(response.data);
         const name = $('h1').first().text();
-        const parameters = $('.article-content table')
+        const parameters = $('.table-responsive > table')
             .first()
             .find('tr:has(> td)')
             .toArray()
