@@ -106,7 +106,7 @@ async function main() {
                                 ]
                             };
                         }
-                        if (action.name === 'Run Next Pipeline' && !action.parameters.some(p => p.name === 'wait')) {
+                        if (action.name === 'Trigger pipeline' && !action.parameters.some(p => p.name === 'wait')) {
                             return {
                                 ...action,
                                 parameters: [

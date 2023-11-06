@@ -65,6 +65,7 @@ export class PipelineProvider implements IProvider {
             .diff('cron', 'cron')
             .diff('run_always', 'run_always')
             .diff('paused', 'paused')
+            .diff('concurrent_pipeline_runs', 'concurrent_pipeline_runs')
             .diff('ignore_fail_on_project_status', 'ignore_fail_on_project_status', true)
             .diff('execution_message_template', 'execution_message_template', true)
             .addStable('project_name', 'pipeline_id')

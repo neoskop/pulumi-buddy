@@ -328,6 +328,10 @@ export class BuildDockerImage extends CustomResource {
             opts.version = require('../package').version;
         }
 
+        if (null == opts.deleteBeforeReplace) {
+            opts.deleteBeforeReplace = true;
+        }
+
         opts.ignoreChanges = ['project_name', 'pipeline_id', ...(opts.ignoreChanges || [])];
 
         inputs['type'] = 'DOCKERFILE';

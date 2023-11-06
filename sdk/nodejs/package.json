@@ -1,36 +1,36 @@
 {
-  "name": "pulumi-buddy",
-  "description": "A Pulumi integration for Buddy",
-  "version": "0.6.2",
-  "repository": "https://github.com/neoskop/pulumi-buddy",
-  "author": "Mark Wecke <wecke@neoskop.de>",
-  "keywords": [
-    "pulumi",
-    "buddy",
-    "ci"
-  ],
-  "license": "MIT",
-  "main": "index.ts",
-  "scripts": {
-    "clean": "rimraf dist",
-    "prebuild": "npm run clean",
-    "build": "tsc",
-    "postbuild": "./bin/bundle.sh",
-    "publish-next": "npm run build && npm publish dist --tag next",
-    "publish-latest-only": "npm run build && npm publish dist",
-    "publish-latest": "npm run publish-latest-only && npm dist-tag add `jq '.name' package.json -r`@`jq '.version' package.json -r` next"
-  },
-  "dependencies": {
-    "@pulumi-utils/sdk": "0.1.0",
-    "@pulumi/pulumi": "^2.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^13.13.2",
-    "rimraf": "3.0.2",
-    "typescript": "3.8.3"
-  },
-  "pulumi": {
-    "resource": true,
-    "server": "https://pulumi.neoskop.cloud"
-  }
+    "name": "pulumi-buddy",
+    "description": "A Pulumi integration for Buddy",
+    "version": "0.7.0",
+    "repository": "https://github.com/neoskop/pulumi-buddy",
+    "author": "Mark Wecke <wecke@neoskop.de>",
+    "keywords": [
+        "pulumi",
+        "buddy",
+        "ci"
+    ],
+    "license": "MIT",
+    "main": "index.ts",
+    "scripts": {
+        "clean": "rimraf dist",
+        "prebuild": "npm run clean",
+        "build": "tsc",
+        "postbuild": "./bin/bundle.sh",
+        "publish-next": "npm run build && npm publish dist --tag next",
+        "publish-latest-only": "npm run build && npm publish dist",
+        "publish-latest": "npm run publish-latest-only && npm dist-tag add `jq '.name' package.json -r`@`jq '.version' package.json -r` next"
+    },
+    "dependencies": {
+        "@pulumi-utils/sdk": "0.1.0",
+        "@pulumi/pulumi": "^2.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^13.13.2",
+        "rimraf": "3.0.2",
+        "typescript": "3.8.3"
+    },
+    "pulumi": {
+        "resource": true,
+        "server": "https://pulumi.neoskop.cloud"
+    }
 }
